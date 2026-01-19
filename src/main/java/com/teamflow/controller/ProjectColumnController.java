@@ -3,7 +3,7 @@ package com.teamflow.controller;
 import com.teamflow.dto.ProjectColumnDTO;
 import com.teamflow.dto.validation.Create;
 import com.teamflow.dto.validation.Update;
-import com.teamflow.service.ProjectColumnService;
+import com.teamflow.service.interfaces.ProjectColumnService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

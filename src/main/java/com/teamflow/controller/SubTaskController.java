@@ -3,7 +3,7 @@ package com.teamflow.controller;
 import com.teamflow.dto.SubTaskDTO;
 import com.teamflow.dto.validation.Create;
 import com.teamflow.dto.validation.Update;
-import com.teamflow.service.SubTaskService;
+import com.teamflow.service.interfaces.SubTaskService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

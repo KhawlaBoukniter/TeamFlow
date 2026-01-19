@@ -3,7 +3,7 @@ package com.teamflow.controller;
 import com.teamflow.dto.MembershipDTO;
 import com.teamflow.dto.validation.Create;
 import com.teamflow.dto.validation.Update;
-import com.teamflow.service.MembershipService;
+import com.teamflow.service.interfaces.MembershipService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
