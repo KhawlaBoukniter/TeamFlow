@@ -1,0 +1,20 @@
+<div class="min-h-screen flex flex-col">
+    <mat-toolbar color="primary" class="shadow-md">
+        <span class="flex items-center gap-2 text-xl font-semibold">
+            <mat-icon class="text-2xl w-6 h-6">dashboard</mat-icon>
+            TeamFlow
+        </span>
+        <span class="flex-1"></span>
+        <span class="mr-4 text-sm">{{ userEmail }}</span>
+        <button mat-icon-button (click)="logout()" matTooltip="Logout">
+            <mat-icon>logout</mat-icon>
+        </button>
+    </mat-toolbar>
+
+    <div class="flex-1 flex flex-col justify-center items-center p-8 text-center">
+        <mat-icon class="text-8xl w-20 h-20 text-primary-500 mb-4">folder_special</mat-icon>
+        <h1 class="text-4xl mb-4 text-gray-800">Welcome to TeamFlow!</h1>
+        <p class="text-lg text-gray-600 mb-2">You are successfully authenticated.</p>
+        <p class="mt-8 italic text-gray-400">Project management features coming soon...</p>
+    </div>
+</div>
