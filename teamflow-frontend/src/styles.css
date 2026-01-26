@@ -1,0 +1,181 @@
+/* Angular Material Theme Import - Must be first */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+/* Tailwind Directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+  Design System - TeamFlow Professional
+  
+  Color Palette (Minimal & Professional):
+  - Primary: slate-900 (#0f172a) - Dark, professional, trustworthy
+  - Surface: white (#ffffff) - Clean, spacious
+  - Text: slate-700 (#334155) - Readable, soft
+  - Accents: slate-500 (#64748b) - Subtle, elegant
+  
+  Typography:
+  - Base font: Roboto (Material default)
+  - Weight: font-light (300) for headings, regular (400) for body
+  - Hierarchy: Clear visual separation between h1, h2, body
+*/
+
+@layer base {
+    * {
+        @apply m-0 p-0 box-border;
+    }
+
+    html,
+    body {
+        @apply h-full;
+    }
+
+    body {
+        @apply font-sans text-slate-900 bg-gray-50 antialiased;
+    }
+
+    /* Modern input autofill styling */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px white inset;
+        -webkit-text-fill-color: #0f172a;
+    }
+}
+
+/* Custom Scrollbar - Minimal & Professional */
+@layer utilities {
+    ::-webkit-scrollbar {
+        @apply w-2 h-2;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply bg-slate-100;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-slate-300 rounded-full;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-slate-400;
+    }
+}
+
+/*
+  Material Form Fields - Professional Styling
+  Clean, minimal, with subtle focus states
+*/
+@layer components {
+    .modern-field {
+        @apply block;
+    }
+
+    /* Field container styling */
+    .modern-field ::ng-deep .mat-mdc-text-field-wrapper {
+        @apply bg-white;
+    }
+
+    /* Outline borders */
+    .modern-field ::ng-deep .mdc-notched-outline__leading,
+    .modern-field ::ng-deep .mdc-notched-outline__notch,
+    .modern-field ::ng-deep .mdc-notched-outline__trailing {
+        @apply border-slate-300;
+    }
+
+    /* Focus state - subtle slate border */
+    .modern-field ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+    .modern-field ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+    .modern-field ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+        @apply border-slate-900 border-2;
+    }
+
+    /* Input text */
+    .modern-field ::ng-deep .mat-mdc-input-element {
+        @apply text-slate-900 text-base;
+    }
+
+    /* Placeholder text */
+    .modern-field ::ng-deep .mat-mdc-input-element::placeholder {
+        @apply text-slate-400 font-light;
+    }
+
+    /* Label */
+    .modern-field ::ng-deep .mat-mdc-form-field-label {
+        @apply text-slate-600;
+    }
+
+    .modern-field ::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-form-field-label {
+        @apply text-slate-900;
+    }
+
+    /* Error messages */
+    .modern-field ::ng-deep .mat-mdc-form-field-error {
+        @apply text-red-600 text-xs font-normal;
+    }
+
+    /* Remove default Material hints/subscripts */
+    .modern-field ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+        @apply mt-1;
+    }
+
+    /* Adjust padding */
+    .modern-field ::ng-deep .mat-mdc-form-field-infix {
+        @apply py-3;
+    }
+}
+
+/* 
+  Subtle animations - Professional & Smooth
+  No flashy effects, just polished micro-interactions
+*/
+@layer utilities {
+
+    /* Gentle fade-in for page load */
+    @keyframes subtle-fade {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* Slight lift on hover for buttons */
+    @keyframes subtle-lift {
+        from {
+            transform: translateY(0);
+        }
+
+        to {
+            transform: translateY(-1px);
+        }
+    }
+
+    .animate-subtle-fade {
+        animation: subtle-fade 0.4s ease-out;
+    }
+}
+
+/*
+  Button overrides for Material buttons
+  Ensures consistent professional styling
+*/
+button[mat-flat-button] {
+    @apply rounded-md transition-all duration-200;
+}
+
+button[mat-flat-button]:hover:not(:disabled) {
+    @apply shadow-md;
+}
+
+button[mat-flat-button]:disabled {
+    @apply opacity-50 cursor-not-allowed;
+}
+
+/* Material spinner color customization */
+mat-spinner.inline-block ::ng-deep circle {
+    stroke: currentColor;
+}
