@@ -124,7 +124,12 @@ export class BoardPageComponent implements OnInit {
       }
     });
   }
+  openAddColumnDialog(): void {
+    console.log('Add Column clicked');
+  }
+
   openCreateTask(columnId: number): void {
+    console.log('New Task clicked for column', columnId);
     const dialogRef = this.dialog.open(TaskCreateEditComponent, {
       width: '600px',
       data: { columnId }
