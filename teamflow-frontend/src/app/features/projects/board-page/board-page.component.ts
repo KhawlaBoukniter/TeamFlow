@@ -9,10 +9,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { ProjectService } from '../../../../core/services/project.service';
-import { ColumnService } from '../../../../core/services/column.service';
-import { TaskService } from '../../../../core/services/task.service';
-import { Project, ProjectColumn, Task } from '../../../../shared/models';
+import { ProjectService } from '../../../core/services/project.service';
+import { ColumnService } from '../../../core/services/column.service';
+import { TaskService } from '../../../core/services/task.service';
+import { Project, ProjectColumn, Task } from '../../../shared/models';
 import { TaskCreateEditComponent } from '../modals/task-create-edit.component';
 import { TaskDetailsComponent } from '../modals/task-details.component';
 
@@ -102,7 +102,6 @@ export class BoardPageComponent implements OnInit {
     const previousList = this.tasksByColumn[task.columnId];
     const targetList = this.tasksByColumn[targetColumnId] || [];
 
-    // Optimistic update
     const index = previousList.findIndex(t => t.id === task.id);
     if (index !== -1) {
       previousList.splice(index, 1);

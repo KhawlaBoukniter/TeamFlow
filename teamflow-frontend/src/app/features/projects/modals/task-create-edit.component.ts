@@ -56,9 +56,6 @@ export class TaskCreateEditComponent implements OnInit {
         this.loading = true;
         const taskData = this.form.value;
 
-        // Format date if needed or handled by backend wrapper? Angular Material returns Date object.
-        // Ensure backend accepts standard ISO string or format.
-
         if (this.isEdit && this.data.task) {
             this.taskService.updateTask(this.data.task.id, taskData).subscribe({
                 next: (updatedTask) => {
@@ -71,8 +68,6 @@ export class TaskCreateEditComponent implements OnInit {
             });
         } else {
             taskData.columnId = this.data.columnId;
-            // Default position logic might be needed backend side or we fetch tasks count. 
-            // Minimal implementation:
             this.taskService.createTask(taskData).subscribe({
                 next: (newTask) => {
                     this.dialogRef.close(newTask);

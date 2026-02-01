@@ -32,7 +32,6 @@ export class TaskDetailsComponent implements OnInit {
     ngOnInit(): void {
         this.loadSubTasks();
         this.loadComments();
-        // Refresh task details to get latest state
         this.taskService.getTaskById(this.task.id).subscribe(t => this.task = t);
     }
 
