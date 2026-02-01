@@ -76,8 +76,16 @@ export class BoardPageComponent implements OnInit {
   }
 
   loadTasks(columnId: number): void {
-    this.taskService.getTasksByColumn(columnId).subscribe(tasks => {
-      this.tasksByColumn[columnId] = tasks.sort((a, b) => a.position - b.position);
+    this.taskService.getTasksByColumn(columnId).subscribe({
+      next: (tasks) => {
+        this.tasksByColumn[columnId] = tasks.sort((a, b) => a.position - b.position);
+      },
+      error: (err) => {
+        console.error(`Failed to load tasks for column ${columnId}`, err);
+        // Fallback to empty list to prevent UI breakage
+        this.tasksByColumn[columnId] = [];
+        this.snackBar.open('Error loading tasks', 'Close', { duration: 3000 });
+      }
     });
   }
 
