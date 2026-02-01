@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final com.teamflow.repository.ColumnRepository columnRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -49,7 +50,21 @@ public class ProjectServiceImpl implements ProjectService {
         project.setType(dto.getType());
 
         Project savedProject = projectRepository.save(project);
+
+        // Create default columns
+        createDefaultColumn(savedProject, "To Do", 0);
+        createDefaultColumn(savedProject, "In Progress", 1);
+        createDefaultColumn(savedProject, "Done", 2);
+
         return toDTO(savedProject);
+    }
+
+    private void createDefaultColumn(Project project, String name, int order) {
+        com.teamflow.entity.ProjectColumn column = new com.teamflow.entity.ProjectColumn();
+        column.setName(name);
+        column.setOrderIndex(order);
+        column.setProject(project);
+        columnRepository.save(column);
     }
 
     @Override
