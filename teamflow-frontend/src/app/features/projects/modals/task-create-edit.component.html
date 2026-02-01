@@ -1,0 +1,42 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Edit Task' : 'Create Task' }}</h2>
+<mat-dialog-content>
+    <form [formGroup]="form" class="flex flex-col gap-4 mt-2">
+        <mat-form-field appearance="outline">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" placeholder="Task title">
+            <mat-error *ngIf="form.get('title')?.hasError('required')">Title is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="3" placeholder="Task description"></textarea>
+        </mat-form-field>
+
+        <div class="flex gap-4">
+            <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Priority</mat-label>
+                <matSelect formControlName="priority">
+                    <mat-option *ngFor="let p of priorities" [value]="p">{{ p }}</mat-option>
+                </matSelect>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Due Date</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="dueDate">
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+        </div>
+
+        <div class="flex items-center">
+            <mat-checkbox formControlName="isBlocked" color="warn">Is Blocked?</mat-checkbox>
+        </div>
+
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.invalid || loading">
+        {{ isEdit ? 'Update' : 'Create' }}
+    </button>
+</mat-dialog-actions>
