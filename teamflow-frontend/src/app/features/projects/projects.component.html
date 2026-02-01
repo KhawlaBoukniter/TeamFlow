@@ -1,20 +1,48 @@
-<div class="min-h-screen flex flex-col">
-    <mat-toolbar color="primary" class="shadow-md">
-        <span class="flex items-center gap-2 text-xl font-semibold">
-            <mat-icon class="text-2xl w-6 h-6">dashboard</mat-icon>
+<div class="min-h-screen flex flex-col bg-gray-50">
+    <mat-toolbar color="primary" class="shadow-md z-10">
+        <span class="flex items-center gap-2 text-xl font-bold tracking-tight">
+            <mat-icon>dashboard</mat-icon>
             TeamFlow
         </span>
         <span class="flex-1"></span>
-        <span class="mr-4 text-sm">{{ userEmail }}</span>
+        <span class="mr-4 text-sm font-medium opacity-90">{{ userEmail }}</span>
         <button mat-icon-button (click)="logout()" matTooltip="Logout">
             <mat-icon>logout</mat-icon>
         </button>
     </mat-toolbar>
 
-    <div class="flex-1 flex flex-col justify-center items-center p-8 text-center">
-        <mat-icon class="text-8xl w-20 h-20 text-primary-500 mb-4">folder_special</mat-icon>
-        <h1 class="text-4xl mb-4 text-gray-800">Welcome to TeamFlow!</h1>
-        <p class="text-lg text-gray-600 mb-2">You are successfully authenticated.</p>
-        <p class="mt-8 italic text-gray-400">Project management features coming soon...</p>
+    <div class="container mx-auto p-6 flex-1">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Projects</h1>
+            <!-- Add Project Button could go here -->
+        </div>
+
+        <div *ngIf="loading" class="flex justify-center p-10">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        </div>
+
+        <div *ngIf="!loading && projects.length === 0"
+            class="flex flex-col items-center justify-center p-12 bg-white rounded-lg shadow-sm border border-gray-100">
+            <mat-icon class="text-6xl text-gray-300 mb-4 h-16 w-16">folder_off</mat-icon>
+            <p class="text-xl text-gray-500">No projects found.</p>
+        </div>
+
+        <div *ngIf="!loading && projects.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <mat-card *ngFor="let project of projects"
+                class="cursor-pointer hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1"
+                (click)="openProject(project.id)">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar class="text-primary-500 text-3xl h-10 w-10">folder</mat-icon>
+                    <mat-card-title class="mb-1">{{ project.name }}</mat-card-title>
+                    <mat-card-subtitle>ID: {{ project.id }}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content class="pt-4">
+                    <p class="text-gray-600 line-clamp-3">{{ project.description }}</p>
+                </mat-card-content>
+                <mat-card-actions align="end" class="pt-2">
+                    <button mat-button color="primary">OPEN BOARD</button>
+                </mat-card-actions>
+            </mat-card>
+        </div>
     </div>
 </div>
