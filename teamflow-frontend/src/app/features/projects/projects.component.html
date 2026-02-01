@@ -13,7 +13,10 @@
     <div class="container mx-auto p-6 flex-1">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800">Projects</h1>
-            <!-- Add Project Button could go here -->
+            <button mat-flat-button color="primary" (click)="openCreateDialog()">
+                <mat-icon>add</mat-icon>
+                Create Project
+            </button>
         </div>
 
         <div *ngIf="loading" class="flex justify-center p-10">
