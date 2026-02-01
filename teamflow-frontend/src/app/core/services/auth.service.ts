@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { LoginRequest, RegisterRequest, AuthResponse } from '../../shared/models';
@@ -8,7 +9,7 @@ import { Router } from '@angular/router';
     providedIn: 'root'
 })
 export class AuthService {
-    private readonly API_URL = 'http://localhost:8080/api/auth';
+    private readonly API_URL = `${environment.apiUrl}/auth`;
     private readonly TOKEN_KEY = 'teamflow_token';
     private readonly EMAIL_KEY = 'teamflow_email';
 
