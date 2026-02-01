@@ -25,11 +25,11 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional(readOnly = true)
     public List<TaskDTO> getTasksByColumnId(Long columnId) {
-        ProjectColumn column = columnRepository.findById(columnId)
-                .filter(c -> c.getDeletedAt() == null)
-                .orElseThrow(() -> new ResourceNotFoundException("Column not found with id: " + columnId));
+        if (!columnRepository.existsById(columnId)) {
+            throw new ResourceNotFoundException("Column not found with id: " + columnId);
+        }
 
-        return column.getTasks().stream()
+        return taskRepository.findByColumnId(columnId).stream()
                 .filter(t -> t.getDeletedAt() == null)
                 .map(this::toDTO)
                 .collect(Collectors.toList());
