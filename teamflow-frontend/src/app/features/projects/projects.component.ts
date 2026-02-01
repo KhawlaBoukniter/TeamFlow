@@ -15,7 +15,8 @@ import { ProjectCreateDialogComponent } from './components/project-create-dialog
     selector: 'app-projects',
     standalone: true,
     imports: [CommonModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatDialogModule],
-    templateUrl: './projects.component.html'
+    templateUrl: './projects.component.html',
+    styleUrls: ['./projects.component.css']
 })
 export class ProjectsComponent implements OnInit {
     userEmail: string | null;
