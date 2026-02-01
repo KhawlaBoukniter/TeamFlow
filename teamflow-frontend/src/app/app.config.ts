@@ -9,6 +9,7 @@ import { ErrorHandler } from '@angular/core';
 import { GlobalErrorHandler } from './core/handlers/global-error.handler';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { importProvidersFrom } from '@angular/core';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,6 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     provideAnimationsAsync(),
+    provideNativeDateAdapter(),
     importProvidersFrom(MatSnackBarModule),
     { provide: ErrorHandler, useClass: GlobalErrorHandler }
   ]
