@@ -68,7 +68,7 @@ export class TaskCreateEditComponent implements OnInit {
             });
         } else {
             taskData.columnId = this.data.columnId;
-            this.taskService.createTask(taskData).subscribe({
+            this.taskService.createTask(this.data.columnId, taskData).subscribe({
                 next: (newTask) => {
                     this.dialogRef.close(newTask);
                 },

@@ -19,8 +19,21 @@ export class TaskService {
         return this.http.get<Task>(`${this.apiUrl}/${id}`);
     }
 
-    createTask(task: Partial<Task>): Observable<Task> {
-        return this.http.post<Task>(this.apiUrl, task);
+    createTask(columnId: number, task: Partial<Task>): Observable<Task> {
+        const payload: any = { ...task };
+
+        // Sanitize payload
+        if (payload.dueDate && payload.dueDate instanceof Date) {
+            payload.dueDate = payload.dueDate.toISOString().split('T')[0];
+        } else if (!payload.dueDate) {
+            delete payload.dueDate;
+        }
+
+        if (!payload.description) {
+            delete payload.description;
+        }
+
+        return this.http.post<Task>(`${environment.apiUrl}/columns/${columnId}/tasks`, payload);
     }
 
     updateTask(id: number, task: Partial<Task>): Observable<Task> {

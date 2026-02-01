@@ -16,6 +16,8 @@ import { Project, ProjectColumn, Task } from '../../../shared/models';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TaskCreateEditComponent } from '../modals/task-create-edit.component';
 import { TaskDetailsComponent } from '../modals/task-details.component';
+import { CreateColumnDialogComponent } from '../components/create-column-dialog/create-column-dialog.component';
+import { CreateTaskDialogComponent } from '../components/create-task-dialog/create-task-dialog.component';
 
 @Component({
   selector: 'app-board-page',
@@ -125,19 +127,53 @@ export class BoardPageComponent implements OnInit {
     });
   }
   openAddColumnDialog(): void {
-    console.log('Add Column clicked');
+    const dialogRef = this.dialog.open(CreateColumnDialogComponent, {
+      width: '400px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && this.project) {
+        const orderIndex = this.columns.length > 0
+          ? Math.max(...this.columns.map(c => c.orderIndex)) + 1
+          : 0;
+
+        const payload: Partial<ProjectColumn> = {
+          name: result.name,
+          orderIndex: orderIndex
+        };
+
+        this.columnService.createColumn(this.project.id, payload).subscribe({
+          next: () => {
+            this.snackBar.open('Column added successfully', 'Close', { duration: 3000 });
+            this.loadColumns(this.project!.id);
+          },
+          error: (err) => {
+            console.error('Failed to create column', err);
+            this.snackBar.open('Failed to create column', 'Close', { duration: 5000 });
+          }
+        });
+      }
+    });
   }
 
   openCreateTask(columnId: number): void {
-    console.log('New Task clicked for column', columnId);
-    const dialogRef = this.dialog.open(TaskCreateEditComponent, {
+    const dialogRef = this.dialog.open(CreateTaskDialogComponent, {
       width: '600px',
       data: { columnId }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.loadTasks(columnId);
+        this.taskService.createTask(columnId, result).subscribe({
+          next: () => {
+            this.snackBar.open('Task created successfully', 'Close', { duration: 3000 });
+            this.loadTasks(columnId);
+          },
+          error: (err) => {
+            console.error('Failed to create task', err);
+            this.snackBar.open('Failed to create task', 'Close', { duration: 5000 });
+          }
+        });
       }
     });
   }

@@ -15,8 +15,8 @@ export class ColumnService {
         return this.http.get<ProjectColumn[]>(`${environment.apiUrl}/projects/${projectId}/columns`);
     }
 
-    createColumn(column: Partial<ProjectColumn>): Observable<ProjectColumn> {
-        return this.http.post<ProjectColumn>(this.apiUrl, column);
+    createColumn(projectId: number, column: Partial<ProjectColumn>): Observable<ProjectColumn> {
+        return this.http.post<ProjectColumn>(`${environment.apiUrl}/projects/${projectId}/columns`, column);
     }
 
     updateColumn(id: number, column: Partial<ProjectColumn>): Observable<ProjectColumn> {
