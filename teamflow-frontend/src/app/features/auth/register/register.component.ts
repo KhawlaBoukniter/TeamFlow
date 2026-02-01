@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../../core/services/auth.service';
 import { RegisterRequest } from '../../../shared/models';
 
@@ -22,8 +23,10 @@ import { RegisterRequest } from '../../../shared/models';
         MatFormFieldModule,
         MatInputModule,
         MatButtonModule,
+        MatButtonModule,
         MatProgressSpinnerModule,
-        MatIconModule
+        MatIconModule,
+        MatSnackBarModule
     ],
     templateUrl: './register.component.html'
 })
@@ -31,6 +34,7 @@ export class RegisterComponent {
     private fb = inject(FormBuilder);
     private authService = inject(AuthService);
     private router = inject(Router);
+    private snackBar = inject(MatSnackBar);
 
     registerForm: FormGroup;
     loading = false;
@@ -74,7 +78,12 @@ export class RegisterComponent {
         this.authService.register(request).subscribe({
             next: () => {
                 this.loading = false;
-                this.router.navigate(['/projects']);
+                this.snackBar.open('Registration successful! Please login.', 'Close', {
+                    duration: 3000,
+                    horizontalPosition: 'center',
+                    verticalPosition: 'bottom'
+                });
+                this.router.navigate(['/login']);
             },
             error: (error) => {
                 this.loading = false;
