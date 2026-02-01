@@ -21,6 +21,11 @@ export const routes: Routes = [
         canActivate: [authGuard]
     },
     {
+        path: 'projects/:id/board',
+        loadComponent: () => import('./features/projects/board-page/board-page.component').then(m => m.BoardPageComponent),
+        canActivate: [authGuard]
+    },
+    {
         path: '**',
         redirectTo: '/login'
     }

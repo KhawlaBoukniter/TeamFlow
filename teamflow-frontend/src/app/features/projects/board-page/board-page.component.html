@@ -1,0 +1,87 @@
+<div class="h-screen flex flex-col bg-gray-100">
+    <!-- Toolbar -->
+    <mat-toolbar color="white" class="!bg-white text-gray-800 shadow-sm border-b border-gray-200 px-6 z-10">
+        <button mat-icon-button routerLink="/projects" class="mr-2">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <span class="text-xl font-bold">{{ project?.name || 'Loading...' }}</span>
+        <span class="flex-1"></span>
+        <button mat-raised-button color="primary" class="rounded-full">
+            <mat-icon>add</mat-icon>
+            New Task
+        </button>
+    </mat-toolbar>
+
+    <!-- Board Area -->
+    <div class="flex-1 overflow-x-auto overflow-y-hidden p-6">
+        <div class="flex h-full gap-6 select-none" cdkDropListGroup>
+
+            <!-- Columns -->
+            <div *ngFor="let column of columns"
+                class="flex flex-col w-80 min-w-80 max-h-full bg-gray-200 rounded-lg shadow-sm">
+                <!-- Column Header -->
+                <div class="p-3 font-semibold text-gray-700 flex justify-between items-center bg-gray-300 rounded-t-lg">
+                    <span class="uppercase tracking-wide text-sm pl-2">{{ column.name }}</span>
+                    <span class="bg-gray-400 text-white text-xs px-2 py-1 rounded-full">{{ getTasks(column.id).length
+                        }}</span>
+                </div>
+
+                <!-- Task List -->
+                <div class="flex-1 overflow-y-auto p-2 space-y-3" cdkDropList [id]="'col-' + column.id"
+                    [cdkDropListData]="getTasks(column.id)" [cdkDropListConnectedTo]="connectedTo"
+                    (cdkDropListDropped)="drop($event, column.id)">
+
+                    <!-- Task Card -->
+                    <div *ngFor="let task of getTasks(column.id)"
+                        class="bg-white p-3 rounded shadow hover:shadow-md cursor-grab active:cursor-grabbing border-l-4 border-l-primary-500 relative group"
+                        cdkDrag (click)="openTaskDetails(task)">
+
+                        <!-- Fallback Move Menu (Icon visible on hover) -->
+                        <button mat-icon-button [matMenuTriggerFor]="moveMenu"
+                            class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity transform scale-75">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #moveMenu="matMenu">
+                            <span class="px-3 text-xs text-gray-500 block py-1">Move to...</span>
+                            <button mat-menu-item *ngFor="let col of columns" (click)="moveTaskFallback(task, col.id)"
+                                [disabled]="col.id === column.id">
+                                {{ col.name }}
+                            </button>
+                        </mat-menu>
+
+                        <h3 class="font-medium text-gray-800 mb-1 pr-6">{{ task.title }}</h3>
+
+                        <div class="flex items-center flex-wrap gap-1 mt-2">
+                            <span *ngIf="task.priority === 'HIGH' || task.priority === 'URGENT'"
+                                class="px-2 py-0.5 rounded text-xs font-bold"
+                                [ngClass]="{'bg-red-100 text-red-700': task.priority === 'URGENT', 'bg-orange-100 text-orange-700': task.priority === 'HIGH'}">
+                                {{ task.priority }}
+                            </span>
+                            <span *ngIf="task.isBlocked"
+                                class="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-bold flex items-center">
+                                <mat-icon class="text-[12px] h-[12px] w-[12px] mr-1 align-middle">block</mat-icon>
+                                Blocked
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Add Task Button (Bottom of column) -->
+                <div class="p-2">
+                    <button mat-button class="w-full text-gray-600 hover:bg-gray-300 text-left"
+                        (click)="openCreateTask(column.id)">
+                        <mat-icon class="align-bottom">add</mat-icon> Add Task
+                    </button>
+                </div>
+            </div>
+
+            <!-- Add Column Placeholder -->
+            <div
+                class="flex flex-col w-80 min-w-80 h-12 bg-gray-200/50 rounded-lg items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors border-2 border-dashed border-gray-300 text-gray-500">
+                <span class="flex items-center font-medium"><mat-icon>add</mat-icon> Add Column</span>
+            </div>
+
+        </div>
+    </div>
+</div>
