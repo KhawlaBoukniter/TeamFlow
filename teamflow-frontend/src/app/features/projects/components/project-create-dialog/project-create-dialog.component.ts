@@ -55,6 +55,14 @@ import { MatSelectModule } from '@angular/material/select';
           </mat-select>
         </mat-form-field>
 
+        <mat-form-field appearance="outline">
+          <mat-label>Type</mat-label>
+          <mat-select formControlName="type">
+            <mat-option value="PERSONAL">Personal</mat-option>
+            <mat-option value="TEAM">Team</mat-option>
+          </mat-select>
+        </mat-form-field>
+
         <div class="flex gap-4">
             <mat-form-field appearance="outline" class="flex-1">
                 <mat-label>Start Date</mat-label>
@@ -100,7 +108,8 @@ export class ProjectCreateDialogComponent {
       description: [''],
       startDate: [null],
       endDate: [null],
-      status: ['ACTIVE', Validators.required]
+      status: ['ACTIVE', Validators.required],
+      type: ['PERSONAL', Validators.required]
     }, { validators: this.dateRangeValidator });
   }
 

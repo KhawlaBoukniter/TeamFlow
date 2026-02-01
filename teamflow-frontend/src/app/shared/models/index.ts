@@ -12,6 +12,7 @@ export interface Project {
     startDate?: string;
     endDate?: string;
     status?: 'ACTIVE' | 'ARCHIVED';
+    type?: 'PERSONAL' | 'TEAM';
     createdAt?: string;
     updatedAt?: string;
 }
