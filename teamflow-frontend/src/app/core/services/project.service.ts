@@ -20,7 +20,14 @@ export class ProjectService {
     }
 
     createProject(project: Partial<Project>): Observable<Project> {
-        return this.http.post<Project>(this.apiUrl, project);
+        const payload: any = { ...project };
+        if (payload.startDate && payload.startDate instanceof Date) {
+            payload.startDate = payload.startDate.toISOString().split('T')[0];
+        }
+        if (payload.endDate && payload.endDate instanceof Date) {
+            payload.endDate = payload.endDate.toISOString().split('T')[0];
+        }
+        return this.http.post<Project>(this.apiUrl, payload);
     }
 
     updateProject(id: number, project: Partial<Project>): Observable<Project> {

@@ -9,6 +9,9 @@ export interface Project {
     name: string;
     description: string;
     ownerId: number;
+    startDate?: string;
+    endDate?: string;
+    status?: 'ACTIVE' | 'ARCHIVED';
     createdAt?: string;
     updatedAt?: string;
 }
@@ -63,5 +66,4 @@ export interface TaskAssignment {
     userId: number;
 }
 
-// Re-export Auth models
 export * from './auth.model';
