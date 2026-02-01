@@ -12,7 +12,7 @@ export class ColumnService {
     private http = inject(HttpClient);
 
     getColumnsByProject(projectId: number): Observable<ProjectColumn[]> {
-        return this.http.get<ProjectColumn[]>(`${this.apiUrl}/project/${projectId}`);
+        return this.http.get<ProjectColumn[]>(`${environment.apiUrl}/projects/${projectId}/columns`);
     }
 
     createColumn(column: Partial<ProjectColumn>): Observable<ProjectColumn> {

@@ -13,6 +13,7 @@ import { ProjectService } from '../../../core/services/project.service';
 import { ColumnService } from '../../../core/services/column.service';
 import { TaskService } from '../../../core/services/task.service';
 import { Project, ProjectColumn, Task } from '../../../shared/models';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TaskCreateEditComponent } from '../modals/task-create-edit.component';
 import { TaskDetailsComponent } from '../modals/task-details.component';
 
@@ -42,6 +43,7 @@ export class BoardPageComponent implements OnInit {
   private projectService = inject(ProjectService);
   private columnService = inject(ColumnService);
   private taskService = inject(TaskService);
+  private snackBar = inject(MatSnackBar);
 
   constructor(public dialog: MatDialog) { }
 
@@ -58,10 +60,16 @@ export class BoardPageComponent implements OnInit {
   }
 
   loadColumns(projectId: number): void {
-    this.columnService.getColumnsByProject(projectId).subscribe(cols => {
-      this.columns = cols.sort((a, b) => a.orderIndex - b.orderIndex);
-      this.connectedTo = this.columns.map(c => `col-${c.id}`);
-      this.columns.forEach(col => this.loadTasks(col.id));
+    this.columnService.getColumnsByProject(projectId).subscribe({
+      next: (cols) => {
+        this.columns = cols.sort((a, b) => a.orderIndex - b.orderIndex);
+        this.connectedTo = this.columns.map(c => `col-${c.id}`);
+        this.columns.forEach(col => this.loadTasks(col.id));
+      },
+      error: (err) => {
+        console.error('Failed to load columns', err);
+        this.snackBar.open('Failed to load board columns', 'Close', { duration: 5000 });
+      }
     });
   }
 
