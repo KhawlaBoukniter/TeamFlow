@@ -18,6 +18,7 @@ import { TaskCreateEditComponent } from '../modals/task-create-edit.component';
 import { TaskDetailsComponent } from '../modals/task-details.component';
 import { CreateColumnDialogComponent } from '../components/create-column-dialog/create-column-dialog.component';
 import { CreateTaskDialogComponent } from '../components/create-task-dialog/create-task-dialog.component';
+import { MembersDialogComponent } from '../components/members-dialog/members-dialog.component';
 
 @Component({
   selector: 'app-board-page',
@@ -30,7 +31,10 @@ import { CreateTaskDialogComponent } from '../components/create-task-dialog/crea
     MatIconModule,
     MatCardModule,
     MatMenuModule,
-    MatChipsModule
+    MatChipsModule,
+    MembersDialogComponent,
+    CreateColumnDialogComponent,
+    CreateTaskDialogComponent
   ],
   templateUrl: './board-page.component.html',
   styleUrl: './board-page.component.css'
@@ -183,6 +187,13 @@ export class BoardPageComponent implements OnInit {
           }
         });
       }
+    });
+  }
+
+  openMembersDialog(): void {
+    const dialogRef = this.dialog.open(MembersDialogComponent, {
+      width: '600px',
+      data: { projectId: this.project?.id }
     });
   }
 

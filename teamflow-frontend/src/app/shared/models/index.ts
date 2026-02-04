@@ -1,7 +1,14 @@
-export interface User {
+import { User } from './user.model';
+export * from './user.model';
+
+export interface Membership {
     id: number;
-    email: string;
-    fullName: string;
+    userId: number;
+    userName: string;
+    userEmail: string;
+    projectId: number;
+    roleInProject: 'MANAGER' | 'MEMBER';
+    joinedAt: string;
 }
 
 export interface Project {

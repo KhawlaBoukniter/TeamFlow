@@ -5,6 +5,10 @@
             <mat-icon>arrow_back</mat-icon>
         </button>
         <span class="text-xl font-bold">{{ project?.name || 'Loading...' }}</span>
+        <button mat-flat-button class="ml-4 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+            (click)="openMembersDialog()">
+            <mat-icon>group</mat-icon> Members
+        </button>
         <span class="flex-1"></span>
 
     </mat-toolbar>
