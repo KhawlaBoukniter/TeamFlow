@@ -12,7 +12,7 @@ export class TaskService {
     private http = inject(HttpClient);
 
     getTasksByColumn(columnId: number): Observable<Task[]> {
-        return this.http.get<Task[]>(`${environment.apiUrl}/tasks/column/${columnId}`);
+        return this.http.get<Task[]>(`${environment.apiUrl}/columns/${columnId}/tasks`);
     }
 
     getTaskById(id: number): Observable<Task> {
@@ -45,7 +45,7 @@ export class TaskService {
     }
 
     moveTask(taskId: number, targetColumnId: number): Observable<void> {
-        return this.http.patch<void>(`${this.apiUrl}/${taskId}/move`, null, {
+        return this.http.put<void>(`${this.apiUrl}/${taskId}/move`, null, {
             params: { targetColumnId: targetColumnId.toString() }
         });
     }

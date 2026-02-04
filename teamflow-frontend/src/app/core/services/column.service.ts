@@ -8,7 +8,7 @@ import { ProjectColumn } from '../../shared/models';
     providedIn: 'root'
 })
 export class ColumnService {
-    private apiUrl = `${environment.apiUrl}/project-columns`;
+    private apiUrl = `${environment.apiUrl}/columns`;
     private http = inject(HttpClient);
 
     getColumnsByProject(projectId: number): Observable<ProjectColumn[]> {
