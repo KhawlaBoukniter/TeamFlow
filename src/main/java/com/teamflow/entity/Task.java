@@ -36,6 +36,7 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "column_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private ProjectColumn column;
 
     @Column(nullable = false, updatable = false)

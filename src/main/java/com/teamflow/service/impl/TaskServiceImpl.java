@@ -29,7 +29,7 @@ public class TaskServiceImpl implements TaskService {
             throw new ResourceNotFoundException("Column not found with id: " + columnId);
         }
 
-        return taskRepository.findByColumnId(columnId).stream()
+        return taskRepository.findByColumn_Id(columnId).stream()
                 .filter(t -> t.getDeletedAt() == null)
                 .map(this::toDTO)
                 .collect(Collectors.toList());
