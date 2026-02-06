@@ -16,7 +16,7 @@ import { Project, ProjectColumn, Task } from '../../../shared/models';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TaskCreateEditComponent } from '../modals/task-create-edit.component';
-import { TaskDetailsComponent } from '../modals/task-details.component';
+import { TaskDetailsDialogComponent } from '../modals/task-details-dialog.component';
 import { CreateColumnDialogComponent } from '../components/create-column-dialog/create-column-dialog.component';
 import { CreateTaskDialogComponent } from '../components/create-task-dialog/create-task-dialog.component';
 import { EditTaskDialogComponent } from '../components/edit-task-dialog/edit-task-dialog.component';
@@ -221,9 +221,12 @@ export class BoardPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        console.log('Edit Task - Form result:', result);
+
         this.taskService.updateTask(task.id, result).subscribe({
           next: (updatedTask) => {
-            // Refresh the task's column
+            console.log('Edit Task - Backend response:', updatedTask);
+
             this.loadTasks(task.columnId);
             this.snackBar.open('Task updated successfully', 'Close', { duration: 3000 });
           },
@@ -244,9 +247,16 @@ export class BoardPageComponent implements OnInit {
   }
 
   openTaskDetails(task: Task): void {
-    const dialogRef = this.dialog.open(TaskDetailsComponent, {
+    const dialogRef = this.dialog.open(TaskDetailsDialogComponent, {
       width: '800px',
+      maxHeight: '90vh',
       data: { task }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.refreshNeeded) {
+        this.loadTasks(task.columnId);
+      }
     });
   }
 }

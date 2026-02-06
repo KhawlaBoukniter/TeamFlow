@@ -1,0 +1,35 @@
+::ng-deep .task-details-tabs {
+    .mat-mdc-tab-body-content {
+        overflow: visible !important;
+    }
+
+    .mat-mdc-tab-header {
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .mat-mdc-tab {
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+    }
+}
+
+::ng-deep .mat-mdc-dialog-content {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.space-y-1>*+* {
+    margin-top: 0.25rem;
+}
+
+.space-y-2>*+* {
+    margin-top: 0.5rem;
+}
+
+.space-y-3>*+* {
+    margin-top: 0.75rem;
+}
+
+.space-y-4>*+* {
+    margin-top: 1rem;
+}

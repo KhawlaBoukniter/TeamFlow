@@ -1,0 +1,155 @@
+<h2 mat-dialog-title class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+        <span class="text-xl font-semibold text-gray-900">{{ task.title }}</span>
+        <span class="px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getPriorityColor(task.priority)">
+            {{ task.priority }}
+        </span>
+        <span class="px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700" *ngIf="task.blocked">
+            🚫 Blocked
+        </span>
+    </div>
+    <button mat-icon-button (click)="close()">
+        <mat-icon>close</mat-icon>
+    </button>
+</h2>
+
+<mat-dialog-content>
+    <mat-tab-group class="task-details-tabs">
+        <!-- Tab 1: Overview -->
+        <mat-tab label="Overview">
+            <div class="p-4 space-y-4">
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Description</h3>
+                    <p class="text-sm text-gray-600">{{ task.description || 'No description' }}</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-1">Priority</h3>
+                        <span class="px-2 py-1 rounded text-xs font-medium" [ngClass]="getPriorityColor(task.priority)">
+                            {{ task.priority }}
+                        </span>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-1">Due Date</h3>
+                        <p class="text-sm text-gray-600">{{ task.dueDate || 'No due date' }}</p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-1">Status</h3>
+                        <span class="px-2 py-1 rounded text-xs font-medium"
+                            [ngClass]="task.blocked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'">
+                            {{ task.blocked ? 'Blocked' : 'Active' }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button mat-raised-button color="primary" (click)="openEditDialog()"
+                        class="bg-brand hover:bg-brand-hover">
+                        <mat-icon class="!w-4 !h-4 !text-[16px] mr-1">edit</mat-icon>
+                        Edit Task
+                    </button>
+                </div>
+            </div>
+        </mat-tab>
+
+        <!-- Tab 2: SubTasks -->
+        <mat-tab label="SubTasks">
+            <div class="p-4 space-y-3">
+                <div *ngFor="let subTask of subTasks"
+                    class="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                    <div class="flex items-center gap-2 flex-1">
+                        <mat-checkbox [checked]="subTask.completed" (change)="toggleSubTask(subTask)"></mat-checkbox>
+                        <span class="text-sm" [class.line-through]="subTask.completed"
+                            [class.text-gray-400]="subTask.completed">
+                            {{ subTask.title }}
+                        </span>
+                    </div>
+                    <button mat-icon-button color="warn" (click)="deleteSubTask(subTask.id)">
+                        <mat-icon class="!w-5 !h-5 !text-[20px]">delete</mat-icon>
+                    </button>
+                </div>
+
+                <div *ngIf="subTasks.length === 0" class="text-center text-gray-400 py-8">
+                    No subtasks yet
+                </div>
+
+                <form [formGroup]="newSubTaskForm" (ngSubmit)="addSubTask()" class="flex gap-2 pt-2 border-t">
+                    <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>New Subtask</mat-label>
+                        <input matInput formControlName="title" placeholder="Enter subtask title..."
+                            [disabled]="task.blocked">
+                    </mat-form-field>
+                    <button mat-raised-button color="primary" type="submit"
+                        [disabled]="!newSubTaskForm.value.title || task.blocked" class="bg-brand hover:bg-brand-hover">
+                        Add
+                    </button>
+                </form>
+            </div>
+        </mat-tab>
+
+        <!-- Tab 3: Comments -->
+        <mat-tab label="Comments">
+            <div class="p-4 space-y-3">
+                <div *ngFor="let comment of comments" class="p-3 bg-gray-50 rounded space-y-1">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <p class="text-xs text-gray-500">
+                                User #{{ comment.authorId }} • {{ comment.createdAt | date:'short' }}
+                            </p>
+                            <p class="text-sm text-gray-900 mt-1">{{ comment.content }}</p>
+                        </div>
+                        <button mat-icon-button color="warn" (click)="deleteComment(comment.id)">
+                            <mat-icon class="!w-5 !h-5 !text-[20px]">delete</mat-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <div *ngIf="comments.length === 0" class="text-center text-gray-400 py-8">
+                    No comments yet
+                </div>
+
+                <form [formGroup]="newCommentForm" (ngSubmit)="addComment()" class="pt-2 border-t space-y-2">
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Add Comment</mat-label>
+                        <textarea matInput formControlName="content" rows="3" placeholder="Write a comment..."
+                            [disabled]="task.blocked"></textarea>
+                    </mat-form-field>
+                    <button mat-raised-button color="primary" type="submit"
+                        [disabled]="!newCommentForm.value.content || task.blocked"
+                        class="bg-brand hover:bg-brand-hover">
+                        <mat-icon class="!w-4 !h-4 !text-[16px] mr-1">send</mat-icon>
+                        Send
+                    </button>
+                </form>
+            </div>
+        </mat-tab>
+
+        <!-- Tab 4: Assignments -->
+        <mat-tab label="Assignments">
+            <div class="p-4 space-y-3">
+                <div *ngFor="let assignment of assignments"
+                    class="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                    <div class="flex items-center gap-2">
+                        <mat-icon class="text-gray-500">person</mat-icon>
+                        <span class="text-sm">User #{{ assignment.userId }}</span>
+                    </div>
+                    <button mat-icon-button color="warn" (click)="deleteComment(assignment.id)">
+                        <mat-icon class="!w-5 !h-5 !text-[20px]">remove_circle</mat-icon>
+                    </button>
+                </div>
+
+                <div *ngIf="assignments.length === 0" class="text-center text-gray-400 py-8">
+                    No assignments yet
+                </div>
+
+                <!-- TODO: Add assignment form -->
+                <div class="pt-2 border-t text-center text-gray-400 text-sm">
+                    Assign users feature coming soon
+                </div>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
+</mat-dialog-content>
