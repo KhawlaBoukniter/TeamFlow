@@ -12,6 +12,7 @@ import { ProjectService } from '../../../../core/services/project.service';
 import { Project } from '../../../../shared/models';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-project-create-dialog',
@@ -25,43 +26,49 @@ import { MatSelectModule } from '@angular/material/select';
     MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     MatSnackBarModule,
-    MatSelectModule
+    MatSelectModule,
+    MatIconModule
   ],
   template: `
-    <h2 mat-dialog-title>Create New Project</h2>
+    <h2 mat-dialog-title class="flex items-center gap-3">
+      <mat-icon class="text-indigo-600">create_new_folder</mat-icon>
+      <span>Create New Project</span>
+    </h2>
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <mat-dialog-content class="flex flex-col gap-4 min-w-[400px]">
-        <mat-form-field appearance="outline">
-          <mat-label>Project Name</mat-label>
+      <mat-dialog-content class="flex flex-col gap-5 min-w-[500px]">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Project Name *</mat-label>
           <input matInput formControlName="name" placeholder="Ex: TeamFlow Redesign">
           <mat-error *ngIf="form.get('name')?.hasError('required')">Name is required</mat-error>
           <mat-error *ngIf="form.get('name')?.hasError('minlength')">Name must be at least 3 characters</mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="w-full">
           <mat-label>Description</mat-label>
-          <textarea matInput formControlName="description" rows="3" placeholder="Project details..."></textarea>
+          <textarea matInput formControlName="description" rows="3" placeholder="Describe your project..."></textarea>
+          <mat-hint>Optional - Add project details and goals</mat-hint>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Status</mat-label>
-          <mat-select formControlName="status">
-            <mat-option value="ACTIVE">Active</mat-option>
-            <mat-option value="ARCHIVED">Archived</mat-option>
-          </mat-select>
-        </mat-form-field>
+        <!-- Settings -->
+        <div class="grid grid-cols-2 gap-4">
+          <mat-form-field appearance="outline">
+            <mat-label>Project Type *</mat-label>
+            <mat-select formControlName="type">
+              <mat-option value="PERSONAL">Personal</mat-option>
+              <mat-option value="TEAM">Team</mat-option>
+            </mat-select>
+            <mat-hint>Choose collaboration level</mat-hint>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Type</mat-label>
-          <mat-select formControlName="type">
-            <mat-option value="PERSONAL">Personal</mat-option>
-            <mat-option value="TEAM">Team</mat-option>
-          </mat-select>
-        </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Status *</mat-label>
+            <mat-select formControlName="status">
+              <mat-option value="ACTIVE">Active</mat-option>
+              <mat-option value="ARCHIVED">Archived</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
 
         <div class="flex gap-4">
             <mat-form-field appearance="outline" class="flex-1">
@@ -84,7 +91,7 @@ import { MatSelectModule } from '@angular/material/select';
         </mat-error>
 
       </mat-dialog-content>
-      <mat-dialog-actions align="end">
+      <mat-dialog-actions align="end" class="gap-3">
         <button mat-button type="button" (click)="onCancel()">Cancel</button>
         <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || loading">
           {{ loading ? 'Creating...' : 'Create Project' }}

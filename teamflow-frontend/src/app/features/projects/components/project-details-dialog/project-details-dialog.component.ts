@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Project } from '../../../../shared/models';
 import { ProjectEditDialogComponent } from '../project-edit-dialog/project-edit-dialog.component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-project-details-dialog',
@@ -67,8 +68,8 @@ import { ProjectEditDialogComponent } from '../project-edit-dialog/project-edit-
               </div>
 
               <div>
-                <h3 class="text-sm font-semibold text-gray-700 mb-1">Owner ID</h3>
-                <p class="text-sm text-gray-600">{{ project.ownerId }}</p>
+                <h3 class="text-sm font-semibold text-gray-700 mb-1">Owner</h3>
+                <p class="text-sm text-gray-600">{{ ownerEmail || 'Unknown' }}</p>
               </div>
 
               <div>
@@ -125,13 +126,16 @@ import { ProjectEditDialogComponent } from '../project-edit-dialog/project-edit-
 })
 export class ProjectDetailsDialogComponent implements OnInit {
   project: Project;
+  ownerEmail: string | null;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { project: Project },
     private dialogRef: MatDialogRef<ProjectDetailsDialogComponent>,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private authService: AuthService
   ) {
     this.project = data.project;
+    this.ownerEmail = this.authService.getUserEmail();
   }
 
   ngOnInit(): void {

@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
 import { ProjectService } from '../../../../core/services/project.service';
 import { Project } from '../../../../shared/models';
 
@@ -25,27 +26,31 @@ import { Project } from '../../../../shared/models';
         MatSelectModule,
         MatDatepickerModule,
         MatNativeDateModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        MatIconModule
     ],
     template: `
-    <h2 mat-dialog-title>Edit Project</h2>
+    <h2 mat-dialog-title class="flex items-center gap-3">
+      <mat-icon class="text-indigo-600">edit</mat-icon>
+      <span>Edit Project</span>
+    </h2>
     <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
-      <mat-dialog-content class="flex flex-col gap-4 min-w-[500px]">
-        <mat-form-field appearance="outline">
-          <mat-label>Project Name</mat-label>
+      <mat-dialog-content class="flex flex-col gap-5 min-w-[500px]">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Project Name *</mat-label>
           <input matInput formControlName="name" placeholder="Project name">
           <mat-error *ngIf="projectForm.get('name')?.hasError('required')">Name is required</mat-error>
           <mat-error *ngIf="projectForm.get('name')?.hasError('minlength')">Name must be at least 3 characters</mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="w-full">
           <mat-label>Description</mat-label>
           <textarea matInput formControlName="description" rows="3" placeholder="Project description"></textarea>
         </mat-form-field>
 
         <div class="grid grid-cols-2 gap-4">
           <mat-form-field appearance="outline">
-            <mat-label>Type</mat-label>
+            <mat-label>Project Type *</mat-label>
             <mat-select formControlName="type">
               <mat-option value="PERSONAL">Personal</mat-option>
               <mat-option value="TEAM">Team</mat-option>
@@ -53,7 +58,7 @@ import { Project } from '../../../../shared/models';
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Status</mat-label>
+            <mat-label>Status *</mat-label>
             <mat-select formControlName="status">
               <mat-option value="ACTIVE">Active</mat-option>
               <mat-option value="ARCHIVED">Archived</mat-option>
@@ -82,7 +87,7 @@ import { Project } from '../../../../shared/models';
         </mat-error>
       </mat-dialog-content>
 
-      <mat-dialog-actions align="end">
+      <mat-dialog-actions align="end" class="gap-3">
         <button mat-button type="button" (click)="onCancel()">Cancel</button>
         <button mat-flat-button color="primary" type="submit" [disabled]="projectForm.invalid || loading">
           {{ loading ? 'Updating...' : 'Update Project' }}
