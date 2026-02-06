@@ -53,4 +53,18 @@ public class TaskController {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/tasks/{id}/assignments")
+    public ResponseEntity<com.teamflow.dto.TaskAssignmentDTO> assignUser(@PathVariable Long id,
+            @RequestBody java.util.Map<String, Object> payload) {
+        Long userId = Long.valueOf(payload.get("userId").toString());
+        String role = payload.get("roleInTask").toString();
+        return ResponseEntity.ok(taskService.assignUserToTask(id, userId, role));
+    }
+
+    @DeleteMapping("/tasks/{id}/assignments/{userId}")
+    public ResponseEntity<Void> removeAssignment(@PathVariable Long id, @PathVariable Long userId) {
+        taskService.removeAssignment(id, userId);
+        return ResponseEntity.noContent().build();
+    }
 }

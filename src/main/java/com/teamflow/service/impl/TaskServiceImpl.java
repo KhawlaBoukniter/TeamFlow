@@ -21,6 +21,8 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final ColumnRepository columnRepository;
+    private final com.teamflow.repository.UserRepository userRepository;
+    private final com.teamflow.repository.TaskAssignmentRepository taskAssignmentRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -107,6 +109,40 @@ public class TaskServiceImpl implements TaskService {
         taskRepository.save(task);
     }
 
+    @Override
+    @Transactional
+    public com.teamflow.dto.TaskAssignmentDTO assignUserToTask(Long taskId, Long userId, String role) {
+        Task task = taskRepository.findById(taskId)
+                .filter(t -> t.getDeletedAt() == null)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
+
+        com.teamflow.entity.User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        if (taskAssignmentRepository.findByTask_IdAndUser_Id(taskId, userId).isPresent()) {
+            throw new IllegalArgumentException("User is already assigned to this task");
+        }
+
+        com.teamflow.entity.TaskAssignment assignment = new com.teamflow.entity.TaskAssignment();
+        assignment.setTask(task);
+        assignment.setUser(user);
+        assignment.setRoleInTask(com.teamflow.entity.enums.RoleInTask.valueOf(role));
+
+        com.teamflow.entity.TaskAssignment savedAssignment = taskAssignmentRepository.save(assignment);
+
+        return toAssignmentDTO(savedAssignment);
+    }
+
+    @Override
+    @Transactional
+    public void removeAssignment(Long taskId, Long userId) {
+        com.teamflow.entity.TaskAssignment assignment = taskAssignmentRepository.findByTask_IdAndUser_Id(taskId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Assignment not found for task " + taskId + " and user " + userId));
+
+        taskAssignmentRepository.delete(assignment);
+    }
+
     private TaskDTO toDTO(Task task) {
         TaskDTO dto = new TaskDTO();
         dto.setId(task.getId());
@@ -118,6 +154,23 @@ public class TaskServiceImpl implements TaskService {
         dto.setColumnId(task.getColumn().getId());
         dto.setCreatedAt(task.getCreatedAt());
         dto.setUpdatedAt(task.getUpdatedAt());
+        if (task.getAssignments() != null) {
+            dto.setAssignments(task.getAssignments().stream()
+                    .map(this::toAssignmentDTO)
+                    .collect(Collectors.toList()));
+        }
+        return dto;
+    }
+
+    private com.teamflow.dto.TaskAssignmentDTO toAssignmentDTO(com.teamflow.entity.TaskAssignment assignment) {
+        com.teamflow.dto.TaskAssignmentDTO dto = new com.teamflow.dto.TaskAssignmentDTO();
+        dto.setId(assignment.getId());
+        dto.setTaskId(assignment.getTask().getId());
+        dto.setUserId(assignment.getUser().getId());
+        dto.setUserName(assignment.getUser().getFullName());
+        dto.setUserEmail(assignment.getUser().getEmail());
+        dto.setRoleInTask(assignment.getRoleInTask());
+        dto.setAssignedAt(assignment.getAssignedAt());
         return dto;
     }
 }
