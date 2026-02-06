@@ -16,12 +16,14 @@ import { Project } from '../../shared/models';
 import { ProjectCreateDialogComponent } from './components/project-create-dialog/project-create-dialog.component';
 import { ProjectEditDialogComponent } from './components/project-edit-dialog/project-edit-dialog.component';
 import { ProjectDetailsDialogComponent } from './components/project-details-dialog/project-details-dialog.component';
+import { MembersDialogComponent } from './components/members-dialog/members-dialog.component';
 import { BRANDING } from '../../core/constants/branding';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
     selector: 'app-projects',
     standalone: true,
-    imports: [CommonModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatDialogModule, MatProgressSpinnerModule, MatMenuModule, MatDividerModule, MatSnackBarModule],
+    imports: [CommonModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatDialogModule, MatProgressSpinnerModule, MatMenuModule, MatDividerModule, MatSnackBarModule, MatTooltipModule],
     templateUrl: './projects.component.html',
     styleUrls: ['./projects.component.css']
 })
@@ -37,6 +39,8 @@ export class ProjectsComponent implements OnInit {
     private router = inject(Router);
     private dialog = inject(MatDialog);
     private snackBar = inject(MatSnackBar);
+
+    viewMode: 'grid' | 'list' = 'grid';
 
     constructor() {
         this.userEmail = this.authService.getUserEmail();
@@ -60,19 +64,48 @@ export class ProjectsComponent implements OnInit {
         });
     }
 
+    setViewMode(mode: 'grid' | 'list'): void {
+        this.viewMode = mode;
+    }
+
+    get upcomingProjectsCount(): number {
+        const now = new Date();
+        return this.projects.filter(p => p.startDate && new Date(p.startDate) > now).length;
+    }
+
+    getProjectProgress(project: Project): number {
+        return Math.round(project.progress || 0);
+    }
+
+    getDaysLeft(project: Project): string {
+        if (!project.endDate) return '';
+        const end = new Date(project.endDate);
+        const now = new Date();
+        const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 3600 * 24));
+        if (diff < 0) return 'Overdue';
+        if (diff === 0) return 'Today';
+        return `${diff} Days Left`;
+    }
+
+    getProgressBarColor(project: Project): string {
+        const progress = this.getProjectProgress(project);
+        if (progress === 100) return '#03D59D';
+        if (progress < 30) return '#FEAD69';
+        if (progress < 70) return '#5E6AD2';
+        return '#03D59D';
+    }
+
     openCreateDialog(): void {
         const dialogRef = this.dialog.open(ProjectCreateDialogComponent, {
             width: '800px',
-            maxHeight: '90vh', // Fix for scrolling issue
+            maxHeight: '90vh',
             disableClose: true,
             panelClass: 'linear-dialog'
         });
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
-                // Project created successfully, append to list or reload
                 this.projects.push(result);
-                // Ideally reload to get sync state
                 this.loadProjects();
             }
         });
@@ -99,21 +132,32 @@ export class ProjectsComponent implements OnInit {
         const dialogRef = this.dialog.open(ProjectDetailsDialogComponent, {
             width: '800px',
             maxHeight: '90vh',
-            data: { project },
+            data: project,
             panelClass: 'linear-dialog'
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            if (result?.refreshNeeded) {
+            if (result) {
                 this.loadProjects();
             }
+        });
+    }
+
+    openMembersDialog(project: Project, event: Event): void {
+        event.stopPropagation();
+
+        this.dialog.open(MembersDialogComponent, {
+            width: '600px',
+            maxHeight: '90vh',
+            data: { projectId: project.id },
+            panelClass: 'linear-dialog'
         });
     }
 
     openProjectEdit(project: Project): void {
         const dialogRef = this.dialog.open(ProjectEditDialogComponent, {
             width: '800px',
-            maxHeight: '90vh', // Fix for scrolling issue
+            maxHeight: '90vh',
             data: { project },
             panelClass: 'linear-dialog'
         });

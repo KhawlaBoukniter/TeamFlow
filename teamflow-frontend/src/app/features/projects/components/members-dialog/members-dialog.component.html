@@ -1,112 +1,127 @@
-<div class="px-6 py-4 border-b border-gray-200">
-    <div class="flex items-center gap-2">
-        <mat-icon class="text-indigo-600" style="font-size: 24px; width: 24px; height: 24px;">group_add</mat-icon>
-        <h2 class="text-lg font-semibold m-0" style="line-height: 24px;">Manage Members</h2>
+<div class="bg-[#1C1C1E] text-[#EDEDED] flex flex-col h-full max-h-[85vh] overflow-hidden">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-[#2E3035] flex justify-between items-center shrink-0">
+        <div class="flex items-center gap-2">
+            <mat-icon class="text-[#5E6AD2]" style="font-size: 24px; width: 24px; height: 24px;">group_add</mat-icon>
+            <h2 class="text-lg font-semibold m-0" style="line-height: 24px;">Manage Members</h2>
+        </div>
+        <button mat-icon-button (click)="dialogRef.close()" class="text-[#8A8F98] hover:text-white">
+            <mat-icon>close</mat-icon>
+        </button>
     </div>
-</div>
 
-<mat-dialog-content class="!p-0 min-w-[500px] min-h-[450px] flex flex-col">
-    <div class="p-6 pb-2">
-        <!-- Add Member Section -->
-        <h3 class="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">Add New Member</h3>
+    <mat-dialog-content class="!p-0 flex flex-col overflow-hidden">
+        <div class="p-6 pb-2 shrink-0">
+            <!-- Add Member Section -->
+            <h3 class="text-xs font-bold text-[#8A8F98] mb-3 uppercase tracking-wider">Add New Member</h3>
 
-        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6">
-            <div class="flex flex-col gap-3">
-                <div class="relative">
-                    <input [formControl]="searchControl"
-                        class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                        placeholder="Search by name or email to invite...">
-                    <mat-icon class="absolute left-3 top-2.5 text-gray-400 !w-5 !h-5 !text-[20px]">search</mat-icon>
+            <div class="bg-[#232428] p-4 rounded-xl border border-[#2E3035] mb-6">
+                <div class="flex flex-col gap-3">
+                    <div class="relative">
+                        <input [formControl]="searchControl"
+                            class="w-full pl-10 pr-4 py-2.5 bg-[#2C2D32] border border-[#3A3C42] rounded-lg text-sm text-[#EDEDED] placeholder-[#8A8F98] focus:outline-none focus:ring-2 focus:ring-[#5E6AD2] focus:border-transparent transition-all"
+                            placeholder="Search by name or email to invite...">
+                        <mat-icon
+                            class="absolute left-3 top-2.5 text-[#8A8F98] !w-5 !h-5 !text-[20px]">search</mat-icon>
 
-                    <!-- Search Results Dropdown -->
-                    <div *ngIf="searchResults.length > 0"
-                        class="absolute top-12 left-0 right-0 bg-white shadow-xl border border-gray-100 rounded-lg max-h-48 overflow-auto z-50">
-                        <div *ngFor="let user of searchResults" (click)="selectUser(user)"
-                            class="p-3 hover:bg-indigo-50 cursor-pointer border-b border-gray-50 flex justify-between items-center transition-colors">
-                            <div>
-                                <div class="font-medium text-sm text-gray-900">{{ user.fullName }}</div>
-                                <div class="text-xs text-gray-500">{{ user.email }}</div>
+                        <!-- Search Results Dropdown -->
+                        <div *ngIf="searchResults.length > 0"
+                            class="absolute top-12 left-0 right-0 bg-[#2C2D32] shadow-xl border border-[#3A3C42] rounded-lg max-h-48 overflow-auto z-50">
+                            <div *ngFor="let user of searchResults" (click)="selectUser(user)"
+                                class="p-3 hover:bg-[#3A3C42] cursor-pointer border-b border-[#3A3C42] flex justify-between items-center transition-colors">
+                                <div>
+                                    <div class="font-medium text-sm text-[#EDEDED]">{{ user.fullName }}</div>
+                                    <div class="text-xs text-[#8A8F98]">{{ user.email }}</div>
+                                </div>
+                                <mat-icon class="text-[#5E6AD2] !w-5 !h-5 !text-[20px]">add_circle_outline</mat-icon>
                             </div>
-                            <mat-icon class="text-indigo-500 !w-5 !h-5 !text-[20px]">add_circle_outline</mat-icon>
+                        </div>
+                    </div>
+
+                    <!-- Selected User Preview & Action -->
+                    <div *ngIf="selectedUser" class="flex items-center gap-3 animate-slide-up">
+                        <div class="flex-1 flex items-center gap-3 bg-[#2C2D32] p-2 rounded-lg border border-[#3A3C42]">
+                            <div
+                                class="w-8 h-8 rounded-full bg-[#5E6AD2] border-2 border-[#1C1C1E] text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                                {{ selectedUser.fullName.charAt(0) }}
+                            </div>
+                            <div class="overflow-hidden">
+                                <div class="font-medium text-sm text-[#EDEDED] truncate">{{ selectedUser.fullName }}
+                                </div>
+                                <div class="text-xs text-[#8A8F98] truncate">{{ selectedUser.email }}</div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <select [(ngModel)]="selectedRole"
+                                class="block w-24 pl-3 pr-8 py-2 text-xs border border-[#3A3C42] focus:outline-none focus:ring-[#5E6AD2] focus:border-[#5E6AD2] rounded-lg bg-[#2C2D32] text-[#EDEDED]">
+                                <option value="MEMBER">Member</option>
+                                <option value="MANAGER">Manager</option>
+                            </select>
+                            <button mat-flat-button color="primary" (click)="addMember()"
+                                class="!rounded-lg h-[36px] !bg-[#5E6AD2]">
+                                Invite
+                            </button>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Selected User Preview & Action -->
-                <div *ngIf="selectedUser" class="flex items-center gap-3 animate-slideUp">
-                    <div class="flex-1 flex items-center gap-3 bg-indigo-50 p-2 rounded-lg border border-indigo-100">
+            <!-- Members List Header -->
+            <h3
+                class="text-xs font-bold text-[#8A8F98] mb-3 uppercase tracking-wider flex justify-between items-center">
+                Current Members
+                <span
+                    class="bg-[#2C2D32] text-[#EDEDED] py-0.5 px-2 rounded-full text-[10px] border border-[#3A3C42]">{{
+                    members.length }}</span>
+            </h3>
+        </div>
+
+        <!-- Scrollable List -->
+        <div class="flex-1 overflow-y-auto px-6 pb-6 custom-scrollbar">
+            <div class="space-y-3">
+                <div *ngFor="let member of members"
+                    class="flex items-center justify-between p-3 bg-[#232428] border border-[#2E3035] rounded-xl hover:border-[#3A3C42] transition-all group">
+                    <div class="flex items-center gap-4">
                         <div
-                            class="w-8 h-8 rounded-full bg-indigo-100 border-2 border-white text-indigo-700 flex items-center justify-center font-bold text-xs shadow-sm">
-                            {{ selectedUser.fullName.charAt(0) }}
+                            class="w-10 h-10 rounded-full bg-[#2C2D32] text-[#EDEDED] flex items-center justify-center font-bold text-sm shadow-inner border-2 border-[#3A3C42]">
+                            {{ member.userName.charAt(0) }}
                         </div>
-                        <div class="overflow-hidden">
-                            <div class="font-medium text-sm text-indigo-900 truncate">{{ selectedUser.fullName }}</div>
-                            <div class="text-xs text-indigo-600 truncate">{{ selectedUser.email }}</div>
+                        <div>
+                            <div class="font-medium text-sm text-[#EDEDED]">{{ member.userName }}</div>
+                            <div class="text-xs text-[#8A8F98]">{{ member.userEmail }}</div>
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-2">
-                        <select [(ngModel)]="selectedRole"
-                            class="block w-24 pl-3 pr-8 py-2 text-xs border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-lg bg-white">
-                            <option value="MEMBER">Member</option>
-                            <option value="MANAGER">Manager</option>
-                        </select>
-                        <button mat-flat-button color="primary" (click)="addMember()" class="!rounded-lg h-[36px]">
-                            Invite
+                    <div class="flex items-center gap-4">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border" [ngClass]="member.roleInProject === 'MANAGER' 
+                                ? 'bg-[#2C2D32] text-[#A78BFA] border-[#A78BFA]/20' 
+                                : 'bg-[#2C2D32] text-[#34D399] border-[#34D399]/20'">
+                            {{ member.roleInProject }}
+                        </span>
+
+                        <button mat-icon-button (click)="removeMember(member)"
+                            class="text-[#8A8F98] opacity-0 group-hover:opacity-100 hover:text-red-400 hover:bg-red-900/20 transition-all !w-8 !h-8 !flex !items-center !justify-center translate-x-2 group-hover:translate-x-0"
+                            matTooltip="Remove Member">
+                            <mat-icon
+                                class="!text-[18px] !w-[18px] !h-[18px] !leading-[18px] m-0">delete_outline</mat-icon>
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Members List -->
-        <h3 class="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider flex justify-between items-center">
-            Current Members
-            <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-[10px]">{{ members.length }}</span>
-        </h3>
-    </div>
-
-    <!-- Scrollable List -->
-    <div class="flex-1 overflow-y-auto px-6 pb-6">
-        <div class="space-y-3">
-            <div *ngFor="let member of members"
-                class="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-xl hover:shadow-sm hover:border-gray-200 transition-all group">
-                <div class="flex items-center gap-4">
-                    <div
-                        class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 flex items-center justify-center font-bold text-sm shadow-inner border-2 border-white">
-                        {{ member.userName.charAt(0) }}
-                    </div>
-                    <div>
-                        <div class="font-medium text-sm text-gray-900">{{ member.userName }}</div>
-                        <div class="text-xs text-gray-500">{{ member.userEmail }}</div>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-4">
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border" [ngClass]="member.roleInProject === 'MANAGER' 
-                            ? 'bg-purple-50 text-purple-700 border-purple-100' 
-                            : 'bg-green-50 text-green-700 border-green-100'">
-                        {{ member.roleInProject }}
-                    </span>
-
-                    <button mat-icon-button (click)="removeMember(member)"
-                        class="text-gray-400 opacity-0 group-hover:opacity-100 hover:text-red-600 hover:bg-red-50 transition-all !w-8 !h-8 !flex !items-center !justify-center translate-x-2 group-hover:translate-x-0"
-                        matTooltip="Remove Member">
-                        <mat-icon class="!text-[18px] !w-[18px] !h-[18px] !leading-[18px] m-0">delete_outline</mat-icon>
-                    </button>
+                <div *ngIf="members.length === 0"
+                    class="flex flex-col items-center justify-center py-12 text-[#8A8F98] bg-[#232428] rounded-xl border border-dashed border-[#2E3035]">
+                    <mat-icon class="!w-12 !h-12 !text-[48px] text-[#3A3C42] mb-2">group_off</mat-icon>
+                    <p class="text-sm font-medium">No members yet</p>
+                    <p class="text-xs text-[#8A8F98]">Invite someone above to get started</p>
                 </div>
             </div>
-
-            <div *ngIf="members.length === 0"
-                class="flex flex-col items-center justify-center py-12 text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                <mat-icon class="!w-12 !h-12 !text-[48px] text-gray-300 mb-2">group_off</mat-icon>
-                <p class="text-sm font-medium">No members yet</p>
-                <p class="text-xs text-gray-400">Invite someone above to get started</p>
-            </div>
         </div>
-    </div>
-</mat-dialog-content>
+    </mat-dialog-content>
 
-<div class="px-6 py-4 border-t border-gray-200 flex justify-end bg-gray-50 rounded-b-xl">
-    <button mat-stroked-button (click)="dialogRef.close()" class="!px-6">Done</button>
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-[#2E3035] flex justify-end bg-[#232428] shrink-0">
+        <button mat-stroked-button (click)="dialogRef.close()"
+            class="!px-6 !text-[#EDEDED] !border-[#3A3C42] hover:!bg-[#2C2D32]">Done</button>
+    </div>
 </div>
