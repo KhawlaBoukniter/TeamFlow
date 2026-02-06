@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatListModule } from '@angular/material/list';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { MembershipService } from '../../../../core/services/membership.service';
 import { UserService } from '../../../../core/services/user.service';
 import { Membership, User } from '../../../../shared/models';
@@ -26,7 +26,9 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of } from 'r
         MatInputModule,
         MatSelectModule,
         MatListModule,
-        ReactiveFormsModule
+        MatListModule,
+        ReactiveFormsModule,
+        FormsModule
     ],
     templateUrl: './members-dialog.component.html',
     styles: [`
