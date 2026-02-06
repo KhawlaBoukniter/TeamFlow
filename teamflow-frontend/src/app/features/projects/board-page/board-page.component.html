@@ -68,14 +68,21 @@
                     [id]="'col-' + column.id" (cdkDropListDropped)="drop($event, column.id)">
 
                     <!-- Task Card (MVP with Drag) -->
-                    <div *ngFor="let task of getTasks(column.id)" cdkDrag (click)="openTaskDetails(task)"
-                        class="bg-white border rounded-lg p-3 hover:shadow-card-hover transition-all duration-200 cursor-grab active:cursor-grabbing"
+                    <div *ngFor="let task of getTasks(column.id)" cdkDrag
+                        class="bg-white border rounded-lg p-3 hover:shadow-card-hover transition-all duration-200 cursor-grab active:cursor-grabbing group"
                         [ngClass]="{'border-l-4 border-l-red-500': task.isBlocked}">
 
-                        <!-- Title -->
-                        <h4 class="text-sm font-medium text-gray-900 mb-2 line-clamp-2">
-                            {{ task.title }}
-                        </h4>
+                        <!-- Title with Edit Button -->
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            <h4 class="text-sm font-medium text-gray-900 line-clamp-2 flex-1"
+                                (click)="openTaskDetails(task)">
+                                {{ task.title }}
+                            </h4>
+                            <button (click)="$event.stopPropagation(); openEditTask(task)"
+                                class="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 p-1 hover:bg-gray-100 rounded">
+                                <mat-icon class="!w-4 !h-4 !text-[16px] text-gray-500">edit</mat-icon>
+                            </button>
+                        </div>
 
                         <!-- Description (optional) -->
                         <p class="text-xs text-gray-500 mb-2 line-clamp-1" *ngIf="task.description">

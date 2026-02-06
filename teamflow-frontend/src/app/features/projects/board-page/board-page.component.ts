@@ -19,6 +19,7 @@ import { TaskCreateEditComponent } from '../modals/task-create-edit.component';
 import { TaskDetailsComponent } from '../modals/task-details.component';
 import { CreateColumnDialogComponent } from '../components/create-column-dialog/create-column-dialog.component';
 import { CreateTaskDialogComponent } from '../components/create-task-dialog/create-task-dialog.component';
+import { EditTaskDialogComponent } from '../components/edit-task-dialog/edit-task-dialog.component';
 import { MembersDialogComponent } from '../components/members-dialog/members-dialog.component';
 
 @Component({
@@ -206,6 +207,29 @@ export class BoardPageComponent implements OnInit {
           error: (err) => {
             console.error('Failed to create task', err);
             this.snackBar.open('Failed to create task', 'Close', { duration: 5000 });
+          }
+        });
+      }
+    });
+  }
+
+  openEditTask(task: Task): void {
+    const dialogRef = this.dialog.open(EditTaskDialogComponent, {
+      width: '600px',
+      data: { task }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.taskService.updateTask(task.id, result).subscribe({
+          next: (updatedTask) => {
+            // Refresh the task's column
+            this.loadTasks(task.columnId);
+            this.snackBar.open('Task updated successfully', 'Close', { duration: 3000 });
+          },
+          error: (err) => {
+            console.error('Failed to update task', err);
+            this.snackBar.open('Failed to update task. Please try again.', 'Close', { duration: 5000 });
           }
         });
       }

@@ -1,0 +1,62 @@
+<div class="p-6">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">Edit Task</h2>
+
+    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
+        <!-- Title -->
+        <mat-form-field appearance="outline" class="w-full mb-4">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" placeholder="Enter task title" required>
+            <mat-error *ngIf="taskForm.get('title')?.hasError('required')">
+                Title is required
+            </mat-error>
+            <mat-error *ngIf="taskForm.get('title')?.hasError('minlength')">
+                Title must be at least 3 characters
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Description -->
+        <mat-form-field appearance="outline" class="w-full mb-4">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" placeholder="Enter task description" rows="3"></textarea>
+        </mat-form-field>
+
+        <!-- Priority -->
+        <mat-form-field appearance="outline" class="w-full mb-4">
+            <mat-label>Priority</mat-label>
+            <mat-select formControlName="priority" required>
+                <mat-option *ngFor="let priority of priorities" [value]="priority">
+                    {{ priority }}
+                </mat-option>
+            </mat-select>
+            <mat-error *ngIf="taskForm.get('priority')?.hasError('required')">
+                Priority is required
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Due Date -->
+        <mat-form-field appearance="outline" class="w-full mb-4">
+            <mat-label>Due Date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="dueDate" placeholder="Select due date">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <!-- Is Blocked -->
+        <div class="mb-4">
+            <mat-checkbox formControlName="isBlocked" class="text-gray-700">
+                Task is blocked
+            </mat-checkbox>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end gap-3 mt-6">
+            <button type="button" mat-stroked-button (click)="onCancel()" class="rounded-button">
+                Cancel
+            </button>
+            <button type="submit" mat-flat-button color="primary" [disabled]="!taskForm.valid"
+                class="bg-brand hover:bg-brand-hover text-white rounded-button">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
