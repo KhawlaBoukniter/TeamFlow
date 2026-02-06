@@ -31,8 +31,8 @@ import { MatIconModule } from '@angular/material/icon';
     MatIconModule
   ],
   template: `
-    <h2 mat-dialog-title class="flex items-center gap-3">
-      <mat-icon class="text-indigo-600">create_new_folder</mat-icon>
+    <h2 mat-dialog-title class="flex items-center gap-2 !leading-none">
+      <mat-icon class="text-indigo-600 !w-6 !h-6 !text-[24px]" style="line-height: 1;">create_new_folder</mat-icon>
       <span>Create New Project</span>
     </h2>
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
