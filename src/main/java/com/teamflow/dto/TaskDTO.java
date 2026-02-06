@@ -42,4 +42,10 @@ public class TaskDTO {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private java.util.List<TaskAssignmentDTO> assignments;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private java.util.List<TaskSummaryDTO> blockingTasks;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private java.util.List<TaskSummaryDTO> blockedTasks;
 }
