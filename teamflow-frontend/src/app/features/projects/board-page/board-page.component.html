@@ -1,88 +1,125 @@
-<div class="h-screen flex flex-col bg-gray-100">
+<div class="h-full flex flex-col bg-white overflow-hidden page-enter">
+
     <!-- Toolbar -->
-    <mat-toolbar color="white" class="!bg-white text-gray-800 shadow-sm border-b border-gray-200 px-6 z-10">
-        <button mat-icon-button routerLink="/projects" class="mr-2">
-            <mat-icon>arrow_back</mat-icon>
-        </button>
-        <span class="text-xl font-bold">{{ project?.name || 'Loading...' }}</span>
-        <button mat-flat-button class="ml-4 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
-            (click)="openMembersDialog()">
-            <mat-icon>group</mat-icon> Members
-        </button>
-        <span class="flex-1"></span>
+    <div class="h-16 border-b border-gray-200 px-6 flex items-center justify-between bg-white shrink-0">
+        <div class="flex items-center gap-4">
+            <h2 class="text-lg font-semibold text-gray-900">{{ project?.name || 'Board' }}</h2>
+            <span class="text-sm text-gray-500" *ngIf="project?.description">{{ project?.description }}</span>
+        </div>
 
-    </mat-toolbar>
+        <div class="flex items-center gap-3">
+            <!-- Filters Button -->
+            <button
+                class="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-button transition-colors">
+                <mat-icon class="!w-4 !h-4 !text-[16px]">filter_list</mat-icon>
+                Filters
+            </button>
 
-    <!-- Board Area -->
-    <div class="flex-1 overflow-x-auto overflow-y-hidden p-6">
-        <div class="flex h-full gap-6 select-none" cdkDropListGroup>
+            <!-- Add Column -->
+            <button (click)="openAddColumnDialog()"
+                class="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-button transition-colors">
+                <mat-icon class="!w-4 !h-4 !text-[16px]">view_column</mat-icon>
+                Add Column
+            </button>
 
-            <!-- Columns -->
-            <div *ngFor="let column of columns"
-                class="flex flex-col w-80 min-w-80 max-h-full bg-gray-200 rounded-lg shadow-sm">
-                <!-- Column Header -->
-                <div class="p-3 font-semibold text-gray-700 flex justify-between items-center bg-gray-300 rounded-t-lg">
-                    <span class="uppercase tracking-wide text-sm pl-2">{{ column.name }}</span>
-                    <span class="bg-gray-400 text-white text-xs px-2 py-1 rounded-full">{{ getTasks(column.id).length
-                        }}</span>
+            <!-- Members -->
+            <button (click)="openMembersDialog()"
+                class="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-brand text-white hover:bg-brand-hover rounded-button transition-colors btn-press">
+                <mat-icon class="!w-4 !h-4 !text-[16px]">group</mat-icon>
+                Members
+            </button>
+        </div>
+    </div>
+
+    <!-- Board Canvas -->
+    <div class="flex-1 overflow-x-auto overflow-y-hidden bg-gray-50 p-6">
+
+        <!-- Loading Skeleton -->
+        <div *ngIf="columns.length === 0" class="flex gap-4 h-full">
+            <div class="bg-white border border-gray-200 rounded-lg w-[300px] min-w-[300px] p-4"
+                *ngFor="let i of [1,2,3]">
+                <div class="skeleton h-5 w-24 mb-4"></div>
+                <div class="space-y-2">
+                    <div class="skeleton h-20 w-full"></div>
+                    <div class="skeleton h-20 w-full"></div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Task List -->
-                <div class="flex-1 overflow-y-auto p-2 space-y-3" cdkDropList [id]="'col-' + column.id"
-                    [cdkDropListData]="getTasks(column.id)" [cdkDropListConnectedTo]="connectedTo"
-                    (cdkDropListDropped)="drop($event, column.id)">
+        <!-- Columns (No DnD for MVP) -->
+        <div class="flex h-full gap-4 pb-2" *ngIf="columns.length > 0">
 
-                    <!-- Task Card -->
-                    <div *ngFor="let task of getTasks(column.id)"
-                        class="bg-white p-3 rounded shadow hover:shadow-md cursor-grab active:cursor-grabbing border-l-4 border-l-primary-500 relative group"
-                        cdkDrag (click)="openTaskDetails(task)">
+            <div *ngFor="let column of columns"
+                class="bg-white border border-gray-200 rounded-lg flex flex-col w-[300px] min-w-[300px] max-h-full">
 
-                        <!-- Fallback Move Menu (Icon visible on hover) -->
-                        <button mat-icon-button [matMenuTriggerFor]="moveMenu"
-                            class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity transform scale-75">
-                            <mat-icon>more_vert</mat-icon>
-                        </button>
-                        <mat-menu #moveMenu="matMenu">
-                            <span class="px-3 text-xs text-gray-500 block py-1">Move to...</span>
-                            <button mat-menu-item *ngFor="let col of columns" (click)="moveTaskFallback(task, col.id)"
-                                [disabled]="col.id === column.id">
-                                {{ col.name }}
-                            </button>
-                        </mat-menu>
+                <!-- Column Header (Sticky) -->
+                <div
+                    class="sticky top-0 bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-sm font-semibold text-gray-900">{{ column.name }}</h3>
+                        <span class="text-xs text-gray-500">({{ column.tasks?.length || 0 }})</span>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600 transition-colors opacity-0 pointer-events-none">
+                        <mat-icon class="!w-5 !h-5 !text-[20px]">more_vert</mat-icon>
+                    </button>
+                </div>
+                <!-- Tasks List (Scrollable) -->
+                <div class="flex-1 overflow-y-auto p-3 space-y-2">
 
-                        <h3 class="font-medium text-gray-800 mb-1 pr-6">{{ task.title }}</h3>
+                    <!-- Task Card (MVP) -->
+                    <div *ngFor="let task of column.tasks" (click)="openTaskDetails(task)"
+                        class="bg-white border rounded-lg p-3 hover:shadow-card-hover transition-all duration-200 cursor-pointer"
+                        [ngClass]="{'border-l-4 border-l-red-500': task.isBlocked}">
 
-                        <div class="flex items-center flex-wrap gap-1 mt-2">
-                            <span *ngIf="task.priority === 'HIGH' || task.priority === 'URGENT'"
-                                class="px-2 py-0.5 rounded text-xs font-bold"
-                                [ngClass]="{'bg-red-100 text-red-700': task.priority === 'URGENT', 'bg-orange-100 text-orange-700': task.priority === 'HIGH'}">
+                        <!-- Title -->
+                        <h4 class="text-sm font-medium text-gray-900 mb-2 line-clamp-2">
+                            {{ task.title }}
+                        </h4>
+
+                        <!-- Description (optional) -->
+                        <p class="text-xs text-gray-500 mb-2 line-clamp-1" *ngIf="task.description">
+                            {{ task.description }}
+                        </p>
+
+                        <!-- Meta Row -->
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <!-- Priority Badge -->
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium"
+                                [ngClass]="{
+                      'bg-green-100 text-green-700': task.priority === 'LOW',
+                      'bg-amber-100 text-amber-700': task.priority === 'MEDIUM',
+                      'bg-orange-100 text-orange-700': task.priority === 'HIGH'
+                    }">
+                                <span class="w-1.5 h-1.5 rounded-full" [ngClass]="{
+                        'bg-green-500': task.priority === 'LOW',
+                        'bg-amber-500': task.priority === 'MEDIUM',
+                        'bg-orange-500': task.priority === 'HIGH'
+                      }"></span>
                                 {{ task.priority }}
                             </span>
-                            <span *ngIf="task.isBlocked"
-                                class="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-bold flex items-center">
-                                <mat-icon class="text-[12px] h-[12px] w-[12px] mr-1 align-middle">block</mat-icon>
-                                Blocked
+
+                            <!-- Blocked Badge -->
+                            <span
+                                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700"
+                                *ngIf="task.isBlocked">
+                                🚫 Blocked
+                            </span>
+
+                            <!-- Due Date -->
+                            <span class="text-xs text-gray-500 ml-auto" *ngIf="task.dueDate">
+                                📅 {{ task.dueDate | date:'MMM dd' }}
                             </span>
                         </div>
                     </div>
 
-                </div>
-
-                <!-- Add Task Button (Bottom of column) -->
-                <div class="p-2">
-                    <button mat-button class="w-full text-gray-600 hover:bg-gray-300 text-left"
-                        (click)="openCreateTask(column.id)">
-                        <mat-icon class="align-bottom">add</mat-icon> Add Task
+                    <!-- Add Task Button -->
+                    <button (click)="openCreateTask(column.id)"
+                        class="w-full py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg border border-dashed border-gray-300 transition-colors flex items-center justify-center gap-1">
+                        <mat-icon class="!w-4 !h-4 !text-[16px]">add</mat-icon>
+                        Add Task
                     </button>
                 </div>
             </div>
-
-            <!-- Add Column Placeholder -->
-            <div (click)="openAddColumnDialog()"
-                class="flex flex-col w-80 min-w-80 h-12 bg-gray-200/50 rounded-lg items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors border-2 border-dashed border-gray-300 text-gray-500">
-                <span class="flex items-center font-medium"><mat-icon>add</mat-icon> Add Column</span>
-            </div>
-
         </div>
     </div>
 </div>
