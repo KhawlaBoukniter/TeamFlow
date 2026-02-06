@@ -63,6 +63,17 @@ export interface Task {
     assignees?: User[];
     subTasks?: SubTask[];
     comments?: Comment[];
+    blockingTasks?: TaskSummary[]; 
+    blockedTasks?: TaskSummary[]; 
+}
+
+export interface TaskSummary {
+    id: number;
+    title: string;
+    priority: TaskPriority;
+    blocked: boolean;
+    columnId?: number;
+    assignee?: User; 
 }
 
 export interface SubTask {

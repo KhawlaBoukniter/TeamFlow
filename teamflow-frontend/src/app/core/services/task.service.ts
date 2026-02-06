@@ -64,4 +64,12 @@ export class TaskService {
         // Let's assume standard sub-resource pattern for now, can adjust if backend differs.
         return this.http.delete<void>(`${this.apiUrl}/${taskId}/assignments/${userId}`);
     }
+
+    addDependency(taskId: number, dependencyId: number): Observable<void> {
+        return this.http.post<void>(`${this.apiUrl}/${taskId}/dependencies/${dependencyId}`, {});
+    }
+
+    removeDependency(taskId: number, dependencyId: number): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/${taskId}/dependencies/${dependencyId}`);
+    }
 }

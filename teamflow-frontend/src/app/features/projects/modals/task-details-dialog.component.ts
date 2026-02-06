@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Task, SubTask, Comment, TaskAssignment, User, Membership } from '../../../shared/models';
 import { SubTaskService } from '../../../core/services/subtask.service';
@@ -29,7 +32,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
         MatCheckboxModule,
         MatFormFieldModule,
         MatInputModule,
-        ReactiveFormsModule
+        MatInputModule,
+        MatSelectModule,
+        MatTooltipModule,
+        ReactiveFormsModule,
+        FormsModule
     ],
     templateUrl: './task-details-dialog.component.html',
     styleUrl: './task-details-dialog.component.css'
@@ -40,6 +47,8 @@ export class TaskDetailsDialogComponent implements OnInit {
     subTasks: SubTask[] = [];
     comments: Comment[] = [];
     assignments: TaskAssignment[] = [];
+    allTasks: Task[] = []; // List of all tasks in the project (for dependency selection)
+    selectedDependencyId: number | null = null;
 
     // Assignment Logic
     projectId?: number;
@@ -50,7 +59,7 @@ export class TaskDetailsDialogComponent implements OnInit {
     newCommentForm: FormGroup;
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) public data: { task: Task; projectType?: string; projectId?: number },
+        @Inject(MAT_DIALOG_DATA) public data: { task: Task; projectType?: string; projectId?: number; allTasks?: Task[] },
         private dialogRef: MatDialogRef<TaskDetailsDialogComponent>,
         private subTaskService: SubTaskService,
         private commentService: CommentService,
@@ -63,6 +72,7 @@ export class TaskDetailsDialogComponent implements OnInit {
         this.task = data.task;
         this.projectType = data.projectType || 'PERSONAL';
         this.projectId = data.projectId;
+        this.allTasks = data.allTasks || []; // Receive all tasks from board
 
         this.newSubTaskForm = this.fb.group({
             title: ['']
@@ -265,5 +275,48 @@ export class TaskDetailsDialogComponent implements OnInit {
 
     isTeamProject(): boolean {
         return this.projectType === 'TEAM';
+    }
+
+    // Dependency Logic
+    getAvailableTasks(): Task[] {
+        // Filter out self and tasks that are already dependencies (either way)
+        const existingIds = new Set([
+            ...(this.task.blockingTasks?.map(t => t.id) || []),
+            ...(this.task.blockedTasks?.map(t => t.id) || []),
+            this.task.id
+        ]);
+        return this.allTasks.filter(t => !existingIds.has(t.id));
+    }
+
+    addDependency(): void {
+        if (!this.selectedDependencyId) return;
+
+        this.taskService.addDependency(this.task.id, this.selectedDependencyId).subscribe({
+            next: () => {
+                this.snackBar.open('Dependency added', 'Close', { duration: 3000 });
+                this.selectedDependencyId = null;
+                // Refresh task to get updated dependencies
+                this.loadAssignments(); // Re-use this method which refreshes the whole task
+            },
+            error: (err) => {
+                console.error('Failed to add dependency', err);
+                this.snackBar.open(err.error?.message || 'Failed to add dependency', 'Close', { duration: 3000 });
+            }
+        });
+    }
+
+    removeDependency(dependencyId: number): void {
+        if (!confirm('Remove this dependency?')) return;
+
+        this.taskService.removeDependency(this.task.id, dependencyId).subscribe({
+            next: () => {
+                this.snackBar.open('Dependency removed', 'Close', { duration: 3000 });
+                this.loadAssignments(); // Refresh task
+            },
+            error: (err) => {
+                console.error('Failed to remove dependency', err);
+                this.snackBar.open('Failed to remove dependency', 'Close', { duration: 3000 });
+            }
+        });
     }
 }
