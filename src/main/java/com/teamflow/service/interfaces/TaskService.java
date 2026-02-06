@@ -14,10 +14,13 @@ public interface TaskService {
 
     TaskDTO moveTask(Long taskId, Long targetColumnId);
 
-    // Assignment Methods
     com.teamflow.dto.TaskAssignmentDTO assignUserToTask(Long taskId, Long userId, String role);
 
     void removeAssignment(Long taskId, Long userId);
 
     void deleteTask(Long id);
+
+    void addDependency(Long taskId, Long dependencyId);
+
+    void removeDependency(Long taskId, Long dependencyId);
 }

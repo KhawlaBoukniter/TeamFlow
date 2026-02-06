@@ -23,6 +23,7 @@ public class TaskServiceImpl implements TaskService {
     private final ColumnRepository columnRepository;
     private final com.teamflow.repository.UserRepository userRepository;
     private final com.teamflow.repository.TaskAssignmentRepository taskAssignmentRepository;
+    private final com.teamflow.repository.TaskDependencyRepository taskDependencyRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -143,6 +144,82 @@ public class TaskServiceImpl implements TaskService {
         taskAssignmentRepository.delete(assignment);
     }
 
+    @Override
+    @Transactional
+    public void addDependency(Long taskId, Long dependencyId) {
+        if (taskId.equals(dependencyId)) {
+            throw new IllegalArgumentException("A task cannot depend on itself");
+        }
+
+        Task task = taskRepository.findById(taskId)
+                .filter(t -> t.getDeletedAt() == null)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
+
+        Task dependency = taskRepository.findById(dependencyId)
+                .filter(t -> t.getDeletedAt() == null)
+                .orElseThrow(() -> new ResourceNotFoundException("Dependency task not found with id: " + dependencyId));
+
+        if (taskDependencyRepository.existsByDependentIdAndPrerequisiteId(taskId, dependencyId)) {
+            throw new IllegalArgumentException("Dependency already exists");
+        }
+
+        if (createsCycle(taskId, dependencyId)) {
+            throw new IllegalArgumentException("Circular dependency detected");
+        }
+
+        com.teamflow.entity.TaskDependency taskDependency = new com.teamflow.entity.TaskDependency();
+        taskDependency.setDependent(task);
+        taskDependency.setPrerequisite(dependency);
+        taskDependency.setType(com.teamflow.entity.enums.DependencyType.BLOCKING);
+
+        taskDependencyRepository.save(taskDependency);
+
+        task.setBlocked(true);
+        taskRepository.save(task);
+    }
+
+    @Override
+    @Transactional
+    public void removeDependency(Long taskId, Long dependencyId) {
+        com.teamflow.entity.TaskDependency dependency = taskDependencyRepository
+                .findByDependentIdAndPrerequisiteId(taskId, dependencyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Dependency not found"));
+
+        taskDependencyRepository.delete(dependency);
+
+        // Check if task is still blocked
+        boolean isStillBlocked = !taskDependencyRepository.findByDependentId(taskId).isEmpty();
+        Task task = dependency.getDependent();
+        if (task.isBlocked() != isStillBlocked) {
+            task.setBlocked(isStillBlocked);
+            taskRepository.save(task);
+        }
+    }
+
+    private boolean createsCycle(Long taskId, Long newDependencyId) {
+        // DFS to check if taskId is reachable from newDependencyId
+        java.util.Set<Long> visited = new java.util.HashSet<>();
+        java.util.Stack<Long> stack = new java.util.Stack<>();
+        stack.push(newDependencyId);
+
+        while (!stack.isEmpty()) {
+            Long currentId = stack.pop();
+            if (currentId.equals(taskId)) {
+                return true;
+            }
+
+            if (!visited.contains(currentId)) {
+                visited.add(currentId);
+                List<com.teamflow.entity.TaskDependency> dependencies = taskDependencyRepository
+                        .findByDependentId(currentId);
+                for (com.teamflow.entity.TaskDependency dep : dependencies) {
+                    stack.push(dep.getPrerequisite().getId());
+                }
+            }
+        }
+        return false;
+    }
+
     private TaskDTO toDTO(Task task) {
         TaskDTO dto = new TaskDTO();
         dto.setId(task.getId());
@@ -151,13 +228,39 @@ public class TaskServiceImpl implements TaskService {
         dto.setPriority(task.getPriority());
         dto.setDueDate(task.getDueDate());
         dto.setBlocked(task.isBlocked());
-        dto.setColumnId(task.getColumn().getId());
+        if (task.getColumn() != null) {
+            dto.setColumnId(task.getColumn().getId());
+        }
         dto.setCreatedAt(task.getCreatedAt());
         dto.setUpdatedAt(task.getUpdatedAt());
         if (task.getAssignments() != null) {
             dto.setAssignments(task.getAssignments().stream()
                     .map(this::toAssignmentDTO)
                     .collect(Collectors.toList()));
+        }
+
+        // Map Dependencies
+        List<com.teamflow.entity.TaskDependency> blocking = taskDependencyRepository.findByDependentId(task.getId());
+        dto.setBlockingTasks(blocking.stream()
+                .map(dep -> toSummaryDTO(dep.getPrerequisite()))
+                .collect(Collectors.toList()));
+
+        List<com.teamflow.entity.TaskDependency> blocked = taskDependencyRepository.findByPrerequisiteId(task.getId());
+        dto.setBlockedTasks(blocked.stream()
+                .map(dep -> toSummaryDTO(dep.getDependent()))
+                .collect(Collectors.toList()));
+
+        return dto;
+    }
+
+    private com.teamflow.dto.TaskSummaryDTO toSummaryDTO(Task task) {
+        com.teamflow.dto.TaskSummaryDTO dto = new com.teamflow.dto.TaskSummaryDTO();
+        dto.setId(task.getId());
+        dto.setTitle(task.getTitle());
+        dto.setPriority(task.getPriority());
+        dto.setBlocked(task.isBlocked());
+        if (task.getColumn() != null) {
+            dto.setColumnId(task.getColumn().getId());
         }
         return dto;
     }
