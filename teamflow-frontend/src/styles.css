@@ -1,181 +1,330 @@
-/* Angular Material Theme Import - Must be first */
+/* Angular Material Theme Import */
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* Tailwind Directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 
-  Design System - TeamFlow Professional
-  
-  Color Palette (Minimal & Professional):
-  - Primary: slate-900 (#0f172a) - Dark, professional, trustworthy
-  - Surface: white (#ffffff) - Clean, spacious
-  - Text: slate-700 (#334155) - Readable, soft
-  - Accents: slate-500 (#64748b) - Subtle, elegant
-  
-  Typography:
-  - Base font: Roboto (Material default)
-  - Weight: font-light (300) for headings, regular (400) for body
-  - Hierarchy: Clear visual separation between h1, h2, body
-*/
+/* =============================================================================
+   CLICKUP/JIRA DESIGN SYSTEM
+   ============================================================================= */
 
-@layer base {
-    * {
-        @apply m-0 p-0 box-border;
+:root {
+    /* App Background */
+    --bg-app: #f9fafb;
+    /* gray-50 */
+    --bg-surface: #ffffff;
+    /* white */
+
+    /* Text Hierarchy */
+    --text-primary: #111827;
+    /* gray-900 */
+    --text-secondary: #6b7280;
+    /* gray-500 */
+    --text-tertiary: #9ca3af;
+    /* gray-400 */
+
+    /* Borders */
+    --border: #e5e7eb;
+    /* gray-200 */
+    --border-light: #f3f4f6;
+    /* gray-100 */
+
+    /* Brand */
+    --brand-primary: #4f46e5;
+    /* indigo-600 */
+    --brand-hover: #4338ca;
+    /* indigo-700 */
+    --brand-light: #eef2ff;
+    /* indigo-50 */
+
+    /* Accent */
+    --accent: #06b6d4;
+    /* cyan-500 */
+    --accent-hover: #0891b2;
+    /* cyan-600 */
+
+    /* Priority Colors (LOW | MEDIUM | HIGH) */
+    --priority-low: #10b981;
+    /* green-500 */
+    --priority-medium: #f59e0b;
+    /* amber-500 */
+    --priority-high: #f97316;
+    /* orange-500 */
+
+    --priority-low-bg: #ecfdf5;
+    --priority-medium-bg: #fffbeb;
+    --priority-high-bg: #fff7ed;
+
+    /* Shadows */
+    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+    --shadow-card-hover: 0 4px 12px 0 rgba(0, 0, 0, 0.1);
+    --shadow-dropdown: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+
+    /* Sidebar (legacy) */
+    --bg-sidebar: #0f172a;
+    --text-inverse: #ffffff;
+}
+
+/* =============================================================================
+   BASE STYLES
+   ============================================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background-color: var(--bg-app);
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* =============================================================================
+   ANIMATIONS
+   ============================================================================= */
+
+/* Page Enter */
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
     }
 
-    html,
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.page-enter {
+    animation: pageEnter 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fade In (legacy) */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Slide Up */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-up {
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Skeleton Pulse */
+@keyframes skeletonPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.skeleton {
+    animation: skeletonPulse 1.5s ease-in-out infinite;
+    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+    background-size: 200% 100%;
+    border-radius: 4px;
+}
+
+/* Modal Enter */
+@keyframes modalEnter {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal-enter {
+    animation: modalEnter 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* =============================================================================
+   UTILITY CLASSES
+   ============================================================================= */
+
+/* Card Lift Hover */
+.card-lift {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+    border-color: var(--brand-primary);
+}
+
+/* Button Press */
+.btn-press {
+    transition: transform 0.15s ease;
+}
+
+.btn-press:active {
+    transform: scale(0.98);
+}
+
+/* Text Truncation */
+.line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* =============================================================================
+   COMPONENT-SPECIFIC STYLES
+   ============================================================================= */
+
+/* Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--border-light);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+    /* gray-300 */
+}
+
+/* =============================================================================
+   ANGULAR MATERIAL OVERRIDES
+   ============================================================================= */
+
+/* Dialogs */
+.mat-mdc-dialog-container {
+    border-radius: 12px !important;
+    box-shadow: var(--shadow-dropdown) !important;
+}
+
+.mat-mdc-dialog-surface {
+    border-radius: 12px !important;
+}
+
+/* Snackbars */
+.mat-mdc-snack-bar-container {
+    border-radius: 8px !important;
+}
+
+/* Buttons */
+.mat-mdc-button,
+.mat-mdc-raised-button {
+    border-radius: 6px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+}
+
+/* Form Fields */
+.mat-mdc-text-field-wrapper {
+    border-radius: 6px !important;
+}
+
+/* =============================================================================
+   LEGACY STYLES (TO BE PHASED OUT)
+   ============================================================================= */
+
+.card-premium {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-card);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+    border-color: var(--brand-primary);
+}
+
+.btn-primary-new {
+    background: var(--brand-primary);
+    color: white;
+    font-weight: 500;
+    font-size: 0.875rem;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    box-shadow: var(--shadow-card);
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.btn-primary-new:hover {
+    background: var(--brand-hover);
+}
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 768px) {
     body {
-        @apply h-full;
+        font-size: 13px;
     }
-
-    body {
-        @apply font-sans text-slate-900 bg-gray-50 antialiased;
-    }
-
-    /* Modern input autofill styling */
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover,
-    input:-webkit-autofill:focus {
-        -webkit-box-shadow: 0 0 0 1000px white inset;
-        -webkit-text-fill-color: #0f172a;
-    }
-}
-
-/* Custom Scrollbar - Minimal & Professional */
-@layer utilities {
-    ::-webkit-scrollbar {
-        @apply w-2 h-2;
-    }
-
-    ::-webkit-scrollbar-track {
-        @apply bg-slate-100;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        @apply bg-slate-300 rounded-full;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        @apply bg-slate-400;
-    }
-}
-
-/*
-  Material Form Fields - Professional Styling
-  Clean, minimal, with subtle focus states
-*/
-@layer components {
-    .modern-field {
-        @apply block;
-    }
-
-    /* Field container styling */
-    .modern-field ::ng-deep .mat-mdc-text-field-wrapper {
-        @apply bg-white;
-    }
-
-    /* Outline borders */
-    .modern-field ::ng-deep .mdc-notched-outline__leading,
-    .modern-field ::ng-deep .mdc-notched-outline__notch,
-    .modern-field ::ng-deep .mdc-notched-outline__trailing {
-        @apply border-slate-300;
-    }
-
-    /* Focus state - subtle slate border */
-    .modern-field ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
-    .modern-field ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
-    .modern-field ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
-        @apply border-slate-900 border-2;
-    }
-
-    /* Input text */
-    .modern-field ::ng-deep .mat-mdc-input-element {
-        @apply text-slate-900 text-base;
-    }
-
-    /* Placeholder text */
-    .modern-field ::ng-deep .mat-mdc-input-element::placeholder {
-        @apply text-slate-400 font-light;
-    }
-
-    /* Label */
-    .modern-field ::ng-deep .mat-mdc-form-field-label {
-        @apply text-slate-600;
-    }
-
-    .modern-field ::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-form-field-label {
-        @apply text-slate-900;
-    }
-
-    /* Error messages */
-    .modern-field ::ng-deep .mat-mdc-form-field-error {
-        @apply text-red-600 text-xs font-normal;
-    }
-
-    /* Remove default Material hints/subscripts */
-    .modern-field ::ng-deep .mat-mdc-form-field-subscript-wrapper {
-        @apply mt-1;
-    }
-
-    /* Adjust padding */
-    .modern-field ::ng-deep .mat-mdc-form-field-infix {
-        @apply py-3;
-    }
-}
-
-/* 
-  Subtle animations - Professional & Smooth
-  No flashy effects, just polished micro-interactions
-*/
-@layer utilities {
-
-    /* Gentle fade-in for page load */
-    @keyframes subtle-fade {
-        from {
-            opacity: 0;
-        }
-
-        to {
-            opacity: 1;
-        }
-    }
-
-    /* Slight lift on hover for buttons */
-    @keyframes subtle-lift {
-        from {
-            transform: translateY(0);
-        }
-
-        to {
-            transform: translateY(-1px);
-        }
-    }
-
-    .animate-subtle-fade {
-        animation: subtle-fade 0.4s ease-out;
-    }
-}
-
-/*
-  Button overrides for Material buttons
-  Ensures consistent professional styling
-*/
-button[mat-flat-button] {
-    @apply rounded-md transition-all duration-200;
-}
-
-button[mat-flat-button]:hover:not(:disabled) {
-    @apply shadow-md;
-}
-
-button[mat-flat-button]:disabled {
-    @apply opacity-50 cursor-not-allowed;
-}
-
-/* Material spinner color customization */
-mat-spinner.inline-block ::ng-deep circle {
-    stroke: currentColor;
 }
