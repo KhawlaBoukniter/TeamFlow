@@ -92,10 +92,37 @@
                 <!-- 1. Top Row: Date & Menu -->
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-[#8A8F98] text-xs font-medium">{{ project.createdAt | date:'MMMM d, y' }}</span>
-                    <button mat-icon-button class="-mr-2 !text-[#8A8F98] hover:!text-white"
-                        (click)="$event.stopPropagation()">
+                    <button mat-icon-button class="!text-[#8A8F98] hover:!text-white" (click)="$event.stopPropagation()"
+                        [matMenuTriggerFor]="menu">
                         <mat-icon>more_vert</mat-icon>
                     </button>
+                    <mat-menu #menu="matMenu" xPosition="before" class="linear-menu">
+                        <button mat-menu-item (click)="openProjectDetails(project)">
+                            <mat-icon class="!w-4 !h-4 !text-[16px]">visibility</mat-icon>
+                            <span class="text-sm">Details</span>
+                        </button>
+                        <button mat-menu-item (click)="openProjectEdit(project)">
+                            <mat-icon class="!w-4 !h-4 !text-[16px]">edit</mat-icon>
+                            <span class="text-sm">Edit</span>
+                        </button>
+                        <button mat-menu-item (click)="openMembersDialog(project, $event)">
+                            <mat-icon class="!w-4 !h-4 !text-[16px]">group</mat-icon>
+                            <span class="text-sm">Members</span>
+                        </button>
+                        <mat-divider></mat-divider>
+                        <button mat-menu-item *ngIf="project.status === 'ACTIVE'" (click)="archiveProject(project)">
+                            <mat-icon class="!w-4 !h-4 !text-[16px]">archive</mat-icon>
+                            <span class="text-sm">Archive</span>
+                        </button>
+                        <button mat-menu-item *ngIf="project.status !== 'ACTIVE'" (click)="unarchiveProject(project)">
+                            <mat-icon class="!w-4 !h-4 !text-[16px]">unarchive</mat-icon>
+                            <span class="text-sm">Restore</span>
+                        </button>
+                        <button mat-menu-item class="!text-red-400" (click)="deleteProject(project)">
+                            <mat-icon class="!w-4 !h-4 !text-[16px] !text-red-400">delete</mat-icon>
+                            <span class="text-sm">Delete</span>
+                        </button>
+                    </mat-menu>
                 </div>
 
                 <!-- 2. Center Info -->
@@ -241,9 +268,34 @@
                             <!-- Actions -->
                             <td class="px-6 py-4 text-right">
                                 <button mat-icon-button class="!text-[#8A8F98] hover:!text-white"
-                                    (click)="$event.stopPropagation()">
+                                    (click)="$event.stopPropagation()" [matMenuTriggerFor]="menu">
                                     <mat-icon>more_horiz</mat-icon>
                                 </button>
+                                <mat-menu #menu="matMenu" xPosition="before" class="linear-menu">
+                                    <button mat-menu-item (click)="openProjectEdit(project)">
+                                        <mat-icon class="!w-4 !h-4 !text-[16px]">edit</mat-icon>
+                                        <span class="text-sm">Edit</span>
+                                    </button>
+                                    <button mat-menu-item (click)="openMembersDialog(project, $event)">
+                                        <mat-icon class="!w-4 !h-4 !text-[16px]">group</mat-icon>
+                                        <span class="text-sm">Members</span>
+                                    </button>
+                                    <mat-divider></mat-divider>
+                                    <button mat-menu-item *ngIf="project.status === 'ACTIVE'"
+                                        (click)="archiveProject(project)">
+                                        <mat-icon class="!w-4 !h-4 !text-[16px]">archive</mat-icon>
+                                        <span class="text-sm">Archive</span>
+                                    </button>
+                                    <button mat-menu-item *ngIf="project.status !== 'ACTIVE'"
+                                        (click)="unarchiveProject(project)">
+                                        <mat-icon class="!w-4 !h-4 !text-[16px]">unarchive</mat-icon>
+                                        <span class="text-sm">Restore</span>
+                                    </button>
+                                    <button mat-menu-item class="!text-red-400" (click)="deleteProject(project)">
+                                        <mat-icon class="!w-4 !h-4 !text-[16px] !text-red-400">delete</mat-icon>
+                                        <span class="text-sm">Delete</span>
+                                    </button>
+                                </mat-menu>
                             </td>
                         </tr>
                     </tbody>

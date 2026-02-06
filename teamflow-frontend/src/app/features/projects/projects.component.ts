@@ -132,12 +132,12 @@ export class ProjectsComponent implements OnInit {
         const dialogRef = this.dialog.open(ProjectDetailsDialogComponent, {
             width: '800px',
             maxHeight: '90vh',
-            data: project,
+            data: { project },
             panelClass: 'linear-dialog'
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            if (result) {
+            if (result && result.refreshNeeded) {
                 this.loadProjects();
             }
         });
