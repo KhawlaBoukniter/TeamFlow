@@ -74,11 +74,39 @@
                     <span class="text-xs text-gray-400" *ngIf="project.startDate">
                         {{ project.startDate | date:'MMM dd, yyyy' }}
                     </span>
-                    <button
-                        class="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600"
+                    <button mat-icon-button [matMenuTriggerFor]="projectMenu"
+                        class="opacity-0 group-hover:opacity-100 transition-opacity !w-8 !h-8"
                         (click)="$event.stopPropagation()">
-                        <mat-icon class="!w-5 !h-5 !text-[20px]">more_vert</mat-icon>
+                        <mat-icon class="!w-5 !h-5 !text-[20px] text-gray-400">more_vert</mat-icon>
                     </button>
+
+                    <mat-menu #projectMenu="matMenu">
+                        <button mat-menu-item (click)="$event.stopPropagation(); openProjectDetails(project)">
+                            <mat-icon>info</mat-icon>
+                            <span>View Details</span>
+                        </button>
+                        <button mat-menu-item (click)="$event.stopPropagation(); openProjectEdit(project)">
+                            <mat-icon>edit</mat-icon>
+                            <span>Edit Project</span>
+                        </button>
+                        <mat-divider></mat-divider>
+                        <button mat-menu-item (click)="$event.stopPropagation(); archiveProject(project)"
+                            *ngIf="project.status === 'ACTIVE'">
+                            <mat-icon>archive</mat-icon>
+                            <span>Archive</span>
+                        </button>
+                        <button mat-menu-item (click)="$event.stopPropagation(); unarchiveProject(project)"
+                            *ngIf="project.status === 'ARCHIVED'">
+                            <mat-icon>unarchive</mat-icon>
+                            <span>Unarchive</span>
+                        </button>
+                        <mat-divider></mat-divider>
+                        <button mat-menu-item (click)="$event.stopPropagation(); deleteProject(project)"
+                            class="text-red-600">
+                            <mat-icon>delete</mat-icon>
+                            <span>Delete</span>
+                        </button>
+                    </mat-menu>
                 </div>
 
                 <!-- Title & Description -->

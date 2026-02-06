@@ -7,6 +7,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../core/services/auth.service';
 import { ProjectService } from '../../core/services/project.service';
 import { Project } from '../../shared/models';
@@ -16,7 +19,7 @@ import { BRANDING } from '../../core/constants/branding';
 @Component({
     selector: 'app-projects',
     standalone: true,
-    imports: [CommonModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatDialogModule, MatProgressSpinnerModule],
+    imports: [CommonModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatDialogModule, MatProgressSpinnerModule, MatMenuModule, MatDividerModule, MatSnackBarModule],
     templateUrl: './projects.component.html',
     styleUrls: ['./projects.component.css']
 })
@@ -31,6 +34,7 @@ export class ProjectsComponent implements OnInit {
     private projectService = inject(ProjectService);
     private router = inject(Router);
     private dialog = inject(MatDialog);
+    private snackBar = inject(MatSnackBar);
 
     constructor() {
         this.userEmail = this.authService.getUserEmail();
@@ -85,5 +89,58 @@ export class ProjectsComponent implements OnInit {
 
     get totalProjectsCount(): number {
         return this.projects.length;
+    }
+
+    openProjectDetails(project: Project): void {
+        // TODO: Create ProjectDetailsDialogComponent
+        this.snackBar.open('Project Details (Coming Soon)', 'Close', { duration: 2000 });
+    }
+
+    openProjectEdit(project: Project): void {
+        // TODO: Create ProjectEditDialogComponent
+        this.snackBar.open('Project Edit (Coming Soon)', 'Close', { duration: 2000 });
+    }
+
+    archiveProject(project: Project): void {
+        if (confirm(`Archive project "${project.name}"?`)) {
+            this.projectService.updateProject(project.id, { status: 'ARCHIVED' }).subscribe({
+                next: () => {
+                    this.loadProjects();
+                    this.snackBar.open('Project archived', 'Close', { duration: 2000 });
+                },
+                error: (err) => {
+                    console.error('Failed to archive project', err);
+                    this.snackBar.open('Failed to archive project', 'Close', { duration: 3000 });
+                }
+            });
+        }
+    }
+
+    unarchiveProject(project: Project): void {
+        this.projectService.updateProject(project.id, { status: 'ACTIVE' }).subscribe({
+            next: () => {
+                this.loadProjects();
+                this.snackBar.open('Project unarchived', 'Close', { duration: 2000 });
+            },
+            error: (err) => {
+                console.error('Failed to unarchive project', err);
+                this.snackBar.open('Failed to unarchive project', 'Close', { duration: 3000 });
+            }
+        });
+    }
+
+    deleteProject(project: Project): void {
+        if (confirm(`Delete project "${project.name}"? This action cannot be undone.`)) {
+            this.projectService.deleteProject(project.id).subscribe({
+                next: () => {
+                    this.loadProjects();
+                    this.snackBar.open('Project deleted', 'Close', { duration: 2000 });
+                },
+                error: (err) => {
+                    console.error('Failed to delete project', err);
+                    this.snackBar.open('Failed to delete project', 'Close', { duration: 3000 });
+                }
+            });
+        }
     }
 }

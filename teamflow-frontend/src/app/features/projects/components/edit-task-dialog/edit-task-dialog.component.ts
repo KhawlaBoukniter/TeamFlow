@@ -43,7 +43,7 @@ export class EditTaskDialogComponent {
             description: [data.task.description || ''],
             priority: [data.task.priority, Validators.required],
             dueDate: [data.task.dueDate ? new Date(data.task.dueDate) : null],
-            blocked: [data.task.blocked === true] // Ensure boolean value
+            blocked: [data.task.blocked === true] 
         });
     }
 
@@ -51,12 +51,10 @@ export class EditTaskDialogComponent {
         if (this.taskForm.valid) {
             const formValue = this.taskForm.value;
 
-            // Format dueDate as YYYY-MM-DD if present
             if (formValue.dueDate instanceof Date) {
                 formValue.dueDate = formValue.dueDate.toISOString().split('T')[0];
             }
 
-            // Ensure blocked is always a boolean
             formValue.blocked = formValue.blocked === true;
 
             this.dialogRef.close(formValue);
