@@ -31,10 +31,12 @@ import { MatIconModule } from '@angular/material/icon';
     MatIconModule
   ],
   template: `
-    <h2 mat-dialog-title class="flex items-center gap-2 !leading-none">
-      <mat-icon class="text-indigo-600 !w-6 !h-6 !text-[24px]" style="line-height: 1;">create_new_folder</mat-icon>
-      <span>Create New Project</span>
-    </h2>
+    <div class="px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center gap-2">
+        <mat-icon class="text-indigo-600" style="font-size: 24px; width: 24px; height: 24px;">create_new_folder</mat-icon>
+        <h2 class="text-lg font-semibold m-0" style="line-height: 24px;">Create New Project</h2>
+      </div>
+    </div>
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <mat-dialog-content class="flex flex-col gap-5 min-w-[500px]">
         <mat-form-field appearance="outline" class="w-full">
