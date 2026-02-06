@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatIconModule } from '@angular/material/icon';
 import { Task, TaskPriority } from '../../../../shared/models';
 
 @Component({
@@ -24,7 +25,8 @@ import { Task, TaskPriority } from '../../../../shared/models';
         MatSelectModule,
         MatCheckboxModule,
         MatDatepickerModule,
-        MatNativeDateModule
+        MatNativeDateModule,
+        MatIconModule
     ],
     templateUrl: './edit-task-dialog.component.html',
     styleUrl: './edit-task-dialog.component.css'
@@ -43,7 +45,7 @@ export class EditTaskDialogComponent {
             description: [data.task.description || ''],
             priority: [data.task.priority, Validators.required],
             dueDate: [data.task.dueDate ? new Date(data.task.dueDate) : null],
-            blocked: [data.task.blocked === true] 
+            blocked: [data.task.blocked === true]
         });
     }
 
