@@ -8,30 +8,32 @@ import { Project } from '../../../../shared/models';
 import { ProjectEditDialogComponent } from '../project-edit-dialog/project-edit-dialog.component';
 
 @Component({
-    selector: 'app-project-details-dialog',
-    standalone: true,
-    imports: [
-        CommonModule,
-        MatDialogModule,
-        MatButtonModule,
-        MatIconModule,
-        MatTabsModule
-    ],
-    template: `
-    <h2 mat-dialog-title class="flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="text-xl font-semibold text-gray-900">{{ project.name }}</span>
-        <span class="px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getStatusColor(project.status)">
-          {{ project.status }}
-        </span>
-        <span class="px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getTypeColor(project.type)">
-          {{ project.type }}
-        </span>
-      </div>
-      <button mat-icon-button (click)="close()">
+  selector: 'app-project-details-dialog',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTabsModule
+  ],
+  template: `
+    <div class="dialog-header">
+      <h2 mat-dialog-title>
+        <div class="flex items-center gap-3">
+          <span class="text-xl font-semibold text-gray-900">{{ project.name }}</span>
+          <span class="px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getStatusColor(project.status)">
+            {{ project.status }}
+          </span>
+          <span class="px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getTypeColor(project.type)">
+            {{ project.type }}
+          </span>
+        </div>
+      </h2>
+      <button mat-icon-button class="dialog-close-button" (click)="close()">
         <mat-icon>close</mat-icon>
       </button>
-    </h2>
+    </div>
 
     <mat-dialog-content>
       <mat-tab-group class="project-details-tabs">
@@ -105,62 +107,72 @@ import { ProjectEditDialogComponent } from '../project-edit-dialog/project-edit-
       </mat-tab-group>
     </mat-dialog-content>
   `,
-    styles: [`
+  styles: [`
+    .dialog-header {
+      position: relative;
+    }
+    
+    .dialog-close-button {
+      position: absolute !important;
+      top: 12px;
+      right: 12px;
+    }
+    
     .project-details-tabs {
       min-height: 300px;
     }
   `]
 })
 export class ProjectDetailsDialogComponent implements OnInit {
-    project: Project;
+  project: Project;
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) public data: { project: Project },
-        private dialogRef: MatDialogRef<ProjectDetailsDialogComponent>,
-        private dialog: MatDialog
-    ) {
-        this.project = data.project;
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: { project: Project },
+    private dialogRef: MatDialogRef<ProjectDetailsDialogComponent>,
+    private dialog: MatDialog
+  ) {
+    this.project = data.project;
+  }
+
+  ngOnInit(): void {
+    // Could load additional stats here if needed
+  }
+
+  openEditDialog(): void {
+    const editDialogRef = this.dialog.open(ProjectEditDialogComponent, {
+      width: '600px',
+      data: { project: this.project }
+    });
+
+    editDialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Project was updated, close this dialog and signal refresh
+        this.dialogRef.close({ refreshNeeded: true });
+      }
+    });
+  }
+
+  close(): void {
+    this.dialogRef.close();
+  }
+
+  isTeamProject(): boolean {
+    return this.project.type === 'TEAM';
+  }
+
+  getStatusColor(status: string | undefined): string {
+    switch (status) {
+      case 'ACTIVE': return 'bg-green-100 text-green-700';
+      case 'ARCHIVED': return 'bg-gray-100 text-gray-600';
+      default: return 'bg-gray-100 text-gray-600';
     }
+  }
 
-    ngOnInit(): void {
-        // Could load additional stats here if needed
+  getTypeColor(type: string | undefined): string {
+    switch (type) {
+      case 'TEAM': return 'bg-blue-100 text-blue-700';
+      case 'PERSONAL': return 'bg-purple-100 text-purple-700';
+      default: return 'bg-gray-100 text-gray-600';
     }
-
-    openEditDialog(): void {
-        const editDialogRef = this.dialog.open(ProjectEditDialogComponent, {
-            width: '600px',
-            data: { project: this.project }
-        });
-
-        editDialogRef.afterClosed().subscribe(result => {
-            if (result) {
-                // Project was updated, close this dialog and signal refresh
-                this.dialogRef.close({ refreshNeeded: true });
-            }
-        });
-    }
-
-    close(): void {
-        this.dialogRef.close();
-    }
-
-    isTeamProject(): boolean {
-        return this.project.type === 'TEAM';
-    }
-
-    getStatusColor(status: string | undefined): string {
-        switch (status) {
-            case 'ACTIVE': return 'bg-green-100 text-green-700';
-            case 'ARCHIVED': return 'bg-gray-100 text-gray-600';
-            default: return 'bg-gray-100 text-gray-600';
-        }
-    }
-
-    getTypeColor(type: string | undefined): string {
-        switch (type) {
-            case 'TEAM': return 'bg-blue-100 text-blue-700';
-            case 'PERSONAL': return 'bg-purple-100 text-purple-700';
-            default: return 'bg-gray-100 text-gray-600';
-        }
-    }
+  }
 }
