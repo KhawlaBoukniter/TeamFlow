@@ -46,7 +46,7 @@ export interface Task {
     priority: TaskPriority;
     dueDate?: string;
     columnId: number;
-    isBlocked: boolean;
+    blocked: boolean;  // Backend uses "blocked" not "isBlocked"
     position: number;
     assignees?: User[];
     subTasks?: SubTask[];

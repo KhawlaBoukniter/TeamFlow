@@ -70,7 +70,7 @@
                     <!-- Task Card (MVP with Drag) -->
                     <div *ngFor="let task of getTasks(column.id)" cdkDrag
                         class="bg-white border rounded-lg p-3 hover:shadow-card-hover transition-all duration-200 cursor-grab active:cursor-grabbing group"
-                        [ngClass]="{'border-l-4 border-l-red-500': task.isBlocked}">
+                        [ngClass]="{'border-l-4 border-l-red-500': task.blocked}">
 
                         <!-- Title with Edit Button -->
                         <div class="flex items-start justify-between gap-2 mb-2">
@@ -109,7 +109,7 @@
                             <!-- Blocked Badge -->
                             <span
                                 class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700"
-                                *ngIf="task.isBlocked">
+                                *ngIf="task.blocked">
                                 🚫 Blocked
                             </span>
 
