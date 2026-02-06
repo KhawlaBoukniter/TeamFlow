@@ -1,13 +1,127 @@
-.glass-navbar {
-    /* From https://css.glass */
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    margin: 16px;
-    /* Add some margin so it looks floating/glassy */
-    width: auto;
-    /* Override default width */
+/* Project Card Menu Button - Fix hover ripple alignment */
+.project-menu-button {
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.project-menu-button mat-icon {
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+}
+
+.project-menu-button:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Material Menu Styling - ClickUp/Jira Style */
+::ng-deep .mat-mdc-menu-panel {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    margin-top: 4px !important;
+}
+
+::ng-deep .mat-mdc-menu-content {
+    padding: 6px 0 !important;
+}
+
+::ng-deep .mat-mdc-menu-item {
+    min-height: 36px !important;
+    padding: 0 12px !important;
+    font-size: 14px !important;
+}
+
+::ng-deep .mat-mdc-menu-item .mat-icon {
+    margin-right: 12px !important;
+    color: #6b7280 !important;
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+}
+
+::ng-deep .mat-mdc-menu-item:hover {
+    background-color: #f3f4f6 !important;
+}
+
+::ng-deep .mat-mdc-menu-item.text-red-600 .mat-icon {
+    color: #dc2626 !important;
+}
+
+::ng-deep .mat-divider {
+    margin: 6px 0 !important;
+}
+
+/* Dialog Styling - Premium ClickUp/Jira Look */
+::ng-deep .mat-mdc-dialog-container {
+    border-radius: 12px !important;
+    padding: 0 !important;
+}
+
+::ng-deep .mat-mdc-dialog-title {
+    padding: 20px 24px !important;
+    margin: 0 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    font-weight: 600 !important;
+    font-size: 18px !important;
+}
+
+::ng-deep .mat-mdc-dialog-content {
+    padding: 24px !important;
+    max-height: calc(90vh - 120px) !important;
+    overflow-y: auto !important;
+}
+
+::ng-deep .mat-mdc-dialog-actions {
+    padding: 16px 24px !important;
+    margin: 0 !important;
+    border-top: 1px solid #e5e7eb !important;
+    gap: 12px !important;
+}
+
+/* Tab Styling for Dialogs */
+::ng-deep .mat-mdc-tab-labels {
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+::ng-deep .mat-mdc-tab {
+    min-width: 100px !important;
+    padding: 0 16px !important;
+}
+
+::ng-deep .mat-mdc-tab-label {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    opacity: 0.7 !important;
+}
+
+::ng-deep .mat-mdc-tab-label-active {
+    opacity: 1 !important;
+}
+
+/* Form Field Styling */
+::ng-deep .mat-mdc-form-field {
+    font-size: 14px !important;
+}
+
+::ng-deep .mat-mdc-text-field-wrapper {
+    border-radius: 6px !important;
+}
+
+/* Button Styling */
+::ng-deep .mat-mdc-raised-button,
+::ng-deep .mat-mdc-flat-button {
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}
+
+/* Snackbar Styling */
+::ng-deep .mat-mdc-snack-bar-container {
+    --mdc-snackbar-container-color: #1f2937;
+    --mdc-snackbar-supporting-text-color: #ffffff;
+    border-radius: 8px !important;
 }
