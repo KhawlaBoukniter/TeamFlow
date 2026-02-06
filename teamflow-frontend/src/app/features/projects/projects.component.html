@@ -1,50 +1,122 @@
-<div class="min-h-screen flex flex-col bg-gray-50">
-    <mat-toolbar class="glass-navbar shadow-md z-10">
-        <span class="flex items-center gap-2 text-xl font-bold tracking-tight">
-            <img src="assets/images/logo.png" alt="TeamFlow Logo" class="h-28 w-auto">
-        </span>
-        <span class="flex-1"></span>
-        <span class="mr-4 text-sm font-medium opacity-90">{{ userEmail }}</span>
-        <button mat-icon-button (click)="logout()" matTooltip="Logout">
-            <mat-icon>logout</mat-icon>
-        </button>
-    </mat-toolbar>
+<div class="h-full flex flex-col bg-app-bg page-enter">
 
-    <div class="container mx-auto p-6 flex-1">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Projects</h1>
-            <button mat-flat-button color="primary" (click)="openCreateDialog()">
-                <mat-icon>add</mat-icon>
+    <!-- Header -->
+    <div class="px-8 py-6 bg-white border-b border-gray-200 shrink-0">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Projects</h1>
+                <p class="text-sm text-gray-500 mt-1">Manage your team's projects</p>
+            </div>
+            <button (click)="openCreateDialog()"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-button font-medium text-sm hover:bg-brand-hover transition-colors btn-press">
+                <mat-icon class="!w-5 !h-5 !text-[20px]">add</mat-icon>
+                New Project
+            </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="flex items-center gap-8" *ngIf="!loading && projects.length > 0">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900">{{ activeProjectsCount }}</div>
+                <div class="text-sm text-gray-500">Active</div>
+            </div>
+            <div class="h-10 w-px bg-gray-200"></div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900">{{ totalProjectsCount }}</div>
+                <div class="text-sm text-gray-500">Total Projects</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-auto px-8 py-6">
+
+        <!-- Loading State -->
+        <div *ngIf="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            <div class="bg-white border border-gray-200 rounded-lg p-5" *ngFor="let i of [1,2,3,4]">
+                <div class="skeleton h-4 w-24 mb-3"></div>
+                <div class="skeleton h-5 w-full mb-2"></div>
+                <div class="skeleton h-4 w-3/4 mb-4"></div>
+                <div class="flex gap-2">
+                    <div class="skeleton h-6 w-16"></div>
+                    <div class="skeleton h-6 w-16"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loading && projects.length === 0"
+            class="flex flex-col items-center justify-center h-full text-center">
+            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <mat-icon class="!w-12 !h-12 !text-[48px] text-gray-400">folder_open</mat-icon>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">No projects yet</h3>
+            <p class="text-sm text-gray-500 mb-6 max-w-sm">
+                Get started by creating your first project to organize your tasks and collaborate with your team.
+            </p>
+            <button (click)="openCreateDialog()"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-button font-medium text-sm hover:bg-brand-hover transition-colors btn-press">
+                <mat-icon class="!w-5 !h-5 !text-[20px]">add</mat-icon>
                 Create Project
             </button>
         </div>
 
-        <div *ngIf="loading" class="flex justify-center p-10">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-        </div>
+        <!-- Projects Grid -->
+        <div *ngIf="!loading && projects.length > 0"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 animate-slide-up">
 
-        <div *ngIf="!loading && projects.length === 0"
-            class="flex flex-col items-center justify-center p-12 bg-white rounded-lg shadow-sm border border-gray-100">
-            <mat-icon class="text-6xl text-gray-300 mb-4 h-16 w-16">folder_off</mat-icon>
-            <p class="text-xl text-gray-500">No projects found.</p>
-        </div>
-
-        <div *ngIf="!loading && projects.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <mat-card *ngFor="let project of projects"
-                class="cursor-pointer hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1"
+            <div *ngFor="let project of projects"
+                class="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
                 (click)="openProject(project.id)">
-                <mat-card-header>
-                    <mat-icon mat-card-avatar class="text-primary-500 text-3xl h-10 w-10">folder</mat-icon>
-                    <mat-card-title class="mb-1">{{ project.name }}</mat-card-title>
-                    <mat-card-subtitle>ID: {{ project.id }}</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content class="pt-4">
-                    <p class="text-gray-600 line-clamp-3">{{ project.description }}</p>
-                </mat-card-content>
-                <mat-card-actions align="end" class="pt-2">
-                    <button mat-button color="primary">OPEN BOARD</button>
-                </mat-card-actions>
-            </mat-card>
+
+                <!-- Header -->
+                <div class="flex items-start justify-between mb-3">
+                    <span class="text-xs text-gray-400" *ngIf="project.startDate">
+                        {{ project.startDate | date:'MMM dd, yyyy' }}
+                    </span>
+                    <button
+                        class="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600"
+                        (click)="$event.stopPropagation()">
+                        <mat-icon class="!w-5 !h-5 !text-[20px]">more_vert</mat-icon>
+                    </button>
+                </div>
+
+                <!-- Title & Description -->
+                <h3 class="text-base font-semibold text-gray-900 mb-1 line-clamp-1">
+                    {{ project.name }}
+                </h3>
+                <p class="text-sm text-gray-500 mb-4 line-clamp-2">
+                    {{ project.description || 'No description provided' }}
+                </p>
+
+                <!-- Badges -->
+                <div class="flex items-center gap-2 mb-4" *ngIf="project.status || project.type">
+                    <span *ngIf="project.status"
+                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium" [ngClass]="{
+                  'bg-green-100 text-green-700': project.status === 'ACTIVE',
+                  'bg-gray-100 text-gray-600': project.status === 'ARCHIVED'
+                }">
+                        {{ project.status }}
+                    </span>
+                    <span *ngIf="project.type" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                        [ngClass]="{
+                  'bg-blue-100 text-blue-700': project.type === 'PERSONAL',
+                  'bg-purple-100 text-purple-700': project.type === 'TEAM'
+                }">
+                        {{ project.type }}
+                    </span>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <div class="text-xs text-gray-500" *ngIf="project.endDate">
+                        Due {{ project.endDate | date:'MMM dd' }}
+                    </div>
+                    <div class="text-xs text-brand font-medium group-hover:translate-x-1 transition-transform">
+                        View →
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

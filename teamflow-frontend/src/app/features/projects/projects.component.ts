@@ -5,20 +5,24 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '../../core/services/auth.service';
 import { ProjectService } from '../../core/services/project.service';
 import { Project } from '../../shared/models';
 import { ProjectCreateDialogComponent } from './components/project-create-dialog/project-create-dialog.component';
+import { BRANDING } from '../../core/constants/branding';
 
 @Component({
     selector: 'app-projects',
     standalone: true,
-    imports: [CommonModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatDialogModule],
+    imports: [CommonModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatDialogModule, MatProgressSpinnerModule],
     templateUrl: './projects.component.html',
     styleUrls: ['./projects.component.css']
 })
 export class ProjectsComponent implements OnInit {
+    readonly BRANDING = BRANDING;
+
     userEmail: string | null;
     projects: Project[] = [];
     loading = false;
@@ -72,5 +76,14 @@ export class ProjectsComponent implements OnInit {
 
     logout(): void {
         this.authService.logout();
+        this.router.navigate(['/login']);
+    }
+
+    get activeProjectsCount(): number {
+        return this.projects.filter(p => p.status === 'ACTIVE').length;
+    }
+
+    get totalProjectsCount(): number {
+        return this.projects.length;
     }
 }
