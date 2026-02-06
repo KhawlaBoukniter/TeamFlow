@@ -57,7 +57,7 @@
                     class="sticky top-0 bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
                         <h3 class="text-sm font-semibold text-gray-900">{{ column.name }}</h3>
-                        <span class="text-xs text-gray-500">({{ column.tasks?.length || 0 }})</span>
+                        <span class="text-xs text-gray-500">({{ getTasks(column.id).length }})</span>
                     </div>
                     <button class="text-gray-400 hover:text-gray-600 transition-colors opacity-0 pointer-events-none">
                         <mat-icon class="!w-5 !h-5 !text-[20px]">more_vert</mat-icon>
@@ -67,7 +67,7 @@
                 <div class="flex-1 overflow-y-auto p-3 space-y-2">
 
                     <!-- Task Card (MVP) -->
-                    <div *ngFor="let task of column.tasks" (click)="openTaskDetails(task)"
+                    <div *ngFor="let task of getTasks(column.id)" (click)="openTaskDetails(task)"
                         class="bg-white border rounded-lg p-3 hover:shadow-card-hover transition-all duration-200 cursor-pointer"
                         [ngClass]="{'border-l-4 border-l-red-500': task.isBlocked}">
 
