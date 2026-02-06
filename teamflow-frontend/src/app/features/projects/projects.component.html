@@ -1,149 +1,259 @@
-<div class="h-full flex flex-col bg-app-bg page-enter">
+<div class="h-full flex flex-col bg-[#09090b] page-enter overflow-hidden">
 
-    <!-- Header -->
-    <div class="px-8 py-6 bg-white border-b border-gray-200 shrink-0">
-        <div class="flex items-center justify-between mb-4">
+    <!-- Dashboard Content -->
+    <div class="flex-1 overflow-y-auto custom-scrollbar p-8">
+
+        <!-- 1. Stats Row & Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Projects</h1>
-                <p class="text-sm text-gray-500 mt-1">Manage your team's projects</p>
+                <h1 class="text-3xl font-bold text-white tracking-tight mb-6">Projects</h1>
+
+                <!-- Stats Cards -->
+                <div class="flex items-center gap-12">
+                    <div class="flex flex-col">
+                        <span class="text-3xl font-bold text-white mb-1">{{ activeProjectsCount }}</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-brand"></div>
+                            <span class="text-sm font-medium text-[#8A8F98]">In Progress</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-3xl font-bold text-white mb-1">{{ upcomingProjectsCount }}</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-[#FEAD69]"></div>
+                            <span class="text-sm font-medium text-[#8A8F98]">Upcoming</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-3xl font-bold text-white mb-1">{{ totalProjectsCount }}</span>
+                        <span class="text-sm font-medium text-[#8A8F98]">Total Projects</span>
+                    </div>
+                </div>
             </div>
-            <button (click)="openCreateDialog()"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-button font-medium text-sm hover:bg-brand-hover transition-colors btn-press">
-                <mat-icon class="!w-5 !h-5 !text-[20px]">add</mat-icon>
-                New Project
-            </button>
+
+            <!-- Controls -->
+            <div class="flex items-center gap-4">
+                <!-- View Toggles -->
+                <div class="flex items-center bg-[#1C1C1E] rounded-lg p-1 border border-[#2E3035]">
+                    <button (click)="setViewMode('list')" [class.bg-[#2C2D32]]="viewMode === 'list'"
+                        [class.text-white]="viewMode === 'list'"
+                        class="p-2 rounded-md hover:bg-[#2C2D32] text-[#8A8F98] transition-all">
+                        <mat-icon class="!w-5 !h-5 !text-[20px]">format_list_bulleted</mat-icon>
+                    </button>
+                    <button (click)="setViewMode('grid')" [class.bg-[#2C2D32]]="viewMode === 'grid'"
+                        [class.text-white]="viewMode === 'grid'"
+                        class="p-2 rounded-md hover:bg-[#2C2D32] text-[#8A8F98] transition-all">
+                        <mat-icon class="!w-5 !h-5 !text-[20px]">grid_view</mat-icon>
+                    </button>
+                </div>
+
+                <button (click)="openCreateDialog()"
+                    class="h-10 w-10 flex items-center justify-center bg-brand text-white rounded-full hover:bg-brand-hover transition-all btn-press shadow-lg shadow-brand/20">
+                    <mat-icon class="!w-6 !h-6 !text-[24px]">add</mat-icon>
+                </button>
+            </div>
         </div>
 
-        <!-- Stats -->
-        <div class="flex items-center gap-8" *ngIf="!loading && projects.length > 0">
-            <div class="text-center">
-                <div class="text-2xl font-bold text-gray-900">{{ activeProjectsCount }}</div>
-                <div class="text-sm text-gray-500">Active</div>
-            </div>
-            <div class="h-10 w-px bg-gray-200"></div>
-            <div class="text-center">
-                <div class="text-2xl font-bold text-gray-900">{{ totalProjectsCount }}</div>
-                <div class="text-sm text-gray-500">Total Projects</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Content -->
-    <div class="flex-1 overflow-auto px-8 py-6">
-
-        <!-- Loading State -->
-        <div *ngIf="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            <div class="bg-white border border-gray-200 rounded-lg p-5" *ngFor="let i of [1,2,3,4]">
-                <div class="skeleton h-4 w-24 mb-3"></div>
-                <div class="skeleton h-5 w-full mb-2"></div>
-                <div class="skeleton h-4 w-3/4 mb-4"></div>
-                <div class="flex gap-2">
-                    <div class="skeleton h-6 w-16"></div>
-                    <div class="skeleton h-6 w-16"></div>
+        <!-- 2. Loading State -->
+        <div *ngIf="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-[#1C1C1E] border border-[#2E3035] rounded-xl p-6" *ngFor="let i of [1,2,3]">
+                <div class="skeleton h-5 w-32 mb-4"></div>
+                <div class="skeleton h-2 w-full mb-6"></div>
+                <div class="flex justify-between items-center">
+                    <div class="skeleton h-8 w-8 rounded-full"></div>
+                    <div class="skeleton h-6 w-20 rounded-full"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Empty State -->
+        <!-- 3. Empty State -->
         <div *ngIf="!loading && projects.length === 0"
-            class="flex flex-col items-center justify-center h-full text-center">
-            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                <mat-icon class="!w-12 !h-12 !text-[48px] text-gray-400">folder_open</mat-icon>
+            class="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-[#2E3035] rounded-xl bg-[#1C1C1E]/50">
+            <div class="w-16 h-16 bg-[#2C2D32] rounded-full flex items-center justify-center mb-4">
+                <mat-icon class="!w-8 !h-8 !text-[32px] text-[#8A8F98]">rocket_launch</mat-icon>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">No projects yet</h3>
-            <p class="text-sm text-gray-500 mb-6 max-w-sm">
-                Get started by creating your first project to organize your tasks and collaborate with your team.
-            </p>
+            <h3 class="text-xl font-bold text-white mb-2">No projects yet</h3>
+            <p class="text-[#8A8F98] mb-6 max-w-sm text-sm">Create your first project to start tracking progress like a
+                pro.</p>
             <button (click)="openCreateDialog()"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-button font-medium text-sm hover:bg-brand-hover transition-colors btn-press">
-                <mat-icon class="!w-5 !h-5 !text-[20px]">add</mat-icon>
-                Create Project
+                class="px-6 py-2.5 bg-brand text-white rounded-lg font-medium text-sm hover:bg-brand-hover transition-all btn-press">
+                Start Project
             </button>
         </div>
 
-        <!-- Projects Grid -->
-        <div *ngIf="!loading && projects.length > 0"
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 animate-slide-up">
+        <!-- 4. GRID VIEW -->
+        <div *ngIf="!loading && projects.length > 0 && viewMode === 'grid'"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-slide-up">
 
             <div *ngFor="let project of projects"
-                class="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
+                class="bg-[#1C1C1E] border border-[#2E3035] rounded-[32px] p-6 hover:border-[#3A3C42] hover:bg-[#25262B] transition-all duration-200 cursor-pointer group relative flex flex-col h-[280px]"
                 (click)="openProject(project.id)">
 
-                <!-- Header -->
-                <div class="flex items-start justify-between mb-3">
-                    <span class="text-xs text-gray-400" *ngIf="project.startDate">
-                        {{ project.startDate | date:'MMM dd, yyyy' }}
-                    </span>
-                    <button mat-icon-button [matMenuTriggerFor]="projectMenu"
-                        class="opacity-0 group-hover:opacity-100 transition-opacity -mr-2"
+                <!-- 1. Top Row: Date & Menu -->
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-[#8A8F98] text-xs font-medium">{{ project.createdAt | date:'MMMM d, y' }}</span>
+                    <button mat-icon-button class="-mr-2 !text-[#8A8F98] hover:!text-white"
                         (click)="$event.stopPropagation()">
-                        <mat-icon class="text-gray-500">more_vert</mat-icon>
+                        <mat-icon>more_vert</mat-icon>
                     </button>
-
-                    <mat-menu #projectMenu="matMenu">
-                        <button mat-menu-item (click)="$event.stopPropagation(); openProjectDetails(project)">
-                            <mat-icon>info</mat-icon>
-                            <span>View Details</span>
-                        </button>
-                        <button mat-menu-item (click)="$event.stopPropagation(); openProjectEdit(project)">
-                            <mat-icon>edit</mat-icon>
-                            <span>Edit Project</span>
-                        </button>
-                        <mat-divider></mat-divider>
-                        <button mat-menu-item (click)="$event.stopPropagation(); archiveProject(project)"
-                            *ngIf="project.status === 'ACTIVE'">
-                            <mat-icon>archive</mat-icon>
-                            <span>Archive</span>
-                        </button>
-                        <button mat-menu-item (click)="$event.stopPropagation(); unarchiveProject(project)"
-                            *ngIf="project.status === 'ARCHIVED'">
-                            <mat-icon>unarchive</mat-icon>
-                            <span>Unarchive</span>
-                        </button>
-                        <mat-divider></mat-divider>
-                        <button mat-menu-item (click)="$event.stopPropagation(); deleteProject(project)"
-                            class="text-red-600">
-                            <mat-icon>delete</mat-icon>
-                            <span>Delete</span>
-                        </button>
-                    </mat-menu>
                 </div>
 
-                <!-- Title & Description -->
-                <h3 class="text-base font-semibold text-gray-900 mb-1 line-clamp-1">
-                    {{ project.name }}
-                </h3>
-                <p class="text-sm text-gray-500 mb-4 line-clamp-2">
-                    {{ project.description || 'No description provided' }}
-                </p>
-
-                <!-- Badges -->
-                <div class="flex items-center gap-2 mb-4" *ngIf="project.status || project.type">
-                    <span *ngIf="project.status"
-                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium" [ngClass]="{
-                  'bg-green-100 text-green-700': project.status === 'ACTIVE',
-                  'bg-gray-100 text-gray-600': project.status === 'ARCHIVED'
-                }">
-                        {{ project.status }}
-                    </span>
-                    <span *ngIf="project.type" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-                        [ngClass]="{
-                  'bg-blue-100 text-blue-700': project.type === 'PERSONAL',
-                  'bg-purple-100 text-purple-700': project.type === 'TEAM'
-                }">
-                        {{ project.type }}
-                    </span>
+                <!-- 2. Center Info -->
+                <div class="text-center mb-6 px-4">
+                    <h3
+                        class="text-white font-bold text-2xl tracking-tight mb-1 group-hover:text-brand transition-colors line-clamp-1">
+                        {{ project.name }}
+                    </h3>
+                    <p class="text-[#8A8F98] text-sm font-medium">{{ project.type === 'PERSONAL' ? 'Personal Project' :
+                        'Team Project' }}</p>
                 </div>
 
-                <!-- Footer -->
-                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <div class="text-xs text-gray-500" *ngIf="project.endDate">
-                        Due {{ project.endDate | date:'MMM dd' }}
+                <!-- 3. Progress Section -->
+                <div class="mb-auto">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-bold text-white">Progress</span>
                     </div>
-                    <div class="text-xs text-brand font-medium group-hover:translate-x-1 transition-transform">
-                        View →
+                    <div class="h-2 w-full bg-[#2C2D32] rounded-full overflow-hidden mb-1">
+                        <div class="h-full rounded-full transition-all duration-500"
+                            [style.width.%]="getProjectProgress(project)"
+                            [style.backgroundColor]="getProgressBarColor(project)"></div>
+                    </div>
+                    <div class="flex justify-end">
+                        <span class="text-sm font-bold text-white">{{ getProjectProgress(project) }}%</span>
                     </div>
                 </div>
+
+                <!-- 4. Footer: Avatars & Badge -->
+                <div class="flex items-center justify-between mt-4">
+                    <!-- Avatars + Add Button -->
+                    <div class="flex items-center">
+                        <div class="flex -space-x-3">
+                            <!-- Helper to force array if undefined -->
+                            <ng-container *ngIf="project.team && project.team.length > 0; else fallbackAvatar">
+                                <div *ngFor="let member of project.team; let i = index"
+                                    class="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-xs font-bold text-white ring-2 ring-[#1C1C1E] z-10 hover:z-30 transition-all cursor-default"
+                                    [style.zIndex]="10 - i" [matTooltip]="member.userName">
+                                    {{ member.userName.charAt(0).toUpperCase() }}
+                                </div>
+                            </ng-container>
+                            <ng-template #fallbackAvatar>
+                                <div
+                                    class="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-xs font-bold text-white ring-2 ring-[#1C1C1E] z-10">
+                                    {{ project.name.charAt(0).toUpperCase() }}
+                                </div>
+                            </ng-template>
+                        </div>
+                        <!-- Add Member Button -->
+                        <button (click)="openMembersDialog(project, $event)"
+                            class="h-8 w-8 rounded-full bg-[#2C2D32] text-white flex items-center justify-center ml-2 hover:bg-[#3A3C42] transition-colors border border-[#3A3C42] z-20"
+                            matTooltip="Add Member">
+                            <mat-icon class="!w-4 !h-4 !text-[16px]">add</mat-icon>
+                        </button>
+                    </div>
+
+                    <!-- Days Left Badge (Pill) -->
+                    <span class="text-xs font-bold px-3 py-1.5 rounded-full bg-[#FFF0E6] text-[#FF9500]"
+                        [class.bg-[#FFF0E6]]="getDaysLeft(project) !== 'Overdue'"
+                        [class.text-[#FF9500]]="getDaysLeft(project) !== 'Overdue'"
+                        [class.bg-red-900/20]="getDaysLeft(project) === 'Overdue'"
+                        [class.text-red-400]="getDaysLeft(project) === 'Overdue'">
+                        {{ getDaysLeft(project) || 'No Deadline' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. LIST VIEW -->
+        <div *ngIf="!loading && projects.length > 0 && viewMode === 'list'" class="animate-slide-up">
+            <div class="bg-[#1C1C1E] border border-[#2E3035] rounded-xl overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-[#25262B] text-[#8A8F98] text-xs font-semibold uppercase tracking-wider">
+                        <tr>
+                            <th class="px-6 py-4">Project</th>
+                            <th class="px-6 py-4">Status</th>
+                            <th class="px-6 py-4">Team</th>
+                            <th class="px-6 py-4">Progress</th>
+                            <th class="px-6 py-4">Due Date</th>
+                            <th class="px-6 py-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#2E3035]">
+                        <tr *ngFor="let project of projects"
+                            class="hover:bg-[#25262B] transition-colors cursor-pointer group"
+                            (click)="openProject(project.id)">
+
+                            <!-- Name & Desc -->
+                            <td class="px-6 py-4 max-w-sm">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="h-8 w-8 rounded-lg bg-[#2C2D32] flex items-center justify-center border border-[#3A3C42] text-[#8A8F98]">
+                                        <mat-icon class="!w-4 !h-4 !text-[18px]">folder</mat-icon>
+                                    </div>
+                                    <div>
+                                        <div
+                                            class="text-white font-medium text-sm group-hover:text-brand transition-colors">
+                                            {{ project.name }}</div>
+                                        <div class="text-[#8A8F98] text-xs line-clamp-1">{{ project.description || 'No
+                                            description' }}</div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Status -->
+                            <td class="px-6 py-4">
+                                <span class="px-2.5 py-1 rounded-md text-xs font-medium border"
+                                    [class.bg-emerald-900/20]="project.status === 'ACTIVE'"
+                                    [class.text-emerald-400]="project.status === 'ACTIVE'"
+                                    [class.border-emerald-900/30]="project.status === 'ACTIVE'"
+                                    [class.bg-[#2C2D32]]="project.status !== 'ACTIVE'"
+                                    [class.text-[#8A8F98]]="project.status !== 'ACTIVE'"
+                                    [class.border-[#3A3C42]]="project.status !== 'ACTIVE'">
+                                    {{ project.status === 'ACTIVE' ? 'Active' : 'Archived' }}
+                                </span>
+                            </td>
+
+                            <!-- Team (Mock) -->
+                            <td class="px-6 py-4">
+                                <div class="flex -space-x-2">
+                                    <div
+                                        class="h-6 w-6 rounded-full bg-brand flex items-center justify-center text-[9px] font-bold text-white ring-2 ring-[#1C1C1E]">
+                                        {{ project.name.charAt(0).toUpperCase() }}
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Progress -->
+                            <td class="px-6 py-4 w-48">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex-1 h-1.5 bg-[#2C2D32] rounded-full overflow-hidden">
+                                        <div class="h-full rounded-full" [style.width.%]="getProjectProgress(project)"
+                                            [style.backgroundColor]="getProgressBarColor(project)"></div>
+                                    </div>
+                                    <span class="text-xs font-medium text-[#8A8F98]">{{ getProjectProgress(project)
+                                        }}%</span>
+                                </div>
+                            </td>
+
+                            <!-- Due Date -->
+                            <td class="px-6 py-4">
+                                <span
+                                    class="text-xs font-medium px-2 py-1 rounded bg-[#2C2D32] text-[#8A8F98] border border-[#3A3C42]"
+                                    [class.text-red-400]="getDaysLeft(project) === 'Overdue'"
+                                    [class.border-red-900/30]="getDaysLeft(project) === 'Overdue'">
+                                    {{ getDaysLeft(project) || '--' }}
+                                </span>
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="px-6 py-4 text-right">
+                                <button mat-icon-button class="!text-[#8A8F98] hover:!text-white"
+                                    (click)="$event.stopPropagation()">
+                                    <mat-icon>more_horiz</mat-icon>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

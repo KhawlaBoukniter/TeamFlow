@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MembershipRepository extends JpaRepository<Membership, Long> {
+    java.util.List<Membership> findByProjectId(Long projectId);
 }

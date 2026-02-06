@@ -40,4 +40,16 @@ public class ProjectDTO {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime updatedAt;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private long totalTasks;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private long completedTasks;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private double progress;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private java.util.List<MembershipDTO> team;
 }

@@ -22,6 +22,10 @@ export interface Project {
     type?: 'PERSONAL' | 'TEAM';
     createdAt?: string;
     updatedAt?: string;
+    totalTasks?: number;
+    completedTasks?: number;
+    progress?: number;
+    team?: { id: number; userName: string; userEmail: string; }[];
 }
 
 export interface ProjectColumn {
@@ -63,8 +67,8 @@ export interface Task {
     assignees?: User[];
     subTasks?: SubTask[];
     comments?: Comment[];
-    blockingTasks?: TaskSummary[]; 
-    blockedTasks?: TaskSummary[]; 
+    blockingTasks?: TaskSummary[];
+    blockedTasks?: TaskSummary[];
 }
 
 export interface TaskSummary {
@@ -73,7 +77,7 @@ export interface TaskSummary {
     priority: TaskPriority;
     blocked: boolean;
     columnId?: number;
-    assignee?: User; 
+    assignee?: User;
 }
 
 export interface SubTask {

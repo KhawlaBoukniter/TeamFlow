@@ -19,6 +19,8 @@ public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
     private final com.teamflow.repository.ColumnRepository columnRepository;
+    private final com.teamflow.repository.TaskRepository taskRepository;
+    private final com.teamflow.repository.MembershipRepository membershipRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -51,7 +53,6 @@ public class ProjectServiceImpl implements ProjectService {
 
         Project savedProject = projectRepository.save(project);
 
-        // Create default columns
         createDefaultColumn(savedProject, "To Do", 0);
         createDefaultColumn(savedProject, "In Progress", 1);
         createDefaultColumn(savedProject, "Done", 2);
@@ -79,7 +80,6 @@ public class ProjectServiceImpl implements ProjectService {
         project.setStartDate(dto.getStartDate());
         project.setEndDate(dto.getEndDate());
         project.setStatus(dto.getStatus());
-        // Type is usually not updatable, but can be if needed. keeping it simple.
 
         Project updatedProject = projectRepository.save(project);
         return toDTO(updatedProject);
@@ -107,6 +107,31 @@ public class ProjectServiceImpl implements ProjectService {
         dto.setType(project.getType());
         dto.setCreatedAt(project.getCreatedAt());
         dto.setUpdatedAt(project.getUpdatedAt());
+
+        long totalTasks = 0;
+        long completedTasks = 0;
+
+        java.util.List<com.teamflow.entity.Membership> members = membershipRepository.findByProjectId(project.getId());
+        dto.setTeam(members.stream()
+                .limit(3)
+                .map(m -> {
+                    com.teamflow.dto.MembershipDTO memDto = new com.teamflow.dto.MembershipDTO();
+                    memDto.setId(m.getId());
+                    memDto.setUserName(m.getUser().getFullName());
+                    memDto.setUserEmail(m.getUser().getEmail());
+                    memDto.setRoleInProject(m.getRoleInProject());
+                    memDto.setUserId(m.getUser().getId());
+                    return memDto;
+                })
+                .collect(java.util.stream.Collectors.toList()));
+
+        totalTasks = taskRepository.countByColumn_Project_Id(project.getId());
+        completedTasks = taskRepository.countByColumn_Project_IdAndColumn_Name(project.getId(), "Done");
+
+        dto.setTotalTasks(totalTasks);
+        dto.setCompletedTasks(completedTasks);
+        dto.setProgress(totalTasks > 0 ? (double) completedTasks / totalTasks * 100.0 : 0.0);
+
         return dto;
     }
 }
