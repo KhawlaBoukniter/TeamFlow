@@ -65,6 +65,7 @@ export interface Comment {
     content: string;
     taskId: number;
     authorId: number;
+    authorName?: string;
     createdAt: string;
 }
 
