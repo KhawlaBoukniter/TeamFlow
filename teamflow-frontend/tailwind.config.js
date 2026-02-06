@@ -12,6 +12,14 @@ module.exports = {
         'border': '#e5e7eb',         // gray-200
         'border-light': '#f3f4f6',   // gray-100
 
+        // Linear Dark Theme
+        'linear-bg': '#000000',       // Main Background (Black)
+        'linear-sidebar': '#1C1C1E',  // Sidebar (Dark Gray)
+        'linear-border': '#2E3035',   // Borders
+        'linear-hover': '#2C2D32',    // Hover states
+        'linear-text-primary': '#EDEDED',
+        'linear-text-secondary': '#8A8F98',
+
         // Text
         'text-primary': '#111827',   // gray-900
         'text-secondary': '#6b7280', // gray-500
