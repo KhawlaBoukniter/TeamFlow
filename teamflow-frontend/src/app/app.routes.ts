@@ -16,14 +16,19 @@ export const routes: Routes = [
         loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent)
     },
     {
-        path: 'projects',
-        loadComponent: () => import('./features/projects/projects.component').then(m => m.ProjectsComponent),
-        canActivate: [authGuard]
-    },
-    {
-        path: 'projects/:id/board',
-        loadComponent: () => import('./features/projects/board-page/board-page.component').then(m => m.BoardPageComponent),
-        canActivate: [authGuard]
+        path: '',
+        loadComponent: () => import('./core/layout/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
+        canActivate: [authGuard],
+        children: [
+            {
+                path: 'projects',
+                loadComponent: () => import('./features/projects/projects.component').then(m => m.ProjectsComponent)
+            },
+            {
+                path: 'projects/:id/board',
+                loadComponent: () => import('./features/projects/board-page/board-page.component').then(m => m.BoardPageComponent)
+            }
+        ]
     },
     {
         path: '**',
