@@ -185,9 +185,9 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of } from 'r
                     
                         <!-- Only allow removing if not self (usually owner is manager) -->
                         <button mat-icon-button (click)="removeMember(member)" 
-                                class="text-gray-400 opacity-0 group-hover:opacity-100 hover:text-red-600 hover:bg-red-50 transition-all !w-8 !h-8 flex items-center justify-center"
+                                class="text-gray-400 opacity-0 group-hover:opacity-100 hover:text-red-600 hover:bg-red-50 transition-all !w-8 !h-8 !flex !items-center !justify-center"
                                 matTooltip="Remove Member">
-                            <mat-icon class="!text-[18px]">delete_outline</mat-icon>
+                            <mat-icon class="!text-[18px] !w-[18px] !h-[18px] !leading-[18px] m-0">delete_outline</mat-icon>
                         </button>
                     </div>
 
