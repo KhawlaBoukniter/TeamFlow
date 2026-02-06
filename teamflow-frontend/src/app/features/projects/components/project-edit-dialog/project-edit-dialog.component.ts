@@ -106,12 +106,12 @@ export class ProjectEditDialogComponent {
         this.project = data.project;
 
         this.projectForm = this.fb.group({
-            name: [project.name, [Validators.required, Validators.minLength(3)]],
-            description: [project.description || ''],
-            type: [project.type || 'PERSONAL'],
-            status: [project.status || 'ACTIVE'],
-            startDate: [project.startDate ? new Date(project.startDate) : null],
-            endDate: [project.endDate ? new Date(project.endDate) : null]
+            name: [this.project.name, [Validators.required, Validators.minLength(3)]],
+            description: [this.project.description || ''],
+            type: [this.project.type || 'PERSONAL'],
+            status: [this.project.status || 'ACTIVE'],
+            startDate: [this.project.startDate ? new Date(this.project.startDate) : null],
+            endDate: [this.project.endDate ? new Date(this.project.endDate) : null]
         }, { validators: this.dateRangeValidator });
     }
 
