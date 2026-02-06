@@ -186,120 +186,108 @@
 
         <!-- 5. LIST VIEW -->
         <div *ngIf="!loading && projects.length > 0 && viewMode === 'list'" class="animate-slide-up">
-            <div class="bg-[#1C1C1E] border border-[#2E3035] rounded-xl overflow-hidden">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-[#25262B] text-[#8A8F98] text-xs font-semibold uppercase tracking-wider">
-                        <tr>
-                            <th class="px-6 py-4">Project</th>
-                            <th class="px-6 py-4">Status</th>
-                            <th class="px-6 py-4">Team</th>
-                            <th class="px-6 py-4">Progress</th>
-                            <th class="px-6 py-4">Due Date</th>
-                            <th class="px-6 py-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-[#2E3035]">
-                        <tr *ngFor="let project of projects"
-                            class="hover:bg-[#25262B] transition-colors cursor-pointer group"
-                            (click)="openProject(project.id)">
+            <div class="flex flex-col gap-3">
+                <div *ngFor="let project of projects"
+                    class="bg-[#1C1C1E] border border-[#2E3035] rounded-xl p-4 hover:border-[#3A3C42] hover:bg-[#25262B] transition-all duration-200 cursor-pointer group flex items-center justify-between gap-6"
+                    (click)="openProject(project.id)">
 
-                            <!-- Name & Desc -->
-                            <td class="px-6 py-4 max-w-sm">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="h-8 w-8 rounded-lg bg-[#2C2D32] flex items-center justify-center border border-[#3A3C42] text-[#8A8F98]">
-                                        <mat-icon class="!w-4 !h-4 !text-[18px]">folder</mat-icon>
-                                    </div>
-                                    <div>
-                                        <div
-                                            class="text-white font-medium text-sm group-hover:text-brand transition-colors">
-                                            {{ project.name }}</div>
-                                        <div class="text-[#8A8F98] text-xs line-clamp-1">{{ project.description || 'No
-                                            description' }}</div>
-                                    </div>
+                    <!-- 1. Left: Info -->
+                    <div class="flex flex-col min-w-[200px]">
+                        <h3
+                            class="text-white font-semibold text-base mb-1 group-hover:text-brand transition-colors line-clamp-1">
+                            {{ project.name }}
+                        </h3>
+                        <p class="text-[#8A8F98] text-xs font-medium mb-1">
+                            {{ project.type === 'PERSONAL' ? 'Personal Project' : 'Team Project' }}
+                        </p>
+                        <span class="text-[#555] text-[10px]">
+                            {{ project.createdAt | date:'MMMM d, y' }}
+                        </span>
+                    </div>
+
+                    <!-- 2. Middle: Progress (Expanded) -->
+                    <div class="flex-1 flex flex-col justify-center px-4">
+                        <div class="flex justify-between items-center mb-1.5">
+                            <span class="text-[11px] font-bold text-[#8A8F98]">Progress</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="h-1.5 flex-1 bg-[#2C2D32] rounded-full overflow-hidden">
+                                <div class="h-full rounded-full transition-all duration-500"
+                                    [style.width.%]="getProjectProgress(project)"
+                                    [style.backgroundColor]="getProgressBarColor(project)"></div>
+                            </div>
+                            <span class="text-xs font-bold text-white min-w-[30px] text-right">{{
+                                getProjectProgress(project) }}%</span>
+                        </div>
+                    </div>
+
+                    <!-- 3. Right: Meta & Actions -->
+                    <div class="flex items-center gap-6">
+                        <!-- Avatars -->
+                        <div class="flex -space-x-2">
+                            <ng-container *ngIf="project.team && project.team.length > 0">
+                                <div *ngFor="let member of project.team; let i = index"
+                                    class="h-7 w-7 rounded-full bg-brand flex items-center justify-center text-[10px] font-bold text-white ring-2 ring-[#1C1C1E] z-10"
+                                    [style.zIndex]="10 - i" [matTooltip]="member.userName">
+                                    {{ member.userName.charAt(0).toUpperCase() }}
                                 </div>
-                            </td>
+                            </ng-container>
+                            <!-- Add Member Button -->
+                            <button (click)="openMembersDialog(project, $event)"
+                                class="h-7 w-7 rounded-full bg-[#2C2D32] text-white flex items-center justify-center ml-2 hover:bg-[#3A3C42] transition-colors border border-[#3A3C42] z-20"
+                                matTooltip="Add Member">
+                                <mat-icon class="!w-4 !h-4 !text-[16px]">add</mat-icon>
+                            </button>
+                        </div>
 
-                            <!-- Status -->
-                            <td class="px-6 py-4">
-                                <span class="px-2.5 py-1 rounded-md text-xs font-medium border"
-                                    [class.bg-emerald-900/20]="project.status === 'ACTIVE'"
-                                    [class.text-emerald-400]="project.status === 'ACTIVE'"
-                                    [class.border-emerald-900/30]="project.status === 'ACTIVE'"
-                                    [class.bg-[#2C2D32]]="project.status !== 'ACTIVE'"
-                                    [class.text-[#8A8F98]]="project.status !== 'ACTIVE'"
-                                    [class.border-[#3A3C42]]="project.status !== 'ACTIVE'">
-                                    {{ project.status === 'ACTIVE' ? 'Active' : 'Archived' }}
-                                </span>
-                            </td>
+                        <!-- Days Left Badge -->
+                        <span
+                            class="text-[11px] font-bold px-3 py-1 rounded-full bg-[#FFF0E6] text-[#FF9500] border border-transparent whitespace-nowrap"
+                            [class.bg-[#FFF0E6]]="getDaysLeft(project) !== 'Overdue'"
+                            [class.text-[#FF9500]]="getDaysLeft(project) !== 'Overdue'"
+                            [class.bg-red-900/20]="getDaysLeft(project) === 'Overdue'"
+                            [class.text-red-400]="getDaysLeft(project) === 'Overdue'"
+                            [class.border-red-900/30]="getDaysLeft(project) === 'Overdue'">
+                            {{ getDaysLeft(project) || 'No Deadline' }}
+                        </span>
 
-                            <!-- Team (Mock) -->
-                            <td class="px-6 py-4">
-                                <div class="flex -space-x-2">
-                                    <div
-                                        class="h-6 w-6 rounded-full bg-brand flex items-center justify-center text-[9px] font-bold text-white ring-2 ring-[#1C1C1E]">
-                                        {{ project.name.charAt(0).toUpperCase() }}
-                                    </div>
-                                </div>
-                            </td>
+                        <!-- Menu -->
+                        <button mat-icon-button class="!text-[#8A8F98] hover:!text-white"
+                            (click)="$event.stopPropagation()" [matMenuTriggerFor]="menu">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                    </div>
 
-                            <!-- Progress -->
-                            <td class="px-6 py-4 w-48">
-                                <div class="flex items-center gap-3">
-                                    <div class="flex-1 h-1.5 bg-[#2C2D32] rounded-full overflow-hidden">
-                                        <div class="h-full rounded-full" [style.width.%]="getProjectProgress(project)"
-                                            [style.backgroundColor]="getProgressBarColor(project)"></div>
-                                    </div>
-                                    <span class="text-xs font-medium text-[#8A8F98]">{{ getProjectProgress(project)
-                                        }}%</span>
-                                </div>
-                            </td>
+                    <!-- Reuse Menu Template -->
+                    <mat-menu #menu="matMenu" xPosition="before" class="linear-menu">
+                        <button mat-menu-item (click)="openProjectDetails(project)">
+                            <mat-icon class="!w-4 !h-4 !text-[16px]">visibility</mat-icon>
+                            <span class="text-sm">Details</span>
+                        </button>
+                        <button mat-menu-item (click)="openProjectEdit(project)">
+                            <mat-icon class="!w-4 !h-4 !text-[16px]">edit</mat-icon>
+                            <span class="text-sm">Edit</span>
+                        </button>
+                        <button mat-menu-item (click)="openMembersDialog(project, $event)">
+                            <mat-icon class="!w-4 !h-4 !text-[16px]">group</mat-icon>
+                            <span class="text-sm">Members</span>
+                        </button>
+                        <mat-divider></mat-divider>
+                        <button mat-menu-item *ngIf="project.status === 'ACTIVE'" (click)="archiveProject(project)">
+                            <mat-icon class="!w-4 !h-4 !text-[16px]">archive</mat-icon>
+                            <span class="text-sm">Archive</span>
+                        </button>
+                        <button mat-menu-item *ngIf="project.status !== 'ACTIVE'" (click)="unarchiveProject(project)">
+                            <mat-icon class="!w-4 !h-4 !text-[16px]">unarchive</mat-icon>
+                            <span class="text-sm">Restore</span>
+                        </button>
+                        <button mat-menu-item class="!text-red-400" (click)="deleteProject(project)">
+                            <mat-icon class="!w-4 !h-4 !text-[16px] !text-red-400">delete</mat-icon>
+                            <span class="text-sm">Delete</span>
+                        </button>
+                    </mat-menu>
 
-                            <!-- Due Date -->
-                            <td class="px-6 py-4">
-                                <span
-                                    class="text-xs font-medium px-2 py-1 rounded bg-[#2C2D32] text-[#8A8F98] border border-[#3A3C42]"
-                                    [class.text-red-400]="getDaysLeft(project) === 'Overdue'"
-                                    [class.border-red-900/30]="getDaysLeft(project) === 'Overdue'">
-                                    {{ getDaysLeft(project) || '--' }}
-                                </span>
-                            </td>
-
-                            <!-- Actions -->
-                            <td class="px-6 py-4 text-right">
-                                <button mat-icon-button class="!text-[#8A8F98] hover:!text-white"
-                                    (click)="$event.stopPropagation()" [matMenuTriggerFor]="menu">
-                                    <mat-icon>more_horiz</mat-icon>
-                                </button>
-                                <mat-menu #menu="matMenu" xPosition="before" class="linear-menu">
-                                    <button mat-menu-item (click)="openProjectEdit(project)">
-                                        <mat-icon class="!w-4 !h-4 !text-[16px]">edit</mat-icon>
-                                        <span class="text-sm">Edit</span>
-                                    </button>
-                                    <button mat-menu-item (click)="openMembersDialog(project, $event)">
-                                        <mat-icon class="!w-4 !h-4 !text-[16px]">group</mat-icon>
-                                        <span class="text-sm">Members</span>
-                                    </button>
-                                    <mat-divider></mat-divider>
-                                    <button mat-menu-item *ngIf="project.status === 'ACTIVE'"
-                                        (click)="archiveProject(project)">
-                                        <mat-icon class="!w-4 !h-4 !text-[16px]">archive</mat-icon>
-                                        <span class="text-sm">Archive</span>
-                                    </button>
-                                    <button mat-menu-item *ngIf="project.status !== 'ACTIVE'"
-                                        (click)="unarchiveProject(project)">
-                                        <mat-icon class="!w-4 !h-4 !text-[16px]">unarchive</mat-icon>
-                                        <span class="text-sm">Restore</span>
-                                    </button>
-                                    <button mat-menu-item class="!text-red-400" (click)="deleteProject(project)">
-                                        <mat-icon class="!w-4 !h-4 !text-[16px] !text-red-400">delete</mat-icon>
-                                        <span class="text-sm">Delete</span>
-                                    </button>
-                                </mat-menu>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                </div>
             </div>
         </div>
     </div>
