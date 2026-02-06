@@ -62,8 +62,10 @@ export class ProjectsComponent implements OnInit {
 
     openCreateDialog(): void {
         const dialogRef = this.dialog.open(ProjectCreateDialogComponent, {
-            width: '600px',
-            disableClose: true
+            width: '800px',
+            maxHeight: '90vh', // Fix for scrolling issue
+            disableClose: true,
+            panelClass: 'linear-dialog'
         });
 
         dialogRef.afterClosed().subscribe(result => {
@@ -95,9 +97,10 @@ export class ProjectsComponent implements OnInit {
 
     openProjectDetails(project: Project): void {
         const dialogRef = this.dialog.open(ProjectDetailsDialogComponent, {
-            width: '700px',
+            width: '800px',
             maxHeight: '90vh',
-            data: { project }
+            data: { project },
+            panelClass: 'linear-dialog'
         });
 
         dialogRef.afterClosed().subscribe(result => {
@@ -109,8 +112,10 @@ export class ProjectsComponent implements OnInit {
 
     openProjectEdit(project: Project): void {
         const dialogRef = this.dialog.open(ProjectEditDialogComponent, {
-            width: '600px',
-            data: { project }
+            width: '800px',
+            maxHeight: '90vh', // Fix for scrolling issue
+            data: { project },
+            panelClass: 'linear-dialog'
         });
 
         dialogRef.afterClosed().subscribe(result => {

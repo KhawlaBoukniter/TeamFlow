@@ -144,8 +144,9 @@ export class ProjectDetailsDialogComponent implements OnInit {
 
   openEditDialog(): void {
     const editDialogRef = this.dialog.open(ProjectEditDialogComponent, {
-      width: '600px',
-      data: { project: this.project }
+      width: '800px',
+      data: { project: this.project },
+      panelClass: 'linear-dialog'
     });
 
     editDialogRef.afterClosed().subscribe(result => {
