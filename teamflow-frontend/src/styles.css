@@ -328,3 +328,162 @@ body {
         font-size: 13px;
     }
 }
+
+/* =============================================================================
+   LINEAR DARK THEME OVERRIDES
+   ============================================================================= */
+
+/* Select Panel (Dropdowns) */
+.linear-panel.mat-mdc-select-panel {
+    background-color: #2C2D32 !important;
+    border: 1px solid #2E3035 !important;
+    border-radius: 8px !important;
+    padding: 6px !important;
+}
+
+.linear-panel .mat-mdc-option {
+    color: #EDEDED !important;
+    border-radius: 6px !important;
+    margin-bottom: 2px !important;
+    min-height: 36px !important;
+    font-size: 14px !important;
+    padding: 8px 12px !important;
+}
+
+.linear-panel .mat-mdc-option:hover,
+.linear-panel .mat-mdc-option.mdc-list-item--selected,
+.linear-panel .mat-mdc-option.mat-mdc-option-active {
+    background-color: #3A3C42 !important;
+}
+
+.linear-panel .mat-mdc-option .mdc-list-item__primary-text {
+    color: #EDEDED !important;
+}
+
+.linear-panel .mat-pseudo-checkbox {
+    display: none !important;
+}
+
+/* Datepicker Panel - Force Dark Mode (MDC) */
+.linear-datepicker.mat-mdc-datepicker-content {
+    background-color: #1C1C1E !important;
+    color: #EDEDED !important;
+    border: 1px solid #2E3035 !important;
+    border-radius: 16px !important;
+    /* Maximized rounded corners */
+    box-shadow: 0 20px 40px -4px rgba(0, 0, 0, 0.6), 0 8px 16px -4px rgba(0, 0, 0, 0.4) !important;
+    --mdc-dialog-container-color: #1C1C1E !important;
+    padding: 8px !important;
+}
+
+/* Container & Header */
+.linear-datepicker .mat-mdc-datepicker-content .mat-mdc-datepicker-content-container {
+    background-color: #1C1C1E !important;
+}
+
+.linear-datepicker .mat-calendar-table-header th {
+    color: #8A8F98 !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    padding-bottom: 8px !important;
+}
+
+/* Calendar Body - The Days */
+.linear-datepicker .mat-calendar-body-label {
+    color: #EDEDED !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 600 !important;
+}
+
+.linear-datepicker .mat-calendar-body-cell-content {
+    color: #EDEDED !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13px !important;
+    border-radius: 50% !important;
+    /* Perfect circles for modern look */
+    width: 36px !important;
+    /* Consistent size */
+    height: 36px !important;
+    line-height: 36px !important;
+    border: 1px solid transparent !important;
+}
+
+/* Hover State - Scale Effect */
+.linear-datepicker .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover>.mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+    background-color: #2C2D32 !important;
+    transform: scale(1.1);
+    transition: all 0.2s ease;
+}
+
+/* Selected State - Vibrant & Glowing */
+.linear-datepicker .mat-calendar-body-selected {
+    background-color: #5E6AD2 !important;
+    color: white !important;
+    box-shadow: 0 0 15px rgba(94, 106, 210, 0.5) !important;
+    font-weight: 600 !important;
+}
+
+/* Today's Date - Ring Style */
+.linear-datepicker .mat-calendar-body-today:not(.mat-calendar-body-selected) {
+    background-color: transparent !important;
+    border: 1px solid #5E6AD2 !important;
+    color: #5E6AD2 !important;
+    font-weight: 700 !important;
+}
+
+/* Navigation Controls - Minimalist */
+.linear-datepicker .mat-calendar-header {
+    padding: 0 8px 8px 8px !important;
+}
+
+.linear-datepicker .mat-calendar-period-button {
+    color: #EDEDED !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.3px;
+    background: #2C2D32 !important;
+    padding: 4px 12px !important;
+    border-radius: 8px !important;
+}
+
+.linear-datepicker .mat-calendar-previous-button,
+.linear-datepicker .mat-calendar-next-button {
+    color: #8A8F98 !important;
+    transform: scale(0.9);
+}
+
+.linear-datepicker .mat-calendar-previous-button:hover,
+.linear-datepicker .mat-calendar-next-button:hover {
+    background-color: #2C2D32 !important;
+    color: #EDEDED !important;
+    border-radius: 50% !important;
+}
+
+.linear-datepicker .mat-calendar-arrow {
+    fill: #8A8F98 !important;
+}
+
+/* Fix for any white bleed */
+.linear-datepicker .mat-calendar {
+    background-color: transparent !important;
+}
+
+.linear-datepicker {
+    background-color: #1C1C1E !important;
+}
+
+/* Linear Dialog Panel Override */
+.linear-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+}
+
+.linear-dialog .mat-mdc-dialog-surface {
+    padding: 0 !important;
+}
