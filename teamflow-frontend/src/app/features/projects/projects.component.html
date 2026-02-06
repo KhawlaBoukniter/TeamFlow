@@ -86,11 +86,11 @@
             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-slide-up">
 
             <div *ngFor="let project of projects"
-                class="bg-[#1C1C1E] border border-[#2E3035] rounded-[32px] p-6 hover:border-[#3A3C42] hover:bg-[#25262B] transition-all duration-200 cursor-pointer group relative flex flex-col h-[280px]"
+                class="bg-[#1C1C1E] border border-[#2E3035] rounded-[24px] p-5 hover:border-[#3A3C42] hover:bg-[#25262B] transition-all duration-200 cursor-pointer group relative flex flex-col h-[220px]"
                 (click)="openProject(project.id)">
 
                 <!-- 1. Top Row: Date & Menu -->
-                <div class="flex justify-between items-center mb-6">
+                <div class="flex justify-between items-center mb-4">
                     <span class="text-[#8A8F98] text-xs font-medium">{{ project.createdAt | date:'MMMM d, y' }}</span>
                     <button mat-icon-button class="-mr-2 !text-[#8A8F98] hover:!text-white"
                         (click)="$event.stopPropagation()">
@@ -99,27 +99,25 @@
                 </div>
 
                 <!-- 2. Center Info -->
-                <div class="text-center mb-6 px-4">
+                <div class="text-center mb-4 px-2">
                     <h3
-                        class="text-white font-bold text-2xl tracking-tight mb-1 group-hover:text-brand transition-colors line-clamp-1">
+                        class="text-white font-semibold text-base tracking-tight mb-1 group-hover:text-brand transition-colors line-clamp-1">
                         {{ project.name }}
                     </h3>
-                    <p class="text-[#8A8F98] text-sm font-medium">{{ project.type === 'PERSONAL' ? 'Personal Project' :
+                    <p class="text-[#8A8F98] text-xs font-medium">{{ project.type === 'PERSONAL' ? 'Personal Project' :
                         'Team Project' }}</p>
                 </div>
 
                 <!-- 3. Progress Section -->
                 <div class="mb-auto">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm font-bold text-white">Progress</span>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-medium text-[#8A8F98] uppercase tracking-wider">Progress</span>
+                        <span class="text-[10px] font-medium text-[#8A8F98]">{{ getProjectProgress(project) }}%</span>
                     </div>
-                    <div class="h-2 w-full bg-[#2C2D32] rounded-full overflow-hidden mb-1">
+                    <div class="h-1.5 w-full bg-[#2C2D32] rounded-full overflow-hidden">
                         <div class="h-full rounded-full transition-all duration-500"
                             [style.width.%]="getProjectProgress(project)"
                             [style.backgroundColor]="getProgressBarColor(project)"></div>
-                    </div>
-                    <div class="flex justify-end">
-                        <span class="text-sm font-bold text-white">{{ getProjectProgress(project) }}%</span>
                     </div>
                 </div>
 
@@ -127,36 +125,32 @@
                 <div class="flex items-center justify-between mt-4">
                     <!-- Avatars + Add Button -->
                     <div class="flex items-center">
-                        <div class="flex -space-x-3">
-                            <!-- Helper to force array if undefined -->
-                            <ng-container *ngIf="project.team && project.team.length > 0; else fallbackAvatar">
+                        <div class="flex -space-x-2">
+                            <!-- Avatars (Only if team > 0) -->
+                            <ng-container *ngIf="project.team && project.team.length > 0">
                                 <div *ngFor="let member of project.team; let i = index"
-                                    class="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-xs font-bold text-white ring-2 ring-[#1C1C1E] z-10 hover:z-30 transition-all cursor-default"
+                                    class="h-6 w-6 rounded-full bg-brand flex items-center justify-center text-[9px] font-bold text-white ring-2 ring-[#1C1C1E] z-10 hover:z-30 transition-all cursor-default"
                                     [style.zIndex]="10 - i" [matTooltip]="member.userName">
                                     {{ member.userName.charAt(0).toUpperCase() }}
                                 </div>
                             </ng-container>
-                            <ng-template #fallbackAvatar>
-                                <div
-                                    class="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-xs font-bold text-white ring-2 ring-[#1C1C1E] z-10">
-                                    {{ project.name.charAt(0).toUpperCase() }}
-                                </div>
-                            </ng-template>
                         </div>
                         <!-- Add Member Button -->
                         <button (click)="openMembersDialog(project, $event)"
-                            class="h-8 w-8 rounded-full bg-[#2C2D32] text-white flex items-center justify-center ml-2 hover:bg-[#3A3C42] transition-colors border border-[#3A3C42] z-20"
+                            class="h-6 w-6 rounded-full bg-[#2C2D32] text-white flex items-center justify-center ml-2 hover:bg-[#3A3C42] transition-colors border border-[#3A3C42] z-20"
                             matTooltip="Add Member">
-                            <mat-icon class="!w-4 !h-4 !text-[16px]">add</mat-icon>
+                            <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">add</mat-icon>
                         </button>
                     </div>
 
                     <!-- Days Left Badge (Pill) -->
-                    <span class="text-xs font-bold px-3 py-1.5 rounded-full bg-[#FFF0E6] text-[#FF9500]"
+                    <span
+                        class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FFF0E6] text-[#FF9500] border border-transparent"
                         [class.bg-[#FFF0E6]]="getDaysLeft(project) !== 'Overdue'"
                         [class.text-[#FF9500]]="getDaysLeft(project) !== 'Overdue'"
                         [class.bg-red-900/20]="getDaysLeft(project) === 'Overdue'"
-                        [class.text-red-400]="getDaysLeft(project) === 'Overdue'">
+                        [class.text-red-400]="getDaysLeft(project) === 'Overdue'"
+                        [class.border-red-900/30]="getDaysLeft(project) === 'Overdue'">
                         {{ getDaysLeft(project) || 'No Deadline' }}
                     </span>
                 </div>
