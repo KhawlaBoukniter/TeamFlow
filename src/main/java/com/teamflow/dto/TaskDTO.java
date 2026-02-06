@@ -39,4 +39,7 @@ public class TaskDTO {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime updatedAt;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private java.util.List<TaskAssignmentDTO> assignments;
 }
