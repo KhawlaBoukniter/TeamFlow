@@ -35,173 +35,190 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of } from 'r
     MatIconModule
   ],
   template: `
-    <!-- Header -->
-    <div class="px-6 py-4 border-b border-gray-200">
-      <div class="flex items-center gap-2">
-        <mat-icon class="text-indigo-600" style="font-size: 24px; width: 24px; height: 24px;">create_new_folder</mat-icon>
-        <h2 class="text-lg font-semibold m-0" style="line-height: 24px;">
-            {{ step === 1 ? 'Create New Project' : 'Invite Team Members' }}
-        </h2>
+    <!-- Linear Style Container -->
+    <div class="flex flex-col max-h-[85vh] w-full bg-[#1C1C1E] text-[#EDEDED] font-sans rounded-xl overflow-hidden">
+      
+      <!-- Window Controls (Top) -->
+      <div class="flex items-center justify-between px-6 py-4 shrink-0">
+         <!-- Breadcrumbs (Mocked for visual match) -->
+         <div class="flex items-center gap-2 text-[13px] text-[#8A8F98]">
+            <div class="px-1.5 py-0.5 rounded bg-[#2E3035] text-[#EDEDED] text-[11px] font-medium border border-white/5">MY</div>
+            <span>›</span>
+            <span class="text-[#EDEDED]">New project</span>
+         </div>
+         <button mat-icon-button type="button" (click)="onCancel()" class="text-[#8A8F98] hover:text-[#EDEDED] -mr-2">
+            <mat-icon class="!w-5 !h-5 !text-[20px]">close</mat-icon>
+         </button>
       </div>
-    </div>
 
-    <!-- Step 1: Create Project -->
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="step === 1">
-      <mat-dialog-content class="flex flex-col gap-5 min-w-[500px]">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Project Name *</mat-label>
-          <input matInput formControlName="name" placeholder="Ex: TeamFlow Redesign">
-          <mat-error *ngIf="form.get('name')?.hasError('required')">Name is required</mat-error>
-          <mat-error *ngIf="form.get('name')?.hasError('minlength')">Name must be at least 3 characters</mat-error>
-        </mat-form-field>
+      <!-- Step 1: Create Project Form -->
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="step === 1" class="flex flex-col flex-1 overflow-hidden">
+        <div class="flex-1 overflow-y-auto px-8 py-6 space-y-8 min-w-[750px]">
+            
+            <!-- Header Area -->
+            <div class="space-y-4">
+                <div class="w-12 h-12 rounded-xl border border-white/10 bg-[#2C2D32] flex items-center justify-center text-[#8A8F98]">
+                    <mat-icon class="!w-6 !h-6 !text-[24px]">inventory_2</mat-icon>
+                </div>
 
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Description</mat-label>
-          <textarea matInput formControlName="description" rows="3" placeholder="Describe your project..."></textarea>
-          <mat-hint>Optional - Add project details and goals</mat-hint>
-        </mat-form-field>
+                <!-- Title Input (Large) -->
+                <div class="space-y-2">
+                    <input matInput formControlName="name" 
+                           class="w-full bg-transparent border-none p-0 text-4xl font-semibold placeholder-[#46484E] focus:ring-0 focus:outline-none text-[#EDEDED]" 
+                           placeholder="Project name">
+                    <div *ngIf="form.get('name')?.hasError('required') && form.get('name')?.touched" class="text-red-500 text-xs">Title is required</div>
+                </div>
 
-        <!-- Settings -->
-        <div class="grid grid-cols-2 gap-4">
-          <mat-form-field appearance="outline">
-            <mat-label>Project Type *</mat-label>
-            <mat-select formControlName="type">
-              <mat-option value="PERSONAL">Personal</mat-option>
-              <mat-option value="TEAM">Team</mat-option>
-            </mat-select>
-            <mat-hint>Choose collaboration level</mat-hint>
-          </mat-form-field>
+                <!-- Description Summary Input -->
+                <input matInput formControlName="description" 
+                       class="w-full bg-transparent border-none p-0 text-lg text-[#8A8F98] placeholder-[#46484E] focus:ring-0 focus:outline-none"
+                       placeholder="Add a short summary...">
+            </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Status *</mat-label>
-            <mat-select formControlName="status">
-              <mat-option value="ACTIVE">Active</mat-option>
-              <mat-option value="ARCHIVED">Archived</mat-option>
-            </mat-select>
-          </mat-form-field>
+            <!-- Attributes Row (Badges) -->
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Status Badge -->
+                 <div class="relative group">
+                    <mat-select formControlName="status" panelClass="linear-panel" class="opacity-0 absolute inset-0 cursor-pointer z-10 w-full h-full">
+                        <mat-option value="ACTIVE">Active</mat-option>
+                        <mat-option value="ARCHIVED">Archived</mat-option>
+                    </mat-select>
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
+                        <mat-icon class="!w-4 !h-4 !text-[16px]" 
+                            [ngClass]="{'text-emerald-500': form.get('status')?.value === 'ACTIVE', 'text-gray-500': form.get('status')?.value === 'ARCHIVED'}">
+                            {{ form.get('status')?.value === 'ACTIVE' ? 'radio_button_checked' : 'archive' }}
+                        </mat-icon>
+                        <span class="text-[13px] font-medium text-[#EDEDED]">{{ form.get('status')?.value | titlecase }}</span>
+                    </div>
+                 </div>
+
+                 <!-- Type Badge (RESTORED) -->
+                 <div class="relative group">
+                    <mat-select formControlName="type" panelClass="linear-panel" class="opacity-0 absolute inset-0 cursor-pointer z-10 w-full h-full">
+                        <mat-option value="PERSONAL">Personal</mat-option>
+                        <mat-option value="TEAM">Team</mat-option>
+                    </mat-select>
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
+                        <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">
+                            {{ form.get('type')?.value === 'TEAM' ? 'group' : 'person' }}
+                        </mat-icon>
+                        <span class="text-[13px] font-medium text-[#EDEDED]">{{ form.get('type')?.value | titlecase }}</span>
+                    </div>
+                 </div>
+
+                 <!-- Priority (Visual Mock) -->
+                 <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
+                    <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">signal_cellular_alt</mat-icon>
+                    <span class="text-[13px] font-medium text-[#8A8F98]">No priority</span>
+                 </div>
+
+                 <!-- Lead (Owner) -->
+                 <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
+                    <div class="w-4 h-4 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-[9px] font-bold">ME</div>
+                    <span class="text-[13px] font-medium text-[#EDEDED]">Lead</span>
+                 </div>
+
+                 <!-- Members (Only if Team) -->
+                 <div *ngIf="form.get('type')?.value === 'TEAM'" class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
+                    <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">group_add</mat-icon>
+                    <span class="text-[13px] font-medium text-[#EDEDED]">Members</span>
+                 </div>
+
+                 <!-- Date Badges -->
+                 <div class="relative flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer"
+                      (click)="startPicker.open()">
+                    <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">calendar_today</mat-icon>
+                    <span class="text-[13px] font-medium" [ngClass]="{'text-[#EDEDED]': form.get('startDate')?.value, 'text-[#8A8F98]': !form.get('startDate')?.value}">
+                        {{ (form.get('startDate')?.value | date:'MMM d') || 'Start' }}
+                    </span>
+                    <!-- Invisible input for anchor positioning -->
+                    <input matInput [matDatepicker]="startPicker" formControlName="startDate" class="absolute opacity-0 w-0 h-0 bottom-0 left-0 pointer-events-none">
+                    <mat-datepicker #startPicker panelClass="linear-datepicker"></mat-datepicker>
+                 </div>
+
+                 <div class="relative flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer"
+                      (click)="endPicker.open()">
+                    <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">event</mat-icon>
+                    <span class="text-[13px] font-medium" [ngClass]="{'text-[#EDEDED]': form.get('endDate')?.value, 'text-[#8A8F98]': !form.get('endDate')?.value}">
+                        {{ (form.get('endDate')?.value | date:'MMM d') || 'Target' }}
+                    </span>
+                    <!-- Invisible input for anchor positioning -->
+                    <input matInput [matDatepicker]="endPicker" formControlName="endDate" class="absolute opacity-0 w-0 h-0 bottom-0 left-0 pointer-events-none">
+                    <mat-datepicker #endPicker panelClass="linear-datepicker"></mat-datepicker>
+                 </div>
+            </div>
+
+            <div class="h-px bg-[#2E3035] w-full"></div>
+
+            <!-- Extended Description -->
+             <div class="">
+                <textarea class="w-full bg-transparent text-[#EDEDED] placeholder-[#46484E] text-[15px] resize-none focus:outline-none h-48 leading-relaxed" 
+                          formControlName="description"
+                          placeholder="Write a description, a project brief, or collect ideas..."></textarea>
+             </div>
+
         </div>
 
-        <div class="flex gap-4">
-            <mat-form-field appearance="outline" class="flex-1">
-                <mat-label>Start Date</mat-label>
-                <input matInput [matDatepicker]="startPicker" formControlName="startDate">
-                <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
-                <mat-datepicker #startPicker></mat-datepicker>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="flex-1">
-                <mat-label>End Date</mat-label>
-                <input matInput [matDatepicker]="endPicker" formControlName="endDate">
-                <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
-                <mat-datepicker #endPicker></mat-datepicker>
-            </mat-form-field>
+        <!-- Footer -->
+        <div class="p-4 border-t border-[#2E3035] bg-[#1C1C1E] flex justify-end gap-3 rounded-b-lg">
+            <button mat-button type="button" (click)="onCancel()" class="text-[#EDEDED] bg-[#2C2D32] hover:bg-[#3A3C42] border border-[#3A3C42] rounded-md px-4 h-9 font-medium transition-colors">Cancel</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || loading" class="!bg-[#5E6AD2] hover:!bg-[#4e5ac0] !text-white !rounded-md px-4 h-9 font-medium">
+                 {{ loading ? 'Creating...' : (form.get('type')?.value === 'TEAM' ? 'Next: Invite Team' : 'Create project') }}
+            </button>
         </div>
+      </form>
 
-        <mat-error *ngIf="form.hasError('dateRange') && (form.get('startDate')?.touched || form.get('endDate')?.touched)" class="text-sm">
-            End date must be after start date
-        </mat-error>
-
-      </mat-dialog-content>
-      <mat-dialog-actions align="end" class="gap-3 px-6 pb-6">
-        <button mat-button type="button" (click)="onCancel()">Cancel</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || loading">
-          {{ loading ? 'Creating...' : (form.get('type')?.value === 'TEAM' ? 'Next: Invite Members' : 'Create Project') }}
-        </button>
-      </mat-dialog-actions>
-    </form>
-
-    <!-- Step 2: Invite Members (Team Only) -->
-    <div *ngIf="step === 2" class="flex flex-col h-full">
-        <mat-dialog-content class="!p-0 min-w-[500px] flex flex-col">
-            <div class="p-6 pb-2">
-                <p class="text-sm text-gray-600 mb-4">
-                    Your project <strong>{{ createdProject?.name }}</strong> has been created! Invite your team now or skip this step.
+      <!-- Step 2: Invite Members (Retained logic, updated style) -->
+      <div *ngIf="step === 2" class="flex flex-col h-full bg-[#1C1C1E]">
+            <div class="p-6 pb-2 text-[#EDEDED]">
+                <p class="text-[13px] text-[#8A8F98] mb-4">
+                    Project <span class="text-[#EDEDED] font-medium">{{ createdProject?.name }}</span> created. Invite your team.
                 </p>
                 
-                <h3 class="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">Invite Member</h3>
-                
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6">
-                    <div class="flex flex-col gap-3">
-                        <div class="relative">
-                            <input [formControl]="searchControl" 
-                                   class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                                   placeholder="Search by name or email to invite...">
-                            <mat-icon class="absolute left-3 top-2.5 text-gray-400 !w-5 !h-5 !text-[20px]">search</mat-icon>
-                            
-                            <!-- Search Results Dropdown -->
-                            <div *ngIf="searchResults.length > 0" 
-                                 class="absolute top-12 left-0 right-0 bg-white shadow-xl border border-gray-100 rounded-lg max-h-48 overflow-auto z-50">
-                                <div *ngFor="let user of searchResults" 
-                                     (click)="selectUser(user)"
-                                     class="p-3 hover:bg-indigo-50 cursor-pointer border-b border-gray-50 flex justify-between items-center transition-colors">
-                                    <div>
-                                        <div class="font-medium text-sm text-gray-900">{{ user.fullName }}</div>
-                                        <div class="text-xs text-gray-500">{{ user.email }}</div>
-                                    </div>
-                                    <mat-icon class="text-indigo-500 !w-5 !h-5 !text-[20px]">add_circle_outline</mat-icon>
-                                </div>
-                            </div>
+                <div class="bg-[#2C2D32] p-4 rounded-lg border border-[#2E3035] mb-6">
+                    <div class="relative">
+                        <input [formControl]="searchControl" 
+                               class="w-full pl-9 pr-4 py-2 bg-[#1C1C1E] border border-[#2E3035] rounded-md text-sm text-[#EDEDED] focus:outline-none focus:border-brand-500 placeholder-[#46484E]"
+                               placeholder="Search members...">
+                        <mat-icon class="absolute left-2.5 top-2.5 text-[#8A8F98] !w-4 !h-4 !text-[16px]">search</mat-icon>
+                        
+                        <!-- Dropdown -->
+                        <div *ngIf="searchResults.length > 0" class="absolute top-10 left-0 right-0 bg-[#2C2D32] border border-[#2E3035] shadow-xl rounded-md z-50">
+                             <div *ngFor="let user of searchResults" (click)="selectUser(user)" class="p-2 hover:bg-[#3A3C42] cursor-pointer flex items-center justify-between">
+                                <span class="text-sm text-[#EDEDED]">{{ user.fullName }}</span>
+                                <mat-icon class="text-brand-500 !w-4 !h-4 !text-[16px]">add</mat-icon>
+                             </div>
                         </div>
-
-                        <!-- Selected User Preview & Action -->
-                        <div *ngIf="selectedUser" class="flex items-center gap-3 animate-slideUp">
-                            <div class="flex-1 flex items-center gap-3 bg-indigo-50 p-2 rounded-lg border border-indigo-100">
-                                <div class="w-8 h-8 rounded-full bg-indigo-100 border-2 border-white text-indigo-700 flex items-center justify-center font-bold text-xs shadow-sm">
-                                    {{ selectedUser.fullName.charAt(0) }}
-                                </div>
-                                <div class="overflow-hidden">
-                                    <div class="font-medium text-sm text-indigo-900 truncate">{{ selectedUser.fullName }}</div>
-                                    <div class="text-xs text-indigo-600 truncate">{{ selectedUser.email }}</div>
-                                </div>
-                            </div>
-
-                            <button mat-flat-button color="primary" (click)="addMember()" class="!rounded-lg h-[36px]">
-                                Invite
-                            </button>
-                        </div>
+                    </div>
+                    
+                    <!-- Selected -->
+                    <div *ngIf="selectedUser" class="flex items-center gap-3 mt-3 animate-slideUp">
+                         <span class="text-sm text-[#EDEDED] font-medium flex-1">{{ selectedUser.fullName }}</span>
+                         <button mat-button color="primary" (click)="addMember()">Invite</button>
                     </div>
                 </div>
 
-                <!-- Members List -->
-                <h3 class="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider flex justify-between items-center">
-                    Project Members
-                    <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-[10px]">{{ members.length }}</span>
-                </h3>
-            </div>
-
-            <!-- Scrollable List -->
-            <div class="flex-1 overflow-y-auto px-6 pb-6 max-h-[250px]">
-                <div class="space-y-3">
-                    <div *ngFor="let member of members" class="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-xl hover:shadow-sm hover:border-gray-200 transition-all group">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 flex items-center justify-center font-bold text-sm shadow-inner border-2 border-white">
+                <div class="flex-1 overflow-y-auto max-h-[200px] space-y-2">
+                    <div *ngFor="let member of members" class="flex items-center justify-between p-2 rounded-md hover:bg-[#2C2D32] group">
+                        <div class="flex items-center gap-3">
+                             <div class="w-6 h-6 rounded bg-brand-500/20 text-brand-400 flex items-center justify-center text-[10px] font-bold">
                                 {{ member.userName.charAt(0) }}
-                            </div>
-                            <div>
-                                <div class="font-medium text-sm text-gray-900">{{ member.userName }}</div>
-                                <div class="text-xs text-gray-500">{{ member.roleInProject }}</div>
-                            </div>
+                             </div>
+                             <span class="text-sm text-[#EDEDED]">{{ member.userName }}</span>
                         </div>
-                    
-                        <!-- Only allow removing if not self (usually owner is manager) -->
-                        <button mat-icon-button (click)="removeMember(member)" 
-                                class="text-gray-400 opacity-0 group-hover:opacity-100 hover:text-red-600 hover:bg-red-50 transition-all !w-8 !h-8 !flex !items-center !justify-center"
-                                matTooltip="Remove Member">
-                            <mat-icon class="!text-[18px] !w-[18px] !h-[18px] !leading-[18px] m-0">delete_outline</mat-icon>
+                        <button mat-icon-button (click)="removeMember(member)" class="text-[#8A8F98] opacity-0 group-hover:opacity-100 hover:text-red-500 !w-6 !h-6">
+                            <mat-icon class="!text-[16px]">close</mat-icon>
                         </button>
                     </div>
-
-                    <div *ngIf="members.length === 0" class="flex flex-col items-center justify-center py-6 text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                        <p class="text-xs text-gray-400">Owner will be added automatically.</p>
-                    </div>
                 </div>
             </div>
-        </mat-dialog-content>
 
-        <mat-dialog-actions align="end" class="gap-3 px-6 pb-6 border-t border-gray-200 pt-4 bg-gray-50 rounded-b-xl">
-             <button mat-button (click)="onFinish()">Skip</button>
-             <button mat-flat-button color="primary" (click)="onFinish()">Done</button>
-        </mat-dialog-actions>
+            <div class="p-4 border-t border-[#2E3035] bg-[#1C1C1E] flex justify-end gap-3 mt-auto">
+                 <button mat-button (click)="onFinish()" class="text-[#8A8F98]">Skip</button>
+                 <button mat-flat-button color="primary" (click)="onFinish()">Done</button>
+            </div>
+      </div>
+
     </div>
   `
 })

@@ -30,72 +30,134 @@ import { Project } from '../../../../shared/models';
         MatIconModule
     ],
     template: `
-    <div class="px-6 py-4 border-b border-gray-200">
-      <div class="flex items-center gap-2">
-        <mat-icon class="text-indigo-600" style="font-size: 24px; width: 24px; height: 24px;">edit</mat-icon>
-        <h2 class="text-lg font-semibold m-0" style="line-height: 24px;">Edit Project</h2>
+    <!-- Linear Style Container -->
+    <div class="flex flex-col max-h-[85vh] w-full bg-[#1C1C1E] text-[#EDEDED] font-sans rounded-xl overflow-hidden">
+      
+      <!-- Window Controls (Top) -->
+      <div class="flex items-center justify-between px-6 py-4 shrink-0">
+         <!-- Breadcrumbs -->
+         <div class="flex items-center gap-2 text-[13px] text-[#8A8F98]">
+            <div class="px-1.5 py-0.5 rounded bg-[#2E3035] text-[#EDEDED] text-[11px] font-medium border border-white/5">MY</div>
+            <span>›</span>
+            <span class="text-[#EDEDED]">Edit project</span>
+         </div>
+         <button mat-icon-button type="button" (click)="onCancel()" class="text-[#8A8F98] hover:text-[#EDEDED] -mr-2">
+            <mat-icon class="!w-5 !h-5 !text-[20px]">close</mat-icon>
+         </button>
       </div>
+
+      <!-- Edit Form -->
+      <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="flex flex-col flex-1 overflow-hidden">
+        <div class="flex-1 overflow-y-auto px-8 py-6 space-y-8 min-w-[750px]">
+            
+            <!-- Header Area -->
+            <div class="space-y-4">
+                <div class="w-12 h-12 rounded-xl border border-white/10 bg-[#2C2D32] flex items-center justify-center text-[#8A8F98]">
+                    <mat-icon class="!w-6 !h-6 !text-[24px]">edit</mat-icon>
+                </div>
+
+                <!-- Title Input (Large) -->
+                <div class="space-y-2">
+                    <input matInput formControlName="name" 
+                           class="w-full bg-transparent border-none p-0 text-4xl font-semibold placeholder-[#46484E] focus:ring-0 focus:outline-none text-[#EDEDED]" 
+                           placeholder="Project name">
+                    <div *ngIf="projectForm.get('name')?.hasError('required') && projectForm.get('name')?.touched" class="text-red-500 text-xs">Title is required</div>
+                </div>
+            </div>
+
+            <!-- Attributes Row (Badges) -->
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Status Badge -->
+                 <div class="relative group">
+                    <mat-select formControlName="status" panelClass="linear-panel" class="opacity-0 absolute inset-0 cursor-pointer z-10 w-full h-full">
+                        <mat-option value="ACTIVE">Active</mat-option>
+                        <mat-option value="ARCHIVED">Archived</mat-option>
+                    </mat-select>
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
+                        <mat-icon class="!w-4 !h-4 !text-[16px]" 
+                            [ngClass]="{'text-emerald-500': projectForm.get('status')?.value === 'ACTIVE', 'text-gray-500': projectForm.get('status')?.value === 'ARCHIVED'}">
+                            {{ projectForm.get('status')?.value === 'ACTIVE' ? 'radio_button_checked' : 'archive' }}
+                        </mat-icon>
+                        <span class="text-[13px] font-medium text-[#EDEDED]">{{ projectForm.get('status')?.value | titlecase }}</span>
+                    </div>
+                 </div>
+
+                 <!-- Type Badge (RESTORED) -->
+                 <div class="relative group">
+                    <mat-select formControlName="type" panelClass="linear-panel" class="opacity-0 absolute inset-0 cursor-pointer z-10 w-full h-full">
+                        <mat-option value="PERSONAL">Personal</mat-option>
+                        <mat-option value="TEAM">Team</mat-option>
+                    </mat-select>
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
+                        <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">
+                            {{ projectForm.get('type')?.value === 'TEAM' ? 'group' : 'person' }}
+                        </mat-icon>
+                        <span class="text-[13px] font-medium text-[#EDEDED]">{{ projectForm.get('type')?.value | titlecase }}</span>
+                    </div>
+                 </div>
+
+                 <!-- Priority (Visual Mock) -->
+                 <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
+                    <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">signal_cellular_alt</mat-icon>
+                    <span class="text-[13px] font-medium text-[#8A8F98]">No priority</span>
+                 </div>
+
+                 <!-- Lead (Owner) -->
+                 <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
+                    <div class="w-4 h-4 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-[9px] font-bold">ME</div>
+                    <span class="text-[13px] font-medium text-[#EDEDED]">Lead</span>
+                 </div>
+
+                 <!-- Members (Visual Mock) -->
+                 <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
+                    <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">group</mat-icon>
+                    <span class="text-[13px] font-medium text-[#8A8F98]">Members</span>
+                 </div>
+
+                 <!-- Date Badges -->
+                 <div class="relative flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer"
+                      (click)="startPicker.open()">
+                    <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">calendar_today</mat-icon>
+                    <span class="text-[13px] font-medium" [ngClass]="{'text-[#EDEDED]': projectForm.get('startDate')?.value, 'text-[#8A8F98]': !projectForm.get('startDate')?.value}">
+                        {{ (projectForm.get('startDate')?.value | date:'MMM d') || 'Start' }}
+                    </span>
+                    <!-- Invisible input for anchor positioning -->
+                    <input matInput [matDatepicker]="startPicker" formControlName="startDate" class="absolute opacity-0 w-0 h-0 bottom-0 left-0 pointer-events-none">
+                    <mat-datepicker #startPicker panelClass="linear-datepicker"></mat-datepicker>
+                 </div>
+
+                 <div class="relative flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer"
+                      (click)="endPicker.open()">
+                    <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">event</mat-icon>
+                    <span class="text-[13px] font-medium" [ngClass]="{'text-[#EDEDED]': projectForm.get('endDate')?.value, 'text-[#8A8F98]': !projectForm.get('endDate')?.value}">
+                        {{ (projectForm.get('endDate')?.value | date:'MMM d') || 'Target' }}
+                    </span>
+                    <!-- Invisible input for anchor positioning -->
+                    <input matInput [matDatepicker]="endPicker" formControlName="endDate" class="absolute opacity-0 w-0 h-0 bottom-0 left-0 pointer-events-none">
+                    <mat-datepicker #endPicker panelClass="linear-datepicker"></mat-datepicker>
+                 </div>
+            </div>
+
+            <div class="h-px bg-[#2E3035] w-full"></div>
+
+            <!-- Extended Description -->
+             <div class="">
+                <textarea class="w-full bg-transparent text-[#EDEDED] placeholder-[#46484E] text-[15px] resize-none focus:outline-none h-48 leading-relaxed" 
+                          formControlName="description"
+                          placeholder="Write a description, a project brief, or collect ideas..."></textarea>
+             </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="p-4 border-t border-[#2E3035] bg-[#1C1C1E] flex justify-end gap-3 rounded-b-lg">
+            <button mat-button type="button" (click)="onCancel()" class="text-[#EDEDED] bg-[#2C2D32] hover:bg-[#3A3C42] border border-[#3A3C42] rounded-md px-4 h-9 font-medium transition-colors">Cancel</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="projectForm.invalid || loading" class="!bg-[#5E6AD2] hover:!bg-[#4e5ac0] !text-white !rounded-md px-4 h-9 font-medium">
+                 {{ loading ? 'Updating...' : 'Save changes' }}
+            </button>
+        </div>
+      </form>
     </div>
-    <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
-      <mat-dialog-content class="flex flex-col gap-5 min-w-[500px]">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Project Name *</mat-label>
-          <input matInput formControlName="name" placeholder="Project name">
-          <mat-error *ngIf="projectForm.get('name')?.hasError('required')">Name is required</mat-error>
-          <mat-error *ngIf="projectForm.get('name')?.hasError('minlength')">Name must be at least 3 characters</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Description</mat-label>
-          <textarea matInput formControlName="description" rows="3" placeholder="Project description"></textarea>
-        </mat-form-field>
-
-        <div class="grid grid-cols-2 gap-4">
-          <mat-form-field appearance="outline">
-            <mat-label>Project Type *</mat-label>
-            <mat-select formControlName="type">
-              <mat-option value="PERSONAL">Personal</mat-option>
-              <mat-option value="TEAM">Team</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Status *</mat-label>
-            <mat-select formControlName="status">
-              <mat-option value="ACTIVE">Active</mat-option>
-              <mat-option value="ARCHIVED">Archived</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <mat-form-field appearance="outline">
-            <mat-label>Start Date</mat-label>
-            <input matInput [matDatepicker]="startPicker" formControlName="startDate">
-            <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
-            <mat-datepicker #startPicker></mat-datepicker>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>End Date</mat-label>
-            <input matInput [matDatepicker]="endPicker" formControlName="endDate">
-            <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
-            <mat-datepicker #endPicker></mat-datepicker>
-          </mat-form-field>
-        </div>
-
-        <mat-error *ngIf="projectForm.hasError('dateRange')" class="text-sm">
-          End date must be after start date
-        </mat-error>
-      </mat-dialog-content>
-
-      <mat-dialog-actions align="end" class="gap-3">
-        <button mat-button type="button" (click)="onCancel()">Cancel</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="projectForm.invalid || loading">
-          {{ loading ? 'Updating...' : 'Update Project' }}
-        </button>
-      </mat-dialog-actions>
-    </form>
   `
 })
 export class ProjectEditDialogComponent {
