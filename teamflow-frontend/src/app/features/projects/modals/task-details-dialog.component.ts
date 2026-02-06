@@ -35,6 +35,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class TaskDetailsDialogComponent implements OnInit {
     task: Task;
+    projectType: string;
     subTasks: SubTask[] = [];
     comments: Comment[] = [];
     assignments: TaskAssignment[] = [];
@@ -43,7 +44,7 @@ export class TaskDetailsDialogComponent implements OnInit {
     newCommentForm: FormGroup;
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) public data: { task: Task },
+        @Inject(MAT_DIALOG_DATA) public data: { task: Task; projectType?: string },
         private dialogRef: MatDialogRef<TaskDetailsDialogComponent>,
         private subTaskService: SubTaskService,
         private commentService: CommentService,
@@ -53,6 +54,7 @@ export class TaskDetailsDialogComponent implements OnInit {
         private snackBar: MatSnackBar
     ) {
         this.task = data.task;
+        this.projectType = data.projectType || 'PERSONAL';
 
         this.newSubTaskForm = this.fb.group({
             title: ['']
@@ -194,5 +196,9 @@ export class TaskDetailsDialogComponent implements OnInit {
             case 'LOW': return 'bg-green-100 text-green-700';
             default: return 'bg-gray-100 text-gray-700';
         }
+    }
+
+    isTeamProject(): boolean {
+        return this.projectType === 'TEAM';
     }
 }

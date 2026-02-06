@@ -127,8 +127,8 @@
             </div>
         </mat-tab>
 
-        <!-- Tab 4: Assignments -->
-        <mat-tab label="Assignments">
+        <!-- Tab 4: Assignments (Only for TEAM projects) -->
+        <mat-tab label="Assignments" *ngIf="isTeamProject()">
             <div class="p-4 space-y-3">
                 <div *ngFor="let assignment of assignments"
                     class="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
