@@ -39,6 +39,17 @@ export enum TaskPriority {
     URGENT = 'URGENT'
 }
 
+
+export interface TaskAssignment {
+    id: number;
+    taskId: number;
+    userId: number;
+    userName?: string; // Enriched from User if needed
+    userEmail?: string;
+    roleInTask: 'RESPONSABLE' | 'CONTRIBUTOR' | 'OBSERVER';
+    assignedAt: string;
+}
+
 export interface Task {
     id: number;
     title: string;
@@ -46,8 +57,9 @@ export interface Task {
     priority: TaskPriority;
     dueDate?: string;
     columnId: number;
-    blocked: boolean;  // Backend uses "blocked" not "isBlocked"
+    blocked: boolean;
     position: number;
+    assignments?: TaskAssignment[];
     assignees?: User[];
     subTasks?: SubTask[];
     comments?: Comment[];

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Task } from '../../shared/models';
+import { Task, TaskAssignment } from '../../shared/models';
 
 @Injectable({
     providedIn: 'root'
@@ -48,5 +48,20 @@ export class TaskService {
         return this.http.put<void>(`${this.apiUrl}/${taskId}/move`, null, {
             params: { targetColumnId: targetColumnId.toString() }
         });
+    }
+
+    assignMember(taskId: number, userId: number, role: 'RESPONSABLE' | 'CONTRIBUTOR' | 'OBSERVER'): Observable<TaskAssignment> {
+        return this.http.post<TaskAssignment>(`${this.apiUrl}/${taskId}/assignments`, {
+            userId,
+            roleInTask: role
+        });
+    }
+
+    removeAssignment(taskId: number, userId: number): Observable<void> {
+        // Assuming there's an endpoint to remove by userId for a specific task
+        // Or we might need to look up the assignment ID first. 
+        // Based on typical REST: DELETE /tasks/{taskId}/assignments/{userId} OR DELETE /assignments/{id}
+        // Let's assume standard sub-resource pattern for now, can adjust if backend differs.
+        return this.http.delete<void>(`${this.apiUrl}/${taskId}/assignments/${userId}`);
     }
 }

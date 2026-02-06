@@ -8,10 +8,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Task, SubTask, Comment, TaskAssignment } from '../../../shared/models';
+import { Task, SubTask, Comment, TaskAssignment, User, Membership } from '../../../shared/models';
 import { SubTaskService } from '../../../core/services/subtask.service';
 import { CommentService } from '../../../core/services/comment.service';
-import { AssignmentService } from '../../../core/services/assignment.service';
+import { TaskService } from '../../../core/services/task.service';
+import { MembershipService } from '../../../core/services/membership.service';
 import { MatDialog } from '@angular/material/dialog';
 import { EditTaskDialogComponent } from '../components/edit-task-dialog/edit-task-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -40,21 +41,28 @@ export class TaskDetailsDialogComponent implements OnInit {
     comments: Comment[] = [];
     assignments: TaskAssignment[] = [];
 
+    // Assignment Logic
+    projectId?: number;
+    projectMembers: Membership[] = [];
+    showAssignmentDropdown = false;
+
     newSubTaskForm: FormGroup;
     newCommentForm: FormGroup;
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) public data: { task: Task; projectType?: string },
+        @Inject(MAT_DIALOG_DATA) public data: { task: Task; projectType?: string; projectId?: number },
         private dialogRef: MatDialogRef<TaskDetailsDialogComponent>,
         private subTaskService: SubTaskService,
         private commentService: CommentService,
-        private assignmentService: AssignmentService,
+        private taskService: TaskService,
+        private membershipService: MembershipService,
         private fb: FormBuilder,
         private dialog: MatDialog,
         private snackBar: MatSnackBar
     ) {
         this.task = data.task;
         this.projectType = data.projectType || 'PERSONAL';
+        this.projectId = data.projectId;
 
         this.newSubTaskForm = this.fb.group({
             title: ['']
@@ -69,6 +77,9 @@ export class TaskDetailsDialogComponent implements OnInit {
         this.loadSubTasks();
         this.loadComments();
         this.loadAssignments();
+        if (this.isTeamProject() && this.projectId) {
+            this.loadProjectMembers();
+        }
     }
 
     loadSubTasks(): void {
@@ -88,10 +99,64 @@ export class TaskDetailsDialogComponent implements OnInit {
     }
 
     loadAssignments(): void {
-        this.assignmentService.getAssignmentsByTask(this.task.id).subscribe({
-            next: (assignments) => this.assignments = assignments,
-            error: (err) => console.error('Failed to load assignments', err)
+        // Since we updated Task interface to include assignments, we might strictly speak
+        // need to re-fetch task or rely on what's passed. 
+        // If task object from board doesn't have assignments populated (depends on backend),
+        // we might need a separate call. 
+        // Assuming we need to fetch them if not present or to be sure.
+        // Actually the backend Task entity has assignments, but let's check if we have an endpoint.
+        // We added assignMember/removeAssignment to TaskService but not getAssignments (it's part of Task).
+        // Let's assume we can refresh the task to get assignments.
+        this.taskService.getTaskById(this.task.id).subscribe({
+            next: (updatedTask) => {
+                this.task = updatedTask;
+                this.assignments = updatedTask.assignments || [];
+            },
+            error: (err) => console.error('Failed to refresh task assignments', err)
         });
+    }
+
+    loadProjectMembers(): void {
+        if (!this.projectId) return;
+        this.membershipService.getMembers(this.projectId).subscribe({
+            next: (members) => this.projectMembers = members,
+            error: (err) => console.error('Failed to load project members', err)
+        });
+    }
+
+    assignMember(member: Membership): void {
+        const role = 'CONTRIBUTOR'; // Default role for now
+        this.taskService.assignMember(this.task.id, member.userId, role).subscribe({
+            next: (assignment) => {
+                // Determine user name/email from the member object since API might return basic assignment
+                const newAssignment: TaskAssignment = {
+                    ...assignment,
+                    userName: member.userName,
+                    userEmail: member.userEmail
+                };
+                this.assignments.push(newAssignment);
+                this.showAssignmentDropdown = false;
+                this.snackBar.open(`${member.userName} assigned`, 'Close', { duration: 3000 });
+            },
+            error: () => this.snackBar.open('Failed to assign member', 'Close', { duration: 3000 })
+        });
+    }
+
+    removeAssignment(assignment: TaskAssignment): void {
+        if (!confirm(`Remove assignment for ${assignment.userName}?`)) return;
+
+        this.taskService.removeAssignment(this.task.id, assignment.userId).subscribe({
+            next: () => {
+                this.assignments = this.assignments.filter(a => a.id !== assignment.id);
+                this.snackBar.open('Assignment removed', 'Close', { duration: 3000 });
+            },
+            error: () => this.snackBar.open('Failed to remove assignment', 'Close', { duration: 3000 })
+        });
+    }
+
+    getUnassignedMembers(): Membership[] {
+        const assignedUserIds = this.assignments.map(a => a.userId);
+        return this.projectMembers.filter(m => !assignedUserIds.includes(m.userId));
     }
 
     addSubTask(): void {

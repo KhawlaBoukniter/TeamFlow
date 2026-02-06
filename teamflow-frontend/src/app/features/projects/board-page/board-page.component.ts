@@ -250,7 +250,11 @@ export class BoardPageComponent implements OnInit {
     const dialogRef = this.dialog.open(TaskDetailsDialogComponent, {
       width: '800px',
       maxHeight: '90vh',
-      data: { task, projectType: this.project?.type || 'PERSONAL' }
+      data: {
+        task,
+        projectType: this.project?.type || 'PERSONAL',
+        projectId: this.project?.id
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
