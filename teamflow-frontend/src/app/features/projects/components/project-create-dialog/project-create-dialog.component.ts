@@ -161,7 +161,7 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of } from 'r
 
         <!-- Footer -->
         <div class="p-4 border-t border-[#2E3035] bg-[#1C1C1E] flex justify-end gap-3 rounded-b-lg">
-            <button mat-button type="button" (click)="onCancel()" class="text-[#EDEDED] bg-[#2C2D32] hover:bg-[#3A3C42] border border-[#3A3C42] rounded-md px-4 h-9 font-medium transition-colors">Cancel</button>
+            <button mat-button type="button" (click)="onCancel()" class="!text-white !bg-[#33353A] hover:!bg-[#404249] border border-[#45484F] rounded-md px-4 h-9 font-medium transition-all shadow-sm">Cancel</button>
             <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || loading" class="!bg-[#5E6AD2] hover:!bg-[#4e5ac0] !text-white !rounded-md px-4 h-9 font-medium">
                  {{ loading ? 'Creating...' : (form.get('type')?.value === 'TEAM' ? 'Next: Invite Team' : 'Create project') }}
             </button>
