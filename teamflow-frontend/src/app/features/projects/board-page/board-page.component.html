@@ -46,8 +46,8 @@
             </div>
         </div>
 
-        <!-- Columns (No DnD for MVP) -->
-        <div class="flex h-full gap-4 pb-2" *ngIf="columns.length > 0">
+        <!-- Columns (with DnD) -->
+        <div class="flex h-full gap-4 pb-2" *ngIf="columns.length > 0" cdkDropListGroup>
 
             <div *ngFor="let column of columns"
                 class="bg-white border border-gray-200 rounded-lg flex flex-col w-[300px] min-w-[300px] max-h-full">
@@ -63,12 +63,13 @@
                         <mat-icon class="!w-5 !h-5 !text-[20px]">more_vert</mat-icon>
                     </button>
                 </div>
-                <!-- Tasks List (Scrollable) -->
-                <div class="flex-1 overflow-y-auto p-3 space-y-2">
+                <!-- Tasks List (Scrollable with Drop List) -->
+                <div class="flex-1 overflow-y-auto p-3 space-y-2" cdkDropList [cdkDropListData]="getTasks(column.id)"
+                    [id]="'col-' + column.id" (cdkDropListDropped)="drop($event, column.id)">
 
-                    <!-- Task Card (MVP) -->
-                    <div *ngFor="let task of getTasks(column.id)" (click)="openTaskDetails(task)"
-                        class="bg-white border rounded-lg p-3 hover:shadow-card-hover transition-all duration-200 cursor-pointer"
+                    <!-- Task Card (MVP with Drag) -->
+                    <div *ngFor="let task of getTasks(column.id)" cdkDrag (click)="openTaskDetails(task)"
+                        class="bg-white border rounded-lg p-3 hover:shadow-card-hover transition-all duration-200 cursor-grab active:cursor-grabbing"
                         [ngClass]="{'border-l-4 border-l-red-500': task.isBlocked}">
 
                         <!-- Title -->

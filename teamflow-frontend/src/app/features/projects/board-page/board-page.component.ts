@@ -14,6 +14,7 @@ import { ColumnService } from '../../../core/services/column.service';
 import { TaskService } from '../../../core/services/task.service';
 import { Project, ProjectColumn, Task } from '../../../shared/models';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TaskCreateEditComponent } from '../modals/task-create-edit.component';
 import { TaskDetailsComponent } from '../modals/task-details.component';
 import { CreateColumnDialogComponent } from '../components/create-column-dialog/create-column-dialog.component';
@@ -34,7 +35,8 @@ import { MembersDialogComponent } from '../components/members-dialog/members-dia
     MatChipsModule,
     MembersDialogComponent,
     CreateColumnDialogComponent,
-    CreateTaskDialogComponent
+    CreateTaskDialogComponent,
+    MatTooltipModule
   ],
   templateUrl: './board-page.component.html',
   styleUrl: './board-page.component.css'
@@ -98,25 +100,45 @@ export class BoardPageComponent implements OnInit {
   }
 
   drop(event: CdkDragDrop<Task[]>, targetColumnId: number): void {
+    // Same column reorder
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      const task = event.previousContainer.data[event.previousIndex];
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex,
-      );
-
-      this.taskService.moveTask(task.id, targetColumnId).subscribe({
-        error: (err) => {
-          console.error('Failed to move task', err);
-          this.loadColumns(this.project!.id);
-        }
-      });
+      return;
     }
+
+    // Cross-column move
+    const task = event.previousContainer.data[event.previousIndex];
+    const sourceColumnId = task.columnId;
+
+    // Optimistic update: move in UI immediately
+    transferArrayItem(
+      event.previousContainer.data,
+      event.container.data,
+      event.previousIndex,
+      event.currentIndex
+    );
+
+    // Update task's columnId for consistency
+    task.columnId = targetColumnId;
+
+    // API call
+    this.taskService.moveTask(task.id, targetColumnId).subscribe({
+      next: () => {
+        this.snackBar.open('Task moved successfully', 'Close', { duration: 2000 });
+      },
+      error: (err) => {
+        console.error('Failed to move task', err);
+
+        // Rollback: reload all columns to restore correct state
+        this.loadColumns(this.project!.id);
+
+        this.snackBar.open('Failed to move task. Please try again.', 'Close', {
+          duration: 3000
+        });
+      }
+    });
   }
+
 
   moveTaskFallback(task: Task, targetColumnId: number): void {
     if (task.columnId === targetColumnId) return;
