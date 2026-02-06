@@ -67,4 +67,16 @@ public class TaskController {
         taskService.removeAssignment(id, userId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/tasks/{id}/dependencies/{dependencyId}")
+    public ResponseEntity<Void> addDependency(@PathVariable Long id, @PathVariable Long dependencyId) {
+        taskService.addDependency(id, dependencyId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/tasks/{id}/dependencies/{dependencyId}")
+    public ResponseEntity<Void> removeDependency(@PathVariable Long id, @PathVariable Long dependencyId) {
+        taskService.removeDependency(id, dependencyId);
+        return ResponseEntity.noContent().build();
+    }
 }
