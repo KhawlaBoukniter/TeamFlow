@@ -1,20 +1,16 @@
-/* Project Card Menu Button - Fix hover ripple alignment */
-.project-menu-button {
-    width: 32px !important;
-    height: 32px !important;
+/* Project Card Menu Button - Smaller hover circle */
+::ng-deep .mat-mdc-icon-button.mat-mdc-button-base {
+    width: 32px;
+    height: 32px;
+    padding: 0;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
 }
 
-.project-menu-button mat-icon {
-    font-size: 20px !important;
-    width: 20px !important;
-    height: 20px !important;
-}
-
-.project-menu-button:hover {
-    background-color: rgba(0, 0, 0, 0.04);
+::ng-deep .mat-mdc-icon-button .mat-mdc-button-touch-target {
+    width: 32px;
+    height: 32px;
 }
 
 /* Material Menu Styling - ClickUp/Jira Style */
