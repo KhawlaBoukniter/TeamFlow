@@ -14,6 +14,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { ProjectService } from '../../core/services/project.service';
 import { Project } from '../../shared/models';
 import { ProjectCreateDialogComponent } from './components/project-create-dialog/project-create-dialog.component';
+import { ProjectEditDialogComponent } from './components/project-edit-dialog/project-edit-dialog.component';
+import { ProjectDetailsDialogComponent } from './components/project-details-dialog/project-details-dialog.component';
 import { BRANDING } from '../../core/constants/branding';
 
 @Component({
@@ -92,13 +94,30 @@ export class ProjectsComponent implements OnInit {
     }
 
     openProjectDetails(project: Project): void {
-        // TODO: Create ProjectDetailsDialogComponent
-        this.snackBar.open('Project Details (Coming Soon)', 'Close', { duration: 2000 });
+        const dialogRef = this.dialog.open(ProjectDetailsDialogComponent, {
+            width: '700px',
+            maxHeight: '90vh',
+            data: { project }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result?.refreshNeeded) {
+                this.loadProjects();
+            }
+        });
     }
 
     openProjectEdit(project: Project): void {
-        // TODO: Create ProjectEditDialogComponent
-        this.snackBar.open('Project Edit (Coming Soon)', 'Close', { duration: 2000 });
+        const dialogRef = this.dialog.open(ProjectEditDialogComponent, {
+            width: '600px',
+            data: { project }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                this.loadProjects();
+            }
+        });
     }
 
     archiveProject(project: Project): void {
