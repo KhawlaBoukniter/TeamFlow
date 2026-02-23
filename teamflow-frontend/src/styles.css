@@ -205,6 +205,11 @@ body {
     transform: scale(0.98);
 }
 
+/* Disabled / Coming Soon items */
+.opacity-thirty {
+    opacity: 0.35;
+}
+
 /* Text Truncation */
 .line-clamp-1 {
     display: -webkit-box;

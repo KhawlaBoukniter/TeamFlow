@@ -12,91 +12,96 @@ import { BRANDING } from '../../constants/branding';
   standalone: true,
   imports: [CommonModule, RouterModule, MatIconModule, MatButtonModule, MatTooltipModule],
   template: `
-    <div class="flex flex-col h-full bg-linear-sidebar text-linear-text-secondary border-r border-linear-border select-none">
+    <div class="flex flex-col h-full bg-[#09090b] text-[#8A8F98] border-r border-[#1C1C1E] select-none">
+
       <!-- Top: Workspace Selector -->
-      <div class="h-12 flex items-center px-4 hover:bg-linear-hover cursor-pointer transition-colors m-2 rounded-lg group">
-        <div class="w-5 h-5 rounded bg-brand-500 flex items-center justify-center text-[10px] items-center text-white font-bold mr-2 shadow-sm">
-            {{ workspaceName.charAt(0).toUpperCase() }}
+      <div class="h-12 flex items-center px-4 hover:bg-[#1C1C1E] cursor-pointer transition-colors mx-2 mt-2 rounded-lg group">
+        <div class="w-5 h-5 rounded bg-brand flex items-center justify-center text-[10px] text-white font-bold mr-2 shadow-sm shrink-0">
+          {{ workspaceName.charAt(0).toUpperCase() }}
         </div>
-        <div class="flex-1 text-[13px] font-medium text-linear-text-primary truncate">
-            {{ workspaceName }}
+        <div class="flex-1 text-[13px] font-semibold text-white truncate">
+          {{ workspaceName }}
         </div>
         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-             <mat-icon class="!w-4 !h-4 !text-[16px] text-linear-text-secondary">search</mat-icon>
-             <mat-icon class="!w-4 !h-4 !text-[16px] text-linear-text-secondary">edit_note</mat-icon>
+          <mat-icon class="!w-4 !h-4 !text-[16px]">unfold_more</mat-icon>
         </div>
       </div>
 
       <!-- Scrollable Nav -->
-      <nav class="flex-1 px-3 space-y-0.5 overflow-y-auto mt-2">
-        
-        <!-- Primary Items -->
-        <a routerLink="/inbox"
-           routerLinkActive="bg-linear-hover text-linear-text-primary"
-           class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-linear-hover hover:text-linear-text-primary transition-colors cursor-pointer group">
-            <mat-icon class="!w-4 !h-4 !text-[16px]">inbox</mat-icon>
-            <span class="text-[13px]">Inbox</span>
-        </a>
-        <a routerLink="/my-issues"
-           routerLinkActive="bg-linear-hover text-linear-text-primary"
-           class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-linear-hover hover:text-linear-text-primary transition-colors cursor-pointer group">
-            <mat-icon class="!w-4 !h-4 !text-[16px]">adjust</mat-icon>
-            <span class="text-[13px]">My issues</span>
-        </a>
+      <nav class="flex-1 px-3 space-y-0.5 overflow-y-auto mt-3">
+
+        <!-- Primary Items — DISABLED (not yet implemented) -->
+        <div
+          matTooltip="Coming soon"
+          matTooltipPosition="right"
+          class="flex items-center gap-3 px-2 py-1.5 rounded-md opacity-thirty cursor-not-allowed pointer-events-none select-none">
+          <mat-icon class="!w-4 !h-4 !text-[16px]">inbox</mat-icon>
+          <span class="text-[13px]">Inbox</span>
+        </div>
+        <div
+          matTooltip="Coming soon"
+          matTooltipPosition="right"
+          class="flex items-center gap-3 px-2 py-1.5 rounded-md opacity-thirty cursor-not-allowed pointer-events-none select-none">
+          <mat-icon class="!w-4 !h-4 !text-[16px]">adjust</mat-icon>
+          <span class="text-[13px]">My issues</span>
+        </div>
 
         <!-- Workspace Section -->
-        <div class="pt-4 pb-2 px-2 flex items-center justify-between group cursor-pointer">
-            <span class="text-[11px] font-medium text-linear-text-secondary/70 hover:text-linear-text-secondary transition-colors">Workspace</span>
-             <mat-icon class="!w-3 !h-3 !text-[12px] opacity-0 group-hover:opacity-100">add</mat-icon>
+        <div class="pt-4 pb-1.5 px-2">
+          <span class="text-[10px] font-semibold uppercase tracking-widest text-[#8A8F98]/50">Workspace</span>
         </div>
 
-        <a routerLink="/projects" 
-           routerLinkActive="bg-linear-hover text-linear-text-primary" 
-           class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-linear-hover hover:text-linear-text-primary transition-colors cursor-pointer">
-            <mat-icon class="!w-4 !h-4 !text-[16px]">dns</mat-icon>
-            <span class="text-[13px]">Projects</span>
+        <a routerLink="/projects"
+           routerLinkActive="!bg-[#25262B] !text-white font-medium"
+           [routerLinkActiveOptions]="{exact: true}"
+           class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-[#1C1C1E] hover:text-white transition-colors cursor-pointer text-[#8A8F98]">
+          <mat-icon class="!w-4 !h-4 !text-[16px]">dns</mat-icon>
+          <span class="text-[13px]">Projects</span>
         </a>
-        <a class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-linear-hover hover:text-linear-text-primary transition-colors cursor-pointer">
-            <mat-icon class="!w-4 !h-4 !text-[16px]">layers</mat-icon>
-            <span class="text-[13px]">Views</span>
-        </a>
+        <div class="flex items-center gap-3 px-2 py-1.5 rounded-md opacity-thirty cursor-not-allowed pointer-events-none select-none"
+          matTooltip="Coming soon" matTooltipPosition="right">
+          <mat-icon class="!w-4 !h-4 !text-[16px]">layers</mat-icon>
+          <span class="text-[13px]">Views</span>
+        </div>
 
         <!-- Teams Section -->
-        <div class="pt-4 pb-2 px-2">
-            <span class="text-[11px] font-medium text-linear-text-secondary/70">Your teams</span>
+        <div class="pt-4 pb-1.5 px-2">
+          <span class="text-[10px] font-semibold uppercase tracking-widest text-[#8A8F98]/50">Your teams</span>
         </div>
-        <a class="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-linear-hover hover:text-linear-text-primary transition-colors cursor-pointer">
-             <div class="w-4 h-4 rounded bg-green-600 flex items-center justify-center text-[9px] text-white font-bold">
-                {{ userEmail.charAt(0).toUpperCase() }}
-             </div>
-             <span class="text-[13px]">{{ userEmail.split('@')[0] }}</span>
-             <mat-icon class="!w-3 !h-3 !text-[12px] ml-auto opacity-50">arrow_drop_down</mat-icon>
-        </a>
+        <div class="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-[#1C1C1E] hover:text-white transition-colors cursor-pointer">
+          <div class="w-4 h-4 rounded bg-green-700 flex items-center justify-center text-[9px] text-white font-bold shrink-0">
+            {{ userEmail.charAt(0).toUpperCase() }}
+          </div>
+          <span class="text-[13px] truncate">{{ userEmail.split('@')[0] }}</span>
+          <mat-icon class="!w-3 !h-3 !text-[12px] ml-auto opacity-50">arrow_drop_down</mat-icon>
+        </div>
       </nav>
 
       <!-- Bottom Actions -->
-      <div class="p-3 mt-auto space-y-0.5 border-t border-linear-border/30">
-          <a class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-linear-hover hover:text-linear-text-primary transition-colors cursor-pointer text-linear-text-secondary">
-            <mat-icon class="!w-4 !h-4 !text-[16px]">cloud_upload</mat-icon>
-            <span class="text-[13px]">Import issues</span>
-          </a>
-          <a class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-linear-hover hover:text-linear-text-primary transition-colors cursor-pointer text-linear-text-secondary">
-            <mat-icon class="!w-4 !h-4 !text-[16px]">person_add</mat-icon>
-            <span class="text-[13px]">Invite people</span>
-          </a>
-          
-          <!-- User/Logout -->
-           <div class="flex items-center justify-between mt-2 pt-2 border-t border-linear-border/30 px-2">
-                <div class="flex items-center gap-2">
-                    <div class="w-5 h-5 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-[10px] flex items-center justify-center text-white">
-                        {{ userEmail.charAt(0).toUpperCase() }}
-                    </div>
-                    <span class="text-[12px] truncate max-w-[100px]">{{ userEmail }}</span>
-                </div>
-                <button mat-icon-button class="!w-6 !h-6" (click)="logout()" matTooltip="Logout">
-                    <mat-icon class="!text-[14px]">logout</mat-icon>
-                </button>
-           </div>
+      <div class="p-3 mt-auto space-y-0.5 border-t border-[#1C1C1E]">
+        <div class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-[#1C1C1E] hover:text-white transition-colors cursor-pointer opacity-thirty pointer-events-none"
+          matTooltip="Coming soon" matTooltipPosition="right">
+          <mat-icon class="!w-4 !h-4 !text-[16px]">cloud_upload</mat-icon>
+          <span class="text-[13px]">Import issues</span>
+        </div>
+        <div class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-[#1C1C1E] hover:text-white transition-colors cursor-pointer opacity-thirty pointer-events-none"
+          matTooltip="Coming soon" matTooltipPosition="right">
+          <mat-icon class="!w-4 !h-4 !text-[16px]">person_add</mat-icon>
+          <span class="text-[13px]">Invite people</span>
+        </div>
+
+        <!-- User / Logout -->
+        <div class="flex items-center justify-between mt-2 pt-2 border-t border-[#1C1C1E] px-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-[10px] flex items-center justify-center text-white font-semibold shrink-0">
+              {{ userEmail.charAt(0).toUpperCase() }}
+            </div>
+            <span class="text-[12px] truncate text-[#8A8F98]">{{ userEmail }}</span>
+          </div>
+          <button mat-icon-button class="!w-6 !h-6 shrink-0" (click)="logout()" matTooltip="Logout">
+            <mat-icon class="!text-[14px] text-[#8A8F98] hover:text-white">logout</mat-icon>
+          </button>
+        </div>
       </div>
     </div>
   `

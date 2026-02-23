@@ -1,42 +1,63 @@
 <div class="h-full flex flex-col bg-[#09090b] overflow-hidden page-enter">
 
-    <!-- Toolbar -->
-    <div class="h-14 border-b border-[#2E3035] px-6 flex items-center justify-between bg-[#09090b] shrink-0">
-        <div class="flex items-center gap-3">
-            <button routerLink="/projects" class="p-1.5 hover:bg-[#2C2D32] rounded-lg transition-colors text-[#8A8F98]">
-                <mat-icon class="!w-4 !h-4 !text-[16px]">arrow_back</mat-icon>
-            </button>
-            <div class="w-px h-4 bg-[#2E3035]"></div>
-            <h2 class="text-base font-semibold text-white">{{ project?.name || 'Board' }}</h2>
-            <span class="text-xs text-[#8A8F98] px-2 py-0.5 rounded border border-[#2E3035] bg-[#1C1C1E]"
-                *ngIf="project?.description">
-                {{ project?.description | slice:0:40 }}{{ (project?.description?.length || 0) > 40 ? '…' : '' }}
-            </span>
-        </div>
+    <!-- ══════════════════════════════════════════
+         ROW 1 — Navigation (back + project title)
+         ══════════════════════════════════════════ -->
+    <div class="h-10 border-b border-[#1C1C1E] px-4 flex items-center gap-3 bg-[#09090b] shrink-0">
+        <!-- Back -->
+        <button routerLink="/projects"
+            class="p-1 hover:bg-[#1C1C1E] rounded-md transition-colors text-[#8A8F98] hover:text-white"
+            title="Back to Projects">
+            <mat-icon class="!w-4 !h-4 !text-[16px]">arrow_back</mat-icon>
+        </button>
 
-        <div class="flex items-center gap-2">
-            <!-- Filters Button -->
-            <button
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#8A8F98] hover:bg-[#2C2D32] hover:text-white rounded-lg transition-colors border border-[#2E3035]">
-                <mat-icon class="!w-4 !h-4 !text-[16px]">filter_list</mat-icon>
-                Filters
-            </button>
+        <div class="w-px h-4 bg-[#2E3035] shrink-0"></div>
 
-            <!-- Add Column -->
-            <button (click)="openAddColumnDialog()"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#8A8F98] hover:bg-[#2C2D32] hover:text-white rounded-lg transition-colors border border-[#2E3035]">
-                <mat-icon class="!w-4 !h-4 !text-[16px]">view_column</mat-icon>
-                Add Column
-            </button>
+        <!-- Project name -->
+        <h1 class="text-[13px] font-semibold text-white truncate">
+            {{ project?.name || 'Board' }}
+        </h1>
 
-            <!-- Members (Only for TEAM projects) -->
-            <button *ngIf="project?.type === 'TEAM'" (click)="openMembersDialog()"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-brand text-white hover:bg-brand-hover rounded-lg transition-colors btn-press">
-                <mat-icon class="!w-4 !h-4 !text-[16px]">group</mat-icon>
-                Members
-            </button>
-        </div>
+        <!-- Type badge -->
+        <span *ngIf="project?.type"
+            class="text-[10px] font-medium px-2 py-0.5 rounded-full border border-[#2E3035] text-[#8A8F98] bg-[#1C1C1E] shrink-0">
+            {{ project?.type }}
+        </span>
+
+        <!-- Description snippet -->
+        <span *ngIf="project?.description" class="hidden sm:block text-[12px] text-[#8A8F98] truncate max-w-[280px]">
+            {{ project?.description | slice:0:60 }}{{ (project?.description?.length || 0) > 60 ? '…' : '' }}
+        </span>
     </div>
+
+    <!-- ══════════════════════════════════════════
+         ROW 2 — Actions bar
+         ══════════════════════════════════════════ -->
+    <div class="h-10 border-b border-[#1C1C1E] px-4 flex items-center justify-end gap-2 bg-[#09090b] shrink-0">
+        <!-- Filters (static) -->
+        <button
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[12px] text-[#8A8F98] hover:bg-[#1C1C1E] hover:text-white rounded-md transition-colors">
+            <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">filter_list</mat-icon>
+            Filters
+        </button>
+
+        <div class="w-px h-4 bg-[#2E3035] shrink-0"></div>
+
+        <!-- Add Column -->
+        <button (click)="openAddColumnDialog()"
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[12px] text-[#8A8F98] hover:bg-[#1C1C1E] hover:text-white rounded-md transition-colors">
+            <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">view_column</mat-icon>
+            Add Column
+        </button>
+
+        <!-- Members (TEAM only) -->
+        <button *ngIf="project?.type === 'TEAM'" (click)="openMembersDialog()"
+            class="inline-flex items-center gap-1.5 px-3 py-1 text-[12px] bg-brand text-white hover:bg-brand-hover rounded-md transition-colors btn-press">
+            <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">group</mat-icon>
+            Members
+        </button>
+    </div>
+
 
     <!-- Board Canvas -->
     <div class="flex-1 overflow-x-auto overflow-y-hidden bg-[#09090b] p-5">
