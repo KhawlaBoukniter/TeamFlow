@@ -84,7 +84,6 @@
             <div *ngFor="let column of columns"
                 class="bg-[#111113] border border-[#2E3035] rounded-xl flex flex-col w-[280px] min-w-[280px] max-h-full">
 
-                <!-- Column Header (Sticky) -->
                 <div class="px-4 py-3 border-b border-[#2E3035] flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
                         <h3 class="text-sm font-semibold text-white">{{ column.name }}</h3>
@@ -92,10 +91,21 @@
                             {{ getTasks(column.id).length }}
                         </span>
                     </div>
-                    <button
-                        class="text-[#8A8F98] hover:text-white hover:bg-[#2C2D32] p-1 rounded transition-colors opacity-0 pointer-events-none">
+                    <!-- Column 3-dot menu -->
+                    <button [matMenuTriggerFor]="colMenu"
+                        class="text-[#8A8F98] hover:text-white hover:bg-[#2C2D32] p-1 rounded transition-colors opacity-0 group-hover:opacity-100">
                         <mat-icon class="!w-4 !h-4 !text-[16px]">more_vert</mat-icon>
                     </button>
+                    <mat-menu #colMenu="matMenu" xPosition="before">
+                        <button mat-menu-item (click)="renameColumn(column)">
+                            <mat-icon class="!w-4 !h-4 !text-[16px]">edit</mat-icon>
+                            <span>Rename</span>
+                        </button>
+                        <button mat-menu-item class="!text-red-400" (click)="deleteColumn(column)">
+                            <mat-icon class="!w-4 !h-4 !text-[16px] !text-red-400">delete_outline</mat-icon>
+                            <span>Delete column</span>
+                        </button>
+                    </mat-menu>
                 </div>
 
                 <!-- Tasks List (Scrollable with Drop List) -->
@@ -128,6 +138,11 @@
                                     class="p-1 hover:bg-[#2C2D32] rounded-md transition-colors" title="Edit Task">
                                     <mat-icon
                                         class="!w-3.5 !h-3.5 !text-[14px] text-[#8A8F98] hover:text-white">edit</mat-icon>
+                                </button>
+                                <button (click)="deleteTask(task, $event)"
+                                    class="p-1 hover:bg-red-900/30 rounded-md transition-colors" title="Delete Task">
+                                    <mat-icon
+                                        class="!w-3.5 !h-3.5 !text-[14px] text-[#8A8F98] hover:text-red-400">delete_outline</mat-icon>
                                 </button>
                             </div>
                         </div>

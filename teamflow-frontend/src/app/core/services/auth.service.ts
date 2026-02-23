@@ -58,6 +58,18 @@ export class AuthService {
         return this.hasToken();
     }
 
+    /** Decode JWT payload and return the userId (field 'userId' or 'id') */
+    getCurrentUserId(): number | null {
+        const token = this.getToken();
+        if (!token) return null;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.userId ?? payload.id ?? null;
+        } catch {
+            return null;
+        }
+    }
+
     private handleAuthSuccess(response: AuthResponse): void {
         localStorage.setItem(this.TOKEN_KEY, response.token);
         localStorage.setItem(this.EMAIL_KEY, response.email);

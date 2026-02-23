@@ -132,18 +132,52 @@
                             {{ comment.authorName?.charAt(0) || 'U' }}
                         </div>
                         <div class="flex-1">
-                            <div class="bg-[#25262B] border border-[#2E3035] rounded-lg p-3">
+                            <div class="bg-[#25262B] border border-[#2E3035] rounded-lg p-3 group/comment relative">
                                 <div class="flex justify-between items-baseline mb-1.5">
                                     <span class="text-xs font-bold text-white">{{ comment.authorName || 'Unknown User'
                                         }}</span>
-                                    <span class="text-[10px] text-[#8A8F98]">{{ comment.createdAt | date:'short'
-                                        }}</span>
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-[10px] text-[#8A8F98]">{{ comment.createdAt | date:'short'
+                                            }}</span>
+                                        <!-- Edit/Delete (own comments only) -->
+                                        <ng-container *ngIf="isMyComment(comment) && editingCommentId !== comment.id">
+                                            <button (click)="startEditComment(comment)"
+                                                class="ml-1 p-0.5 opacity-0 group-hover/comment:opacity-100 hover:text-white text-[#8A8F98] transition-all rounded"
+                                                title="Edit">
+                                                <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">edit</mat-icon>
+                                            </button>
+                                            <button (click)="deleteComment(comment.id)"
+                                                class="p-0.5 opacity-0 group-hover/comment:opacity-100 hover:text-red-400 text-[#8A8F98] transition-all rounded"
+                                                title="Delete">
+                                                <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">delete_outline</mat-icon>
+                                            </button>
+                                        </ng-container>
+                                    </div>
                                 </div>
-                                <p class="text-sm text-[#EDEDED] whitespace-pre-wrap leading-relaxed">{{ comment.content
-                                    }}</p>
+                                <!-- View mode -->
+                                <p *ngIf="editingCommentId !== comment.id"
+                                    class="text-sm text-[#EDEDED] whitespace-pre-wrap leading-relaxed">{{
+                                    comment.content }}</p>
+                                <!-- Edit mode -->
+                                <ng-container *ngIf="editingCommentId === comment.id">
+                                    <textarea [(ngModel)]="editingCommentContent" rows="2"
+                                        class="w-full bg-[#1C1C1E] border border-[#5E6AD2] rounded-md px-3 py-2 text-sm text-[#EDEDED] focus:outline-none resize-none mb-2">
+                                    </textarea>
+                                    <div class="flex justify-end gap-2">
+                                        <button (click)="cancelEditComment()"
+                                            class="text-xs px-3 py-1 rounded-md border border-[#3A3C42] text-[#8A8F98] hover:text-white hover:border-[#5E6AD2] transition-colors">
+                                            Cancel
+                                        </button>
+                                        <button (click)="saveEditComment(comment)"
+                                            class="text-xs px-3 py-1 rounded-md bg-[#5E6AD2] text-white hover:bg-[#4e5ac0] transition-colors">
+                                            Save
+                                        </button>
+                                    </div>
+                                </ng-container>
                             </div>
                         </div>
                     </div>
+
                     <div *ngIf="comments.length === 0"
                         class="flex flex-col items-center justify-center py-8 text-[#8A8F98] bg-[#1C1C1E] rounded-xl border border-dashed border-[#2E3035]">
                         <mat-icon class="!w-8 !h-8 !text-[32px] mb-2 text-[#3A3C42]">chat_bubble_outline</mat-icon>

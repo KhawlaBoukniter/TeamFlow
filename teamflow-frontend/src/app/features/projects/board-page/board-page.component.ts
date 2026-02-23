@@ -34,6 +34,7 @@ import { MembersDialogComponent } from '../components/members-dialog/members-dia
     MatCardModule,
     MatMenuModule,
     MatChipsModule,
+    MatDialogModule,
     MembersDialogComponent,
     CreateColumnDialogComponent,
     CreateTaskDialogComponent,
@@ -267,6 +268,48 @@ export class BoardPageComponent implements OnInit {
       if (result?.refreshNeeded) {
         this.loadTasks(task.columnId);
       }
+    });
+  }
+
+  deleteTask(task: Task, event: Event): void {
+    event.stopPropagation();
+    if (!confirm(`Delete task "${task.title}"?`)) return;
+
+    this.taskService.deleteTask(task.id).subscribe({
+      next: () => {
+        const col = this.tasksByColumn[task.columnId];
+        if (col) {
+          this.tasksByColumn[task.columnId] = col.filter(t => t.id !== task.id);
+        }
+        this.snackBar.open('Task deleted', 'Close', { duration: 2000 });
+      },
+      error: () => this.snackBar.open('Failed to delete task', 'Close', { duration: 3000 })
+    });
+  }
+
+  renameColumn(column: ProjectColumn): void {
+    const newName = window.prompt('Rename column:', column.name);
+    if (!newName || newName.trim() === column.name) return;
+
+    this.columnService.updateColumn(column.id, { name: newName.trim() }).subscribe({
+      next: () => {
+        column.name = newName.trim();
+        this.snackBar.open('Column renamed', 'Close', { duration: 2000 });
+      },
+      error: () => this.snackBar.open('Failed to rename column', 'Close', { duration: 3000 })
+    });
+  }
+
+  deleteColumn(column: ProjectColumn): void {
+    if (!confirm(`Delete column "${column.name}" and all its tasks?`)) return;
+
+    this.columnService.deleteColumn(column.id).subscribe({
+      next: () => {
+        this.columns = this.columns.filter(c => c.id !== column.id);
+        delete this.tasksByColumn[column.id];
+        this.snackBar.open('Column deleted', 'Close', { duration: 2000 });
+      },
+      error: () => this.snackBar.open('Failed to delete column', 'Close', { duration: 3000 })
     });
   }
 }

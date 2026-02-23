@@ -96,10 +96,4 @@ export interface Comment {
     createdAt: string;
 }
 
-export interface TaskAssignment {
-    id: number;
-    taskId: number;
-    userId: number;
-}
-
 export * from './auth.model';

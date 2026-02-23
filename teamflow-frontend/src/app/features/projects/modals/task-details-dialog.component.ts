@@ -16,6 +16,7 @@ import { SubTaskService } from '../../../core/services/subtask.service';
 import { CommentService } from '../../../core/services/comment.service';
 import { TaskService } from '../../../core/services/task.service';
 import { MembershipService } from '../../../core/services/membership.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { MatDialog } from '@angular/material/dialog';
 import { EditTaskDialogComponent } from '../components/edit-task-dialog/edit-task-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -55,6 +56,11 @@ export class TaskDetailsDialogComponent implements OnInit {
     projectMembers: Membership[] = [];
     showAssignmentDropdown = false;
 
+    // Comment editing
+    editingCommentId: number | null = null;
+    editingCommentContent = '';
+    currentUserId: number | null = null;
+
     newSubTaskForm: FormGroup;
     newCommentForm: FormGroup;
 
@@ -65,6 +71,7 @@ export class TaskDetailsDialogComponent implements OnInit {
         private commentService: CommentService,
         private taskService: TaskService,
         private membershipService: MembershipService,
+        private authService: AuthService,
         private fb: FormBuilder,
         private dialog: MatDialog,
         private snackBar: MatSnackBar
@@ -81,6 +88,8 @@ export class TaskDetailsDialogComponent implements OnInit {
         this.newCommentForm = this.fb.group({
             content: ['']
         });
+
+        this.currentUserId = this.authService.getCurrentUserId();
     }
 
     ngOnInit(): void {
@@ -215,8 +224,11 @@ export class TaskDetailsDialogComponent implements OnInit {
         const content = this.newCommentForm.value.content?.trim();
         if (!content) return;
 
-        // TODO: Get current user ID from AuthService
-        const userId = 1; // Hardcoded for now
+        const userId = this.authService.getCurrentUserId();
+        if (!userId) {
+            this.snackBar.open('Cannot determine current user', 'Close', { duration: 3000 });
+            return;
+        }
 
         this.commentService.createComment(this.task.id, userId, { content }).subscribe({
             next: () => {
@@ -244,6 +256,35 @@ export class TaskDetailsDialogComponent implements OnInit {
                 this.snackBar.open('Failed to delete comment', 'Close', { duration: 3000 });
             }
         });
+    }
+
+    startEditComment(comment: Comment): void {
+        this.editingCommentId = comment.id;
+        this.editingCommentContent = comment.content;
+    }
+
+    cancelEditComment(): void {
+        this.editingCommentId = null;
+        this.editingCommentContent = '';
+    }
+
+    saveEditComment(comment: Comment): void {
+        const content = this.editingCommentContent.trim();
+        if (!content) return;
+
+        this.commentService.updateComment(comment.id, { content }).subscribe({
+            next: () => {
+                this.editingCommentId = null;
+                this.editingCommentContent = '';
+                this.loadComments();
+                this.snackBar.open('Comment updated', 'Close', { duration: 2000 });
+            },
+            error: () => this.snackBar.open('Failed to update comment', 'Close', { duration: 3000 })
+        });
+    }
+
+    isMyComment(comment: Comment): boolean {
+        return this.currentUserId !== null && comment.authorId === this.currentUserId;
     }
 
     openEditDialog(): void {
