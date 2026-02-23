@@ -643,3 +643,36 @@ body {
 .linear-dialog .mat-mdc-tab .mat-ripple-element {
     background-color: rgba(94, 106, 210, 0.08) !important;
 }
+
+/* =============================================================================
+   LINEAR DIALOG — BUTTON & CHECKBOX DARK OVERRIDES
+   ============================================================================= */
+
+/* Cancel / plain mat-button text color */
+.linear-dialog .mat-mdc-button:not([color]),
+.linear-dialog .mat-mdc-button.mat-unthemed {
+    color: #8A8F98 !important;
+}
+
+.linear-dialog .mat-mdc-button:not([color]):hover,
+.linear-dialog .mat-mdc-button.mat-unthemed:hover {
+    color: #EDEDED !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* mat-checkbox — border & checkmark on dark bg */
+.linear-dialog .mdc-checkbox__background {
+    border-color: #3A3C42 !important;
+    background-color: transparent !important;
+}
+
+.linear-dialog .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background,
+.linear-dialog .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background {
+    background-color: #5E6AD2 !important;
+    border-color: #5E6AD2 !important;
+}
+
+/* Checkbox label text */
+.linear-dialog .mdc-form-field label {
+    color: #EDEDED !important;
+}
