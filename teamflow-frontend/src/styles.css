@@ -531,3 +531,115 @@ body {
     border-top-color: #3A3C42 !important;
     margin: 4px 0 !important;
 }
+
+/* =============================================================================
+   LINEAR DIALOG — MAT-FORM-FIELD DARK OVERRIDES
+   ============================================================================= */
+
+/* Input & textarea text */
+.linear-dialog .mat-mdc-input-element,
+.linear-dialog textarea.mat-mdc-input-element {
+    color: #EDEDED !important;
+    caret-color: #5E6AD2 !important;
+}
+
+/* Select value text */
+.linear-dialog .mat-mdc-select-value-text,
+.linear-dialog .mat-mdc-select-value {
+    color: #EDEDED !important;
+}
+
+/* Floating label */
+.linear-dialog .mdc-floating-label {
+    color: #8A8F98 !important;
+}
+
+/* Focused label */
+.linear-dialog .mat-mdc-form-field.mat-focused .mdc-floating-label {
+    color: #5E6AD2 !important;
+}
+
+/* Outline borders — idle */
+.linear-dialog .mdc-notched-outline__leading,
+.linear-dialog .mdc-notched-outline__notch,
+.linear-dialog .mdc-notched-outline__trailing {
+    border-color: #3A3C42 !important;
+}
+
+/* Outline borders — focused */
+.linear-dialog .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+.linear-dialog .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+.linear-dialog .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+    border-color: #5E6AD2 !important;
+}
+
+/* Field background */
+.linear-dialog .mat-mdc-text-field-wrapper {
+    background-color: #25262B !important;
+}
+
+/* Hint text (appears below field) */
+.linear-dialog .mat-mdc-form-field-hint,
+.linear-dialog .mat-mdc-form-field-subscript-wrapper {
+    color: #8A8F98 !important;
+}
+
+/* Error text */
+.linear-dialog .mat-mdc-form-field-error {
+    color: #f87171 !important;
+}
+
+/* Select dropdown arrow */
+.linear-dialog .mat-mdc-select-arrow svg {
+    fill: #8A8F98 !important;
+}
+
+/* Datepicker toggle button icon */
+.linear-dialog .mat-mdc-icon-button.mat-mdc-button-base {
+    color: #8A8F98 !important;
+}
+
+/* Checkbox text */
+.linear-dialog .mdc-form-field label {
+    color: #EDEDED !important;
+}
+
+/* =============================================================================
+   LINEAR DIALOG — MAT-TAB-GROUP DARK OVERRIDES
+   ============================================================================= */
+
+/* Tab header bar */
+.linear-dialog .mat-mdc-tab-header {
+    border-bottom: 1px solid #2E3035 !important;
+    background-color: transparent !important;
+}
+
+/* All tab label text — muted */
+.linear-dialog .mdc-tab__text-label {
+    color: #8A8F98 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+}
+
+/* Active tab label — bright */
+.linear-dialog .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+    color: #EDEDED !important;
+    font-weight: 600 !important;
+}
+
+/* Hover tab label */
+.linear-dialog .mat-mdc-tab:not(.mdc-tab--active):hover .mdc-tab__text-label {
+    color: #C8CACC !important;
+}
+
+/* Active underline indicator */
+.linear-dialog .mdc-tab-indicator__content--underline {
+    border-color: #5E6AD2 !important;
+}
+
+/* Tab ink bar ripple */
+.linear-dialog .mat-mdc-tab .mat-ripple-element {
+    background-color: rgba(94, 106, 210, 0.08) !important;
+}
