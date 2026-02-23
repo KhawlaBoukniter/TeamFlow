@@ -27,6 +27,14 @@ export const routes: Routes = [
             {
                 path: 'projects/:id/board',
                 loadComponent: () => import('./features/projects/board-page/board-page.component').then(m => m.BoardPageComponent)
+            },
+            {
+                path: 'inbox',
+                loadComponent: () => import('./features/inbox/inbox.component').then(m => m.InboxComponent)
+            },
+            {
+                path: 'my-issues',
+                loadComponent: () => import('./features/my-issues/my-issues.component').then(m => m.MyIssuesComponent)
             }
         ]
     },

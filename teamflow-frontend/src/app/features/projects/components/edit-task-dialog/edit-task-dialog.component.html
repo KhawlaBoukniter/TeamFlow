@@ -1,46 +1,43 @@
-<div class="px-6 py-4 border-b border-gray-200">
-    <div class="flex items-center gap-2">
-        <mat-icon class="text-indigo-600" style="font-size: 24px; width: 24px; height: 24px;">edit</mat-icon>
-        <h2 class="text-lg font-semibold m-0" style="line-height: 24px;">Edit Task</h2>
+<div class="px-6 py-4 border-b border-[#2E3035] flex items-center justify-between">
+    <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-[#2C2D32] flex items-center justify-center">
+            <mat-icon class="text-brand !text-[18px]" style="width:18px;height:18px;">edit</mat-icon>
+        </div>
+        <h2 class="text-base font-semibold text-white m-0">Edit Task</h2>
     </div>
 </div>
 
 <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
-    <mat-dialog-content class="flex flex-col gap-5 min-w-[500px]">
+    <mat-dialog-content class="flex flex-col gap-4 !min-w-[520px]">
         <!-- Title -->
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appearance="outline" class="w-full linear-form-field">
             <mat-label>Task Title *</mat-label>
             <input matInput formControlName="title" placeholder="Enter task title" required>
-            <mat-error *ngIf="taskForm.get('title')?.hasError('required')">
-                Title is required
-            </mat-error>
-            <mat-error *ngIf="taskForm.get('title')?.hasError('minlength')">
-                Title must be at least 3 characters
-            </mat-error>
+            <mat-error *ngIf="taskForm.get('title')?.hasError('required')">Title is required</mat-error>
+            <mat-error *ngIf="taskForm.get('title')?.hasError('minlength')">At least 3 characters</mat-error>
         </mat-form-field>
 
         <!-- Description -->
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appearance="outline" class="w-full linear-form-field">
             <mat-label>Description</mat-label>
             <textarea matInput formControlName="description" placeholder="Enter task description" rows="3"></textarea>
-            <mat-hint>Optional - Add details about the task</mat-hint>
+            <mat-hint>Optional — Add details about the task</mat-hint>
         </mat-form-field>
 
         <!-- Settings Grid -->
         <div class="grid grid-cols-2 gap-4">
             <!-- Priority -->
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="linear-form-field">
                 <mat-label>Priority *</mat-label>
                 <mat-select formControlName="priority" required>
                     <mat-option *ngFor="let priority of priorities" [value]="priority">
                         {{ priority }}
                     </mat-option>
                 </mat-select>
-                <mat-hint>Set importance level</mat-hint>
             </mat-form-field>
 
             <!-- Due Date -->
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="linear-form-field">
                 <mat-label>Due Date</mat-label>
                 <input matInput [matDatepicker]="picker" formControlName="dueDate" placeholder="Select due date">
                 <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
@@ -49,15 +46,19 @@
         </div>
 
         <!-- Is Blocked -->
-        <div class="flex items-center">
-            <mat-checkbox formControlName="blocked" color="warn" class="text-gray-700">
-                Mark as Blocked
-            </mat-checkbox>
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-[#1C1C1E] border border-[#2E3035]">
+            <mat-checkbox formControlName="blocked" color="warn"></mat-checkbox>
+            <div>
+                <span class="text-sm font-medium text-white">Mark as Blocked</span>
+                <p class="text-xs text-[#8A8F98] m-0">This task is waiting on another task or external dependency</p>
+            </div>
         </div>
     </mat-dialog-content>
 
-    <mat-dialog-actions align="end" class="gap-3 px-6 pb-6">
-        <button mat-button type="button" (click)="onCancel()">Cancel</button>
-        <button mat-raised-button color="primary" type="submit" [disabled]="taskForm.invalid">Update Task</button>
+    <mat-dialog-actions align="end" class="gap-3 !px-6 !pb-6 border-t border-[#2E3035]">
+        <button mat-button type="button" (click)="onCancel()"
+            class="text-[#8A8F98] hover:text-white transition-colors">Cancel</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="taskForm.invalid" class="btn-press">Update
+            Task</button>
     </mat-dialog-actions>
 </form>

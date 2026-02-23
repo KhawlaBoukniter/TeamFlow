@@ -26,38 +26,37 @@ import { MatIconModule } from '@angular/material/icon';
     MatIconModule
   ],
   template: `
-    <div class="px-6 py-4 border-b border-gray-200">
-      <div class="flex items-center gap-2">
-        <mat-icon class="text-indigo-600" style="font-size: 24px; width: 24px; height: 24px;">add_task</mat-icon>
-        <h2 class="text-lg font-semibold m-0" style="line-height: 24px;">Create New Task</h2>
+    <div class="px-6 py-4 border-b border-[#2E3035] flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-[#2C2D32] flex items-center justify-center">
+        <mat-icon class="text-brand !text-[18px]" style="width:18px;height:18px;">add_task</mat-icon>
       </div>
+      <h2 class="text-base font-semibold text-white m-0">Create New Task</h2>
     </div>
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <mat-dialog-content class="flex flex-col gap-5 min-w-[500px]">
-        <mat-form-field appearance="outline" class="w-full">
+      <mat-dialog-content class="flex flex-col gap-4 !min-w-[520px]">
+        <mat-form-field appearance="outline" class="w-full linear-form-field">
           <mat-label>Task Title *</mat-label>
           <input matInput formControlName="title" placeholder="e.g., Fix Navigation">
           <mat-error *ngIf="form.get('title')?.hasError('required')">Title is required</mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appearance="outline" class="w-full linear-form-field">
           <mat-label>Description</mat-label>
           <textarea matInput formControlName="description" rows="3" placeholder="Task details..."></textarea>
-          <mat-hint>Optional - Add details about the task</mat-hint>
+          <mat-hint>Optional — Add details about the task</mat-hint>
         </mat-form-field>
 
         <div class="grid grid-cols-2 gap-4">
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" class="linear-form-field">
             <mat-label>Priority *</mat-label>
             <mat-select formControlName="priority">
               <mat-option value="LOW">Low</mat-option>
               <mat-option value="MEDIUM">Medium</mat-option>
               <mat-option value="HIGH">High</mat-option>
             </mat-select>
-             <mat-hint>Set importance level</mat-hint>
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" class="linear-form-field">
             <mat-label>Due Date</mat-label>
             <input matInput [matDatepicker]="picker" formControlName="dueDate">
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
@@ -66,9 +65,11 @@ import { MatIconModule } from '@angular/material/icon';
         </div>
       </mat-dialog-content>
 
-      <mat-dialog-actions align="end" class="gap-3 px-6 pb-6">
-        <button mat-button type="button" (click)="onCancel()">Cancel</button>
-        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Create Task</button>
+      <mat-dialog-actions align="end" class="gap-3 !px-6 !pb-6 border-t border-[#2E3035]">
+        <button mat-button type="button" (click)="onCancel()"
+          class="text-[#8A8F98] hover:text-white transition-colors">Cancel</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid"
+          class="btn-press">Create Task</button>
       </mat-dialog-actions>
     </form>
   `

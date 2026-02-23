@@ -31,11 +31,15 @@ import { BRANDING } from '../../constants/branding';
       <nav class="flex-1 px-3 space-y-0.5 overflow-y-auto mt-2">
         
         <!-- Primary Items -->
-        <a class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-linear-hover hover:text-linear-text-primary transition-colors cursor-pointer group">
+        <a routerLink="/inbox"
+           routerLinkActive="bg-linear-hover text-linear-text-primary"
+           class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-linear-hover hover:text-linear-text-primary transition-colors cursor-pointer group">
             <mat-icon class="!w-4 !h-4 !text-[16px]">inbox</mat-icon>
             <span class="text-[13px]">Inbox</span>
         </a>
-        <a class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-linear-hover hover:text-linear-text-primary transition-colors cursor-pointer group">
+        <a routerLink="/my-issues"
+           routerLinkActive="bg-linear-hover text-linear-text-primary"
+           class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-linear-hover hover:text-linear-text-primary transition-colors cursor-pointer group">
             <mat-icon class="!w-4 !h-4 !text-[16px]">adjust</mat-icon>
             <span class="text-[13px]">My issues</span>
         </a>

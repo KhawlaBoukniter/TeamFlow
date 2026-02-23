@@ -19,11 +19,12 @@ import { ProjectDetailsDialogComponent } from './components/project-details-dial
 import { MembersDialogComponent } from './components/members-dialog/members-dialog.component';
 import { BRANDING } from '../../core/constants/branding';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-projects',
     standalone: true,
-    imports: [CommonModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatDialogModule, MatProgressSpinnerModule, MatMenuModule, MatDividerModule, MatSnackBarModule, MatTooltipModule],
+    imports: [CommonModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatDialogModule, MatProgressSpinnerModule, MatMenuModule, MatDividerModule, MatSnackBarModule, MatTooltipModule],
     templateUrl: './projects.component.html',
     styleUrls: ['./projects.component.css']
 })
@@ -41,6 +42,7 @@ export class ProjectsComponent implements OnInit {
     private snackBar = inject(MatSnackBar);
 
     viewMode: 'grid' | 'list' = 'grid';
+    searchTerm = '';
 
     constructor() {
         this.userEmail = this.authService.getUserEmail();
@@ -66,6 +68,15 @@ export class ProjectsComponent implements OnInit {
 
     setViewMode(mode: 'grid' | 'list'): void {
         this.viewMode = mode;
+    }
+
+    get filteredProjects(): Project[] {
+        if (!this.searchTerm.trim()) return this.projects;
+        const term = this.searchTerm.toLowerCase().trim();
+        return this.projects.filter(p =>
+            p.name?.toLowerCase().includes(term) ||
+            p.description?.toLowerCase().includes(term)
+        );
     }
 
     get upcomingProjectsCount(): number {

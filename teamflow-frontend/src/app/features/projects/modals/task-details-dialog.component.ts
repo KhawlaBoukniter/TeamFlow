@@ -266,10 +266,10 @@ export class TaskDetailsDialogComponent implements OnInit {
 
     getPriorityColor(priority: string): string {
         switch (priority) {
-            case 'HIGH': return 'bg-orange-100 text-orange-700';
-            case 'MEDIUM': return 'bg-amber-100 text-amber-700';
-            case 'LOW': return 'bg-green-100 text-green-700';
-            default: return 'bg-gray-100 text-gray-700';
+            case 'HIGH': return 'bg-orange-900/20 text-orange-400 border border-orange-900/30';
+            case 'MEDIUM': return 'bg-amber-900/20 text-amber-400 border border-amber-900/30';
+            case 'LOW': return 'bg-green-900/20 text-green-400 border border-green-900/30';
+            default: return 'bg-[#2C2D32] text-[#8A8F98] border border-[#3A3C42]';
         }
     }
 
