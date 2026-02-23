@@ -163,7 +163,8 @@ export class BoardPageComponent implements OnInit {
   }
   openAddColumnDialog(): void {
     const dialogRef = this.dialog.open(CreateColumnDialogComponent, {
-      width: '400px'
+      width: '420px',
+      panelClass: 'linear-dialog'
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -194,6 +195,7 @@ export class BoardPageComponent implements OnInit {
   openCreateTask(columnId: number): void {
     const dialogRef = this.dialog.open(CreateTaskDialogComponent, {
       width: '600px',
+      panelClass: 'linear-dialog',
       data: { columnId }
     });
 
@@ -216,6 +218,7 @@ export class BoardPageComponent implements OnInit {
   openEditTask(task: Task): void {
     const dialogRef = this.dialog.open(EditTaskDialogComponent, {
       width: '600px',
+      panelClass: 'linear-dialog',
       data: { task }
     });
 
@@ -240,17 +243,19 @@ export class BoardPageComponent implements OnInit {
   }
 
   openMembersDialog(): void {
-    const dialogRef = this.dialog.open(MembersDialogComponent, {
+    this.dialog.open(MembersDialogComponent, {
       width: '600px',
+      panelClass: 'linear-dialog',
       data: { projectId: this.project?.id }
     });
   }
 
   openTaskDetails(task: Task): void {
     const dialogRef = this.dialog.open(TaskDetailsDialogComponent, {
+      width: '800px',
+      maxHeight: '90vh',
+      panelClass: 'linear-dialog',
       data: {
-        width: '800px',
-        maxHeight: '90vh',
         task,
         projectType: this.project?.type || 'PERSONAL',
         projectId: this.project?.id,
