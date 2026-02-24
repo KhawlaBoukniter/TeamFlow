@@ -60,6 +60,7 @@ export class BoardPageComponent implements OnInit {
     priorities: [] as string[],
     assigneeIds: [] as number[]
   };
+  availableAssignees: any[] = [];
 
   private route = inject(ActivatedRoute);
   private projectService = inject(ProjectService);
@@ -99,6 +100,7 @@ export class BoardPageComponent implements OnInit {
     this.taskService.getTasksByColumn(columnId).subscribe({
       next: (tasks) => {
         this.tasksByColumn[columnId] = tasks.sort((a, b) => a.position - b.position);
+        this.updateAvailableAssignees();
       },
       error: (err) => {
         console.error(`Failed to load tasks for column ${columnId}`, err);
@@ -107,6 +109,20 @@ export class BoardPageComponent implements OnInit {
         this.snackBar.open('Error loading tasks', 'Close', { duration: 3000 });
       }
     });
+  }
+
+  updateAvailableAssignees(): void {
+    const assignees = new Map<number, any>();
+    Object.values(this.tasksByColumn).flat().forEach(task => {
+      task.assignments?.forEach(a => {
+        const userId = Number(a.userId);
+        if (!assignees.has(userId)) {
+          assignees.set(userId, { id: userId, name: a.userName, email: a.userEmail });
+        }
+      });
+    });
+    this.availableAssignees = Array.from(assignees.values());
+    console.log('Available assignees updated:', this.availableAssignees);
   }
 
   getTasks(columnId: number): Task[] {
@@ -126,7 +142,7 @@ export class BoardPageComponent implements OnInit {
     // Apply Assignee Filter
     if (this.activeFilters.assigneeIds.length > 0) {
       tasks = tasks.filter(t =>
-        t.assignments?.some(a => this.activeFilters.assigneeIds.includes(a.userId))
+        t.assignments?.some(a => this.activeFilters.assigneeIds.includes(Number(a.userId)))
       );
     }
 
@@ -134,31 +150,59 @@ export class BoardPageComponent implements OnInit {
   }
 
   togglePriorityFilter(priority: string): void {
-    const index = this.activeFilters.priorities.indexOf(priority);
+    const current = [...this.activeFilters.priorities];
+    const index = current.indexOf(priority);
     if (index >= 0) {
-      this.activeFilters.priorities.splice(index, 1);
+      this.activeFilters = {
+        ...this.activeFilters,
+        priorities: current.filter(p => p !== priority)
+      };
     } else {
-      this.activeFilters.priorities.push(priority);
+      this.activeFilters = {
+        ...this.activeFilters,
+        priorities: [...current, priority]
+      };
     }
   }
 
-  toggleAssigneeFilter(userId: number): void {
-    const index = this.activeFilters.assigneeIds.indexOf(userId);
+  toggleAssigneeFilter(userId: any): void {
+    const id = Number(userId);
+    console.log('Toggling assignee filter for ID:', id);
+    const current = [...this.activeFilters.assigneeIds];
+    const index = current.indexOf(id);
+
     if (index >= 0) {
-      this.activeFilters.assigneeIds.splice(index, 1);
+      this.activeFilters = {
+        ...this.activeFilters,
+        assigneeIds: current.filter(aId => aId !== id)
+      };
     } else {
-      this.activeFilters.assigneeIds.push(userId);
+      this.activeFilters = {
+        ...this.activeFilters,
+        assigneeIds: [...current, id]
+      };
     }
+    console.log('Active assignee filters:', this.activeFilters.assigneeIds);
   }
 
   clearFilters(): void {
-    this.activeFilters.priorities = [];
-    this.activeFilters.assigneeIds = [];
+    this.activeFilters = {
+      priorities: [],
+      assigneeIds: []
+    };
     this.searchQuery = '';
   }
 
   get hasActiveFilters(): boolean {
     return this.activeFilters.priorities.length > 0 || this.activeFilters.assigneeIds.length > 0 || !!this.searchQuery;
+  }
+
+  isAssigneeSelected(userId: any): boolean {
+    return this.activeFilters.assigneeIds.includes(Number(userId));
+  }
+
+  isPrioritySelected(priority: string): boolean {
+    return this.activeFilters.priorities.includes(priority);
   }
 
   getAvailableAssignees(): any[] {

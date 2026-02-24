@@ -510,12 +510,12 @@ main>*:not(router-outlet) {
 
 /* Linear Menu Override */
 .linear-menu.mat-mdc-menu-panel {
-    background-color: #2C2D32 !important;
-    border: 1px solid #2E3035 !important;
+    background-color: #25262B !important;
+    border: 1px solid #3A3C42 !important;
     border-radius: 8px !important;
-    padding: 6px !important;
-    min-width: 180px !important;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+    padding: 4px !important;
+    min-width: 170px !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4) !important;
 }
 
 .linear-menu .mat-mdc-menu-content {
@@ -525,20 +525,25 @@ main>*:not(router-outlet) {
 .linear-menu .mat-mdc-menu-item {
     color: #EDEDED !important;
     font-family: 'Inter', sans-serif !important;
-    font-size: 13px !important;
-    min-height: 36px !important;
-    line-height: 36px !important;
+    font-size: 12px !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    line-height: 32px !important;
     border-radius: 6px !important;
     margin-bottom: 2px !important;
+    padding: 0 12px !important;
 }
 
 .linear-menu .mat-mdc-menu-item:hover {
-    background-color: #3A3C42 !important;
+    background-color: #313238 !important;
 }
 
 .linear-menu .mat-mdc-menu-item .mat-icon {
     color: #8A8F98 !important;
-    margin-right: 12px !important;
+    margin-right: 10px !important;
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
 }
 
 .linear-menu .mat-mdc-menu-item:hover .mat-icon {

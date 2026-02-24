@@ -77,18 +77,18 @@
         <mat-menu #priorityMenu="matMenu" class="linear-menu">
             <button mat-menu-item *ngFor="let p of ['URGENT', 'HIGH', 'MEDIUM', 'LOW']"
                 (click)="togglePriorityFilter(p); $event.stopPropagation()">
-                <mat-icon [class.text-blue-400]="activeFilters.priorities.includes(p)">
-                    {{ activeFilters.priorities.includes(p) ? 'check_box' : 'check_box_outline_blank' }}
+                <mat-icon [class.text-blue-400]="isPrioritySelected(p)">
+                    {{ isPrioritySelected(p) ? 'check_box' : 'check_box_outline_blank' }}
                 </mat-icon>
                 <span>{{ p }}</span>
             </button>
         </mat-menu>
 
         <mat-menu #assigneeMenu="matMenu" class="linear-menu">
-            <button mat-menu-item *ngFor="let u of getAvailableAssignees()"
+            <button mat-menu-item *ngFor="let u of availableAssignees"
                 (click)="toggleAssigneeFilter(u.id); $event.stopPropagation()">
-                <mat-icon [class.text-blue-400]="activeFilters.assigneeIds.includes(u.id)">
-                    {{ activeFilters.assigneeIds.includes(u.id) ? 'check_box' : 'check_box_outline_blank' }}
+                <mat-icon [class.text-blue-400]="isAssigneeSelected(u.id)">
+                    {{ isAssigneeSelected(u.id) ? 'check_box' : 'check_box_outline_blank' }}
                 </mat-icon>
                 <span>{{ u.name || u.email }}</span>
             </button>
@@ -232,11 +232,24 @@
                             </span>
 
                             <!-- Due Date -->
-                            <span class="text-[10px] text-[#8A8F98] ml-auto flex items-center gap-1"
-                                *ngIf="task.dueDate">
+                            <span class="text-[10px] text-[#8A8F98] flex items-center gap-1" *ngIf="task.dueDate">
                                 <mat-icon class="!w-3 !h-3 !text-[12px]">schedule</mat-icon>
                                 {{ task.dueDate | date:'MMM dd' }}
                             </span>
+
+                            <!-- Assignees -->
+                            <div class="ml-auto flex -space-x-1.5 overflow-hidden" *ngIf="task.assignments?.length">
+                                <div *ngFor="let a of task.assignments | slice:0:3"
+                                    class="inline-block h-5 w-5 rounded-full ring-2 ring-[#1C1C1E] bg-brand flex items-center justify-center"
+                                    [matTooltip]="a.userName || a.userEmail">
+                                    <span class="text-[9px] font-bold text-white uppercase">{{ (a.userName ||
+                                        'U').charAt(0) }}</span>
+                                </div>
+                                <div *ngIf="(task.assignments?.length || 0) > 3"
+                                    class="inline-block h-5 w-5 rounded-full ring-2 ring-[#1C1C1E] bg-[#2C2D32] flex items-center justify-center text-[9px] font-bold text-[#8A8F98]">
+                                    +{{ (task.assignments?.length || 0) - 3 }}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
