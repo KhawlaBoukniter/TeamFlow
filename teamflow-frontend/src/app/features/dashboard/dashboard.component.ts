@@ -58,6 +58,10 @@ export class DashboardComponent implements OnInit {
         );
     }
 
+    get archivedCount(): number {
+        return this.projects.filter(p => p.status === 'ARCHIVED').length;
+    }
+
     get totalTasks(): number {
         return this.projects.reduce((sum, p) => sum + (p.totalTasks || 0), 0);
     }
