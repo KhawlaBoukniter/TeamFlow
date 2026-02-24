@@ -94,11 +94,16 @@
                     </div>
 
                     <div class="flex items-center gap-4">
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border" [ngClass]="member.roleInProject === 'MANAGER' 
-                                ? 'bg-[#2C2D32] text-[#A78BFA] border-[#A78BFA]/20' 
-                                : 'bg-[#2C2D32] text-[#34D399] border-[#34D399]/20'">
-                            {{ member.roleInProject }}
-                        </span>
+                        <!-- Role selector -->
+                        <select [value]="member.roleInProject"
+                            (change)="updateMemberRole(member, $any($event.target).value)"
+                            class="text-[10px] font-semibold px-2.5 py-1 rounded-full border bg-[#2C2D32] cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#5E6AD2] transition-colors appearance-none pr-5"
+                            [ngClass]="member.roleInProject === 'MANAGER'
+                                ? 'text-[#A78BFA] border-[#A78BFA]/30 hover:border-[#A78BFA]/60'
+                                : 'text-[#34D399] border-[#34D399]/30 hover:border-[#34D399]/60'">
+                            <option value="MEMBER" class="bg-[#2C2D32] text-[#EDEDED]">MEMBER</option>
+                            <option value="MANAGER" class="bg-[#2C2D32] text-[#EDEDED]">MANAGER</option>
+                        </select>
 
                         <button mat-icon-button (click)="removeMember(member)"
                             class="text-[#8A8F98] opacity-0 group-hover:opacity-100 hover:text-red-400 hover:bg-red-900/20 transition-all !w-8 !h-8 !flex !items-center !justify-center translate-x-2 group-hover:translate-x-0"

@@ -111,4 +111,16 @@ export class MembersDialogComponent implements OnInit {
             error: () => this.snackBar.open('Failed to remove member', 'Close', { duration: 3000 })
         });
     }
+
+    updateMemberRole(member: Membership, newRole: 'MANAGER' | 'MEMBER'): void {
+        if (member.roleInProject === newRole) return;
+
+        this.membershipService.updateRole(member.id, newRole).subscribe({
+            next: (updated) => {
+                member.roleInProject = updated.roleInProject;
+                this.snackBar.open(`Role updated to ${newRole}`, 'Close', { duration: 2000 });
+            },
+            error: () => this.snackBar.open('Failed to update role', 'Close', { duration: 3000 })
+        });
+    }
 }

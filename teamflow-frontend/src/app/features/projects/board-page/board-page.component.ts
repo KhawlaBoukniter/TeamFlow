@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,6 +27,7 @@ import { MembersDialogComponent } from '../components/members-dialog/members-dia
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     DragDropModule,
     MatToolbarModule,
     MatButtonModule,
