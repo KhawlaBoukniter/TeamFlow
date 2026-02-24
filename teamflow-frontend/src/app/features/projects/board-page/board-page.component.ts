@@ -122,7 +122,6 @@ export class BoardPageComponent implements OnInit {
       });
     });
     this.availableAssignees = Array.from(assignees.values());
-    console.log('Available assignees updated:', this.availableAssignees);
   }
 
   getTasks(columnId: number): Task[] {
@@ -167,7 +166,6 @@ export class BoardPageComponent implements OnInit {
 
   toggleAssigneeFilter(userId: any): void {
     const id = Number(userId);
-    console.log('Toggling assignee filter for ID:', id);
     const current = [...this.activeFilters.assigneeIds];
     const index = current.indexOf(id);
 
@@ -182,7 +180,6 @@ export class BoardPageComponent implements OnInit {
         assigneeIds: [...current, id]
       };
     }
-    console.log('Active assignee filters:', this.activeFilters.assigneeIds);
   }
 
   clearFilters(): void {

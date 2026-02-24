@@ -54,6 +54,8 @@
         </button>
 
         <mat-menu #filterMenu="matMenu" class="linear-menu">
+            <div class="px-2 py-1.5 text-[9px] font-bold text-[#8A8F98] tracking-wider uppercase">Filters</div>
+
             <!-- Clear Filters -->
             <button mat-menu-item (click)="clearFilters()" *ngIf="hasActiveFilters" class="!text-blue-400">
                 <mat-icon class="!text-blue-400">clear_all</mat-icon>
@@ -65,32 +67,42 @@
             <button mat-menu-item [matMenuTriggerFor]="priorityMenu">
                 <mat-icon>priority_high</mat-icon>
                 <span>Priority</span>
+                <span *ngIf="activeFilters.priorities.length"
+                    class="ml-auto text-[10px] bg-[#2C2D32] px-1.5 py-0.5 rounded-full text-blue-400">
+                    {{ activeFilters.priorities.length }}
+                </span>
             </button>
 
             <!-- Assignee Submenu -->
-            <button mat-menu-item [matMenuTriggerFor]="assigneeMenu" *ngIf="getAvailableAssignees().length > 0">
+            <button mat-menu-item [matMenuTriggerFor]="assigneeMenu" *ngIf="availableAssignees.length > 0">
                 <mat-icon>person_search</mat-icon>
                 <span>Assignee</span>
+                <span *ngIf="activeFilters.assigneeIds.length"
+                    class="ml-auto text-[10px] bg-[#2C2D32] px-1.5 py-0.5 rounded-full text-blue-400">
+                    {{ activeFilters.assigneeIds.length }}
+                </span>
             </button>
         </mat-menu>
 
         <mat-menu #priorityMenu="matMenu" class="linear-menu">
+            <div class="px-2 py-1.5 text-[9px] font-bold text-[#8A8F98] tracking-wider uppercase">Priority</div>
             <button mat-menu-item *ngFor="let p of ['URGENT', 'HIGH', 'MEDIUM', 'LOW']"
                 (click)="togglePriorityFilter(p); $event.stopPropagation()">
                 <mat-icon [class.text-blue-400]="isPrioritySelected(p)">
-                    {{ isPrioritySelected(p) ? 'check_box' : 'check_box_outline_blank' }}
+                    {{ isPrioritySelected(p) ? 'check_circle' : 'circle_outline' }}
                 </mat-icon>
-                <span>{{ p }}</span>
+                <span [class.text-blue-400]="isPrioritySelected(p)">{{ p }}</span>
             </button>
         </mat-menu>
 
         <mat-menu #assigneeMenu="matMenu" class="linear-menu">
+            <div class="px-2 py-1.5 text-[9px] font-bold text-[#8A8F98] tracking-wider uppercase">Assignee</div>
             <button mat-menu-item *ngFor="let u of availableAssignees"
                 (click)="toggleAssigneeFilter(u.id); $event.stopPropagation()">
                 <mat-icon [class.text-blue-400]="isAssigneeSelected(u.id)">
-                    {{ isAssigneeSelected(u.id) ? 'check_box' : 'check_box_outline_blank' }}
+                    {{ isAssigneeSelected(u.id) ? 'check_circle' : 'circle_outline' }}
                 </mat-icon>
-                <span>{{ u.name || u.email }}</span>
+                <span [class.text-blue-400]="isAssigneeSelected(u.id)">{{ u.name || u.email }}</span>
             </button>
         </mat-menu>
 
