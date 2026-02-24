@@ -91,6 +91,19 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* ── ROUTER-OUTLET FIX ──────────────────────────────────────────────────────
+   Angular inserts routed component hosts as siblings of <router-outlet>.
+   Inside the flex-col <main overflow-hidden>, they must grow to fill the 
+   available height so each page can control its own scroll independently.
+   ────────────────────────────────────────────────────────────────────────── */
+main>*:not(router-outlet) {
+    flex: 1 1 0%;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
 /* =============================================================================
    ANIMATIONS
    ============================================================================= */

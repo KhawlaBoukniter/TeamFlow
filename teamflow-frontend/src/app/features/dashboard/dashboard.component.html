@@ -1,295 +1,363 @@
-<div class="absolute inset-0 overflow-y-auto bg-[#09090b]">
+<!-- ROOT: flex-1 + overflow-y-auto → scroll propre grâce au fix CSS global de styles.css -->
+<div class="flex-1 overflow-y-auto bg-[#09090b] text-white page-enter">
 
-    <!-- ══ HEADER BANNER ══════════════════════════════════════════════════ -->
-    <div class="relative px-8 pt-8 pb-6 overflow-hidden border-b border-[#1C1C1E]">
-        <!-- background glow -->
+    <!-- ══ BANNER HEADER ══════════════════════════════════════════════════ -->
+    <div class="relative px-8 pt-7 pb-5 border-b border-[#1C1C1E] overflow-hidden">
         <div
-            class="absolute inset-0 bg-gradient-to-r from-[#5E6AD2]/8 via-transparent to-transparent pointer-events-none">
+            class="absolute inset-0 bg-gradient-to-r from-[#5E6AD2]/10 via-[#5E6AD2]/3 to-transparent pointer-events-none">
         </div>
-        <div class="absolute -top-10 -left-10 w-64 h-64 bg-[#5E6AD2]/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -top-12 -left-12 w-72 h-72 bg-[#5E6AD2]/6 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute top-0 right-0 w-48 h-48 bg-[#A78BFA]/4 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div class="relative flex items-end justify-between gap-4">
+        <div class="relative flex items-center justify-between gap-4">
             <div>
-                <p class="text-[11px] font-semibold uppercase tracking-widest text-[#5E6AD2] mb-1">
-                    {{ greeting | titlecase }} ☀️
-                </p>
-                <h1 class="text-[26px] font-bold text-white leading-tight">
+                <div class="flex items-center gap-2 mb-1">
+                    <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]"></div>
+                    <span class="text-[11px] font-semibold uppercase tracking-widest text-[#5E6AD2]">
+                        Good {{ greeting }}
+                    </span>
+                </div>
+                <h1 class="text-[24px] font-bold tracking-tight text-white">
                     Welcome back, <span
                         class="text-transparent bg-clip-text bg-gradient-to-r from-[#5E6AD2] to-[#A78BFA]">{{ firstName
-                        }}</span>
+                        }}</span> 👋
                 </h1>
-                <p class="text-[13px] text-[#8A8F98] mt-1.5">
-                    {{ activeProjects.length }} active project{{ activeProjects.length !== 1 ? 's' : '' }} · {{
-                    totalTasks - completedTasks }} tasks pending
+                <p class="text-[13px] text-[#8A8F98] mt-1">
+                    <ng-container *ngIf="!loading">
+                        <span class="text-white font-medium">{{ activeProjects.length }}</span> active project{{
+                        activeProjects.length !== 1 ? 's' : '' }} ·
+                        <span class="text-white font-medium">{{ totalTasks - completedTasks }}</span> tasks open ·
+                        <span [ngClass]="overdueProjects.length > 0 ? 'text-red-400 font-semibold' : 'text-white'">
+                            {{ overdueProjects.length }} overdue
+                        </span>
+                    </ng-container>
+                    <ng-container *ngIf="loading">Loading your workspace…</ng-container>
                 </p>
             </div>
 
             <button (click)="openCreateDialog()"
-                class="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-[#5E6AD2] hover:bg-[#4e5ac0] active:scale-95 text-white text-[13px] font-medium rounded-xl transition-all shadow-lg shadow-[#5E6AD2]/20">
+                class="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-[#5E6AD2] hover:bg-[#4e5ac0] active:scale-[0.97] text-white text-[13px] font-medium rounded-xl transition-all shadow-lg shadow-[#5E6AD2]/25 border border-[#7B89E0]/30">
                 <mat-icon class="!w-4 !h-4 !text-[16px]">add</mat-icon>
                 New Project
             </button>
         </div>
     </div>
 
-    <div class="px-8 py-6">
+    <div class="px-8 py-6 space-y-8">
+
+        <!-- ── LOADING SKELETONS ─────────────────────────────────────────── -->
         <ng-container *ngIf="loading">
-            <div class="grid grid-cols-4 gap-4 mb-8">
+            <div class="grid grid-cols-4 gap-4">
                 <div *ngFor="let i of [0,1,2,3]" class="h-28 bg-[#1C1C1E] rounded-2xl animate-pulse"></div>
+            </div>
+            <div class="grid grid-cols-3 gap-6">
+                <div class="col-span-2 h-64 bg-[#1C1C1E] rounded-2xl animate-pulse"></div>
+                <div class="h-64 bg-[#1C1C1E] rounded-2xl animate-pulse"></div>
             </div>
         </ng-container>
 
         <ng-container *ngIf="!loading">
 
-            <!-- ══ KPI STRIP ════════════════════════════════════════════════════ -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <!-- ══ KPI CARDS ═══════════════════════════════════════════════════ -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
+                <!-- Active Projects -->
                 <div
-                    class="group relative bg-[#1C1C1E] border border-[#2E3035] rounded-2xl p-5 overflow-hidden hover:border-[#5E6AD2]/40 transition-all">
-                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-[#5E6AD2]/6 rounded-full blur-xl"></div>
-                    <mat-icon class="!w-5 !h-5 !text-[20px] text-[#5E6AD2] mb-3">dns</mat-icon>
-                    <div class="text-3xl font-bold text-white mb-0.5">{{ activeProjects.length }}</div>
-                    <div class="text-[11px] text-[#8A8F98] font-medium">Active Projects</div>
-                    <div class="text-[10px] text-[#3A3C42] mt-1">{{ projects.length }} total</div>
-                </div>
-
-                <div
-                    class="group relative bg-[#1C1C1E] border border-[#2E3035] rounded-2xl p-5 overflow-hidden hover:border-amber-500/30 transition-all">
-                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-amber-500/5 rounded-full blur-xl"></div>
-                    <mat-icon class="!w-5 !h-5 !text-[20px] text-amber-400 mb-3">assignment</mat-icon>
-                    <div class="text-3xl font-bold text-white mb-0.5">{{ totalTasks }}</div>
-                    <div class="text-[11px] text-[#8A8F98] font-medium">Total Tasks</div>
-                    <div class="text-[10px] text-[#3A3C42] mt-1">across all projects</div>
-                </div>
-
-                <div
-                    class="group relative bg-[#1C1C1E] border border-[#2E3035] rounded-2xl p-5 overflow-hidden hover:border-emerald-500/30 transition-all">
-                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-500/5 rounded-full blur-xl"></div>
-                    <mat-icon class="!w-5 !h-5 !text-[20px] text-emerald-400 mb-3">check_circle</mat-icon>
-                    <div class="text-3xl font-bold text-white mb-0.5">{{ completedTasks }}</div>
-                    <div class="text-[11px] text-[#8A8F98] font-medium">Completed</div>
-                    <div class="text-[10px] text-[#3A3C42] mt-1">{{ totalTasks - completedTasks }} remaining</div>
-                </div>
-
-                <!-- Overall Progress (circular-like) -->
-                <div
-                    class="group relative bg-[#1C1C1E] border border-[#2E3035] rounded-2xl p-5 overflow-hidden hover:border-purple-500/30 transition-all">
-                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-purple-500/5 rounded-full blur-xl"></div>
-                    <mat-icon class="!w-5 !h-5 !text-[20px] text-[#A78BFA] mb-3">insights</mat-icon>
-                    <div class="flex items-end gap-1 mb-1">
-                        <div class="text-3xl font-bold text-white">{{ globalProgress }}</div>
-                        <div class="text-lg text-[#8A8F98] mb-0.5">%</div>
+                    class="relative bg-[#111113] border border-[#2E3035] rounded-2xl p-5 overflow-hidden group hover:border-[#5E6AD2]/40 transition-all cursor-default">
+                    <div
+                        class="absolute top-0 right-0 w-24 h-24 bg-[#5E6AD2]/5 rounded-full blur-2xl transform translate-x-4 -translate-y-4">
                     </div>
-                    <div class="text-[11px] text-[#8A8F98] font-medium mb-2">Overall Progress</div>
-                    <div class="h-1 bg-[#2E3035] rounded-full overflow-hidden">
-                        <div class="h-full rounded-full transition-all duration-700" [style.width.%]="globalProgress"
-                            [style.background-color]="globalProgress >= 70 ? '#03D59D' : globalProgress >= 30 ? '#A78BFA' : '#FEAD69'">
+                    <div class="w-9 h-9 rounded-xl bg-[#5E6AD2]/15 flex items-center justify-center mb-4">
+                        <mat-icon class="!w-5 !h-5 !text-[20px] text-[#5E6AD2]">rocket_launch</mat-icon>
+                    </div>
+                    <div class="text-[28px] font-bold text-white leading-none mb-1">{{ activeProjects.length }}</div>
+                    <div class="text-[12px] font-medium text-[#8A8F98]">Active Projects</div>
+                    <div class="text-[11px] text-[#3A3C42] mt-1">{{ projects.length }} total</div>
+                </div>
+
+                <!-- Total Tasks -->
+                <div
+                    class="relative bg-[#111113] border border-[#2E3035] rounded-2xl p-5 overflow-hidden group hover:border-amber-500/30 transition-all cursor-default">
+                    <div
+                        class="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl transform translate-x-4 -translate-y-4">
+                    </div>
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/15 flex items-center justify-center mb-4">
+                        <mat-icon class="!w-5 !h-5 !text-[20px] text-amber-400">assignment</mat-icon>
+                    </div>
+                    <div class="text-[28px] font-bold text-white leading-none mb-1">{{ totalTasks }}</div>
+                    <div class="text-[12px] font-medium text-[#8A8F98]">Total Tasks</div>
+                    <div class="text-[11px] text-[#3A3C42] mt-1">across all projects</div>
+                </div>
+
+                <!-- Completed -->
+                <div
+                    class="relative bg-[#111113] border border-[#2E3035] rounded-2xl p-5 overflow-hidden group hover:border-emerald-500/30 transition-all cursor-default">
+                    <div
+                        class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl transform translate-x-4 -translate-y-4">
+                    </div>
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center mb-4">
+                        <mat-icon class="!w-5 !h-5 !text-[20px] text-emerald-400">task_alt</mat-icon>
+                    </div>
+                    <div class="text-[28px] font-bold text-white leading-none mb-1">{{ completedTasks }}</div>
+                    <div class="text-[12px] font-medium text-[#8A8F98]">Tasks Done</div>
+                    <div class="text-[11px] text-[#3A3C42] mt-1">{{ totalTasks - completedTasks }} remaining</div>
+                </div>
+
+                <!-- Overall -->
+                <div
+                    class="relative bg-[#111113] border border-[#2E3035] rounded-2xl p-5 overflow-hidden group hover:border-purple-500/30 transition-all cursor-default">
+                    <div
+                        class="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-2xl transform translate-x-4 -translate-y-4">
+                    </div>
+                    <div class="w-9 h-9 rounded-xl bg-purple-500/15 flex items-center justify-center mb-4">
+                        <mat-icon class="!w-5 !h-5 !text-[20px] text-[#A78BFA]">donut_small</mat-icon>
+                    </div>
+                    <div class="flex items-baseline gap-0.5 mb-1">
+                        <span class="text-[28px] font-bold text-white leading-none">{{ globalProgress }}</span>
+                        <span class="text-[14px] text-[#8A8F98]">%</span>
+                    </div>
+                    <div class="text-[12px] font-medium text-[#8A8F98]">Overall Progress</div>
+                    <div class="h-1 bg-[#2E3035] rounded-full overflow-hidden mt-2">
+                        <div class="h-full rounded-full transition-all duration-1000" [style.width.%]="globalProgress"
+                            [style.background]="globalProgress >= 70 ? 'linear-gradient(90deg,#03D59D,#34d399)' : globalProgress >= 30 ? 'linear-gradient(90deg,#5E6AD2,#A78BFA)' : 'linear-gradient(90deg,#FEAD69,#f87171)'">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ══ MAIN CONTENT: 2-column layout ═════════════════════════════ -->
+            <!-- ══ 2-COLUMN MAIN AREA ══════════════════════════════════════════ -->
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-                <!-- LEFT: Projects list (2/3 width) -->
-                <div class="xl:col-span-2 space-y-4">
+                <!-- LEFT — Project list (2/3) -->
+                <div class="xl:col-span-2 flex flex-col gap-4">
+
                     <div class="flex items-center justify-between">
                         <h2 class="text-[13px] font-semibold text-white flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-[#5E6AD2] inline-block"></span>
+                            <span class="w-1 h-4 rounded-full bg-gradient-to-b from-[#5E6AD2] to-[#A78BFA]"></span>
                             Active Projects
+                            <span
+                                class="text-[10px] font-bold text-[#8A8F98] bg-[#25262B] px-2 py-0.5 rounded-full border border-[#2E3035]">
+                                {{ topProjects.length }}
+                            </span>
                         </h2>
                         <a routerLink="/projects"
-                            class="text-[11px] text-[#5E6AD2] hover:text-[#A78BFA] transition-colors flex items-center gap-1">
-                            View all <mat-icon class="!w-3 !h-3 !text-[12px]">arrow_forward</mat-icon>
+                            class="text-[11px] text-[#5E6AD2] hover:text-[#A78BFA] transition-colors flex items-center gap-0.5 font-medium">
+                            All projects
+                            <mat-icon class="!w-3 !h-3 !text-[12px]">chevron_right</mat-icon>
                         </a>
                     </div>
 
-                    <!-- Project rows (list style, not card grid) -->
+                    <!-- Table-style project list -->
                     <div *ngIf="topProjects.length > 0"
                         class="bg-[#111113] border border-[#1C1C1E] rounded-2xl overflow-hidden">
-                        <div *ngFor="let p of topProjects; let last = last" (click)="openProject(p.id)"
-                            class="flex items-center gap-4 px-5 py-4 hover:bg-[#1C1C1E] cursor-pointer transition-colors group"
-                            [class.border-b]="!last" [class.border-[#1C1C1E]]="!last">
 
-                            <!-- Icon / avatar -->
-                            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-[14px] font-bold shrink-0 shadow-sm"
-                                [style.background]="isOverdue(p) ? 'rgba(248,113,113,0.12)' : 'rgba(94,106,210,0.15)'"
-                                [style.color]="isOverdue(p) ? '#f87171' : '#5E6AD2'">
-                                {{ p.name.charAt(0).toUpperCase() }}
-                            </div>
+                        <!-- Header -->
+                        <div
+                            class="grid grid-cols-12 gap-3 px-5 py-2.5 border-b border-[#1C1C1E] text-[10px] font-semibold uppercase tracking-widest text-[#3A3C42]">
+                            <div class="col-span-5">Project</div>
+                            <div class="col-span-3">Progress</div>
+                            <div class="col-span-2 text-right">Tasks</div>
+                            <div class="col-span-2 text-right">Deadline</div>
+                        </div>
 
-                            <!-- Info -->
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2 mb-1.5">
+                        <!-- Rows -->
+                        <div *ngFor="let p of topProjects; let last = last; let i = index" (click)="openProject(p.id)"
+                            class="grid grid-cols-12 gap-3 items-center px-5 py-3.5 cursor-pointer hover:bg-[#1A1A1D] transition-colors group"
+                            [class.border-b]="!last" [class.border-[#1A1A1D]]="!last">
+
+                            <!-- Project name + type -->
+                            <div class="col-span-5 flex items-center gap-3 min-w-0">
+                                <div class="w-8 h-8 rounded-xl shrink-0 flex items-center justify-center text-[13px] font-bold shadow-sm"
+                                    [style.background]="isOverdue(p) ? 'rgba(248,113,113,0.12)' : 'rgba(94,106,210,0.15)'"
+                                    [style.color]="isOverdue(p) ? '#f87171' : '#818cf8'">
+                                    {{ p.name.charAt(0).toUpperCase() }}
+                                </div>
+                                <div class="min-w-0">
                                     <span
-                                        class="text-[13px] font-semibold text-white truncate group-hover:text-[#5E6AD2] transition-colors">{{
-                                        p.name }}</span>
-                                    <span *ngIf="isOverdue(p)"
-                                        class="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-red-900/20 text-red-400 border border-red-900/30">
-                                        OVERDUE
+                                        class="block text-[13px] font-semibold text-[#EDEDED] truncate group-hover:text-white transition-colors">
+                                        {{ p.name }}
                                     </span>
-                                    <span class="shrink-0 text-[9px] font-medium text-[#8A8F98]">
-                                        {{ p.type === 'TEAM' ? '👥' : '👤' }} {{ p.type }}
+                                    <span class="text-[10px] text-[#8A8F98]">
+                                        {{ p.type === 'TEAM' ? '👥 Team' : '👤 Personal' }}
                                     </span>
                                 </div>
-                                <!-- Progress bar -->
-                                <div class="flex items-center gap-3">
-                                    <div class="flex-1 h-1 bg-[#2E3035] rounded-full overflow-hidden">
-                                        <div class="h-full rounded-full transition-all duration-500"
-                                            [style.width.%]="getProgress(p)"
-                                            [style.background-color]="getProgressColor(p)">
-                                        </div>
+                            </div>
+
+                            <!-- Progress bar + % -->
+                            <div class="col-span-3 flex items-center gap-2">
+                                <div class="flex-1 h-1.5 bg-[#2E3035] rounded-full overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-500"
+                                        [style.width.%]="getProgress(p)" [style.background-color]="getProgressColor(p)">
                                     </div>
-                                    <span class="text-[10px] text-[#8A8F98] shrink-0">{{ p.completedTasks || 0 }}/{{
-                                        p.totalTasks || 0 }}</span>
                                 </div>
+                                <span class="text-[11px] font-semibold shrink-0" [style.color]="getProgressColor(p)">
+                                    {{ getProgress(p) }}%
+                                </span>
                             </div>
 
-                            <!-- Progress % + deadline -->
-                            <div class="text-right shrink-0">
-                                <div class="text-[13px] font-bold" [style.color]="getProgressColor(p)">{{ getProgress(p)
-                                    }}%</div>
-                                <div *ngIf="p.endDate" class="text-[10px] mt-0.5"
+                            <!-- Task count -->
+                            <div class="col-span-2 text-right">
+                                <span class="text-[12px] text-[#8A8F98]">
+                                    {{ p.completedTasks || 0 }}<span class="text-[#3A3C42]">/{{ p.totalTasks || 0
+                                        }}</span>
+                                </span>
+                            </div>
+
+                            <!-- Deadline -->
+                            <div class="col-span-2 text-right flex items-center justify-end gap-1.5">
+                                <span *ngIf="p.endDate" class="text-[11px] font-medium"
                                     [ngClass]="isOverdue(p) ? 'text-red-400' : 'text-[#8A8F98]'">
-                                    {{ getDaysLeft(p) }}
-                                </div>
+                                    {{ isOverdue(p) ? '⚠ ' : '' }}{{ getDaysLeft(p) }}
+                                </span>
+                                <span *ngIf="!p.endDate" class="text-[11px] text-[#3A3C42]">—</span>
+                                <mat-icon
+                                    class="!w-3.5 !h-3.5 !text-[14px] opacity-0 group-hover:opacity-100 text-[#5E6AD2] transition-opacity">
+                                    open_in_new
+                                </mat-icon>
                             </div>
-
-                            <mat-icon
-                                class="!w-4 !h-4 !text-[16px] text-[#3A3C42] group-hover:text-[#5E6AD2] transition-colors shrink-0">
-                                chevron_right
-                            </mat-icon>
                         </div>
                     </div>
 
                     <!-- Empty state -->
                     <div *ngIf="topProjects.length === 0"
-                        class="flex flex-col items-center justify-center py-16 bg-[#111113] border border-dashed border-[#2E3035] rounded-2xl text-center">
-                        <mat-icon class="!w-10 !h-10 !text-[40px] text-[#3A3C42] mb-3">rocket_launch</mat-icon>
-                        <p class="text-[13px] font-medium text-[#8A8F98] mb-4">No active projects yet</p>
+                        class="flex flex-col items-center justify-center py-20 bg-[#111113] border border-dashed border-[#2E3035] rounded-2xl">
+                        <mat-icon class="!w-12 !h-12 !text-[48px] text-[#2E3035] mb-4">rocket_launch</mat-icon>
+                        <p class="text-[14px] font-semibold text-[#8A8F98] mb-2">No active projects</p>
+                        <p class="text-[12px] text-[#3A3C42] mb-5">Create your first project to get started</p>
                         <button (click)="openCreateDialog()"
-                            class="px-5 py-2 bg-[#5E6AD2] text-white rounded-lg text-[13px] font-medium hover:bg-[#4e5ac0] transition-colors">
-                            Create your first project
+                            class="px-5 py-2.5 bg-[#5E6AD2] text-white rounded-xl text-[13px] font-medium hover:bg-[#4e5ac0] transition-colors">
+                            + New Project
                         </button>
                     </div>
                 </div>
 
-                <!-- RIGHT: Sidebar widgets (1/3 width) -->
-                <div class="space-y-4">
+                <!-- RIGHT — Widgets column (1/3) -->
+                <div class="flex flex-col gap-4">
 
-                    <!-- Progress summary widget -->
-                    <div class="bg-[#111113] border border-[#1C1C1E] rounded-2xl p-5">
-                        <h3 class="text-[11px] font-semibold text-[#8A8F98] uppercase tracking-wider mb-4">Completion
-                            Rate</h3>
+                    <!-- Donut progress widget -->
+                    <div class="bg-[#111113] border border-[#1C1C1E] rounded-2xl p-6">
+                        <h3 class="text-[11px] font-semibold text-[#8A8F98] uppercase tracking-wider mb-5">
+                            Workspace Health
+                        </h3>
 
-                        <!-- Big donut-style display -->
+                        <!-- SVG Donut -->
                         <div class="flex items-center gap-5 mb-5">
                             <div class="relative w-20 h-20 shrink-0">
                                 <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
-                                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="#2E3035" stroke-width="3" />
-                                    <circle cx="18" cy="18" r="15.9" fill="none"
+                                    <circle cx="18" cy="18" r="14" fill="none" stroke="#2E3035" stroke-width="4" />
+                                    <circle cx="18" cy="18" r="14" fill="none"
                                         [attr.stroke]="globalProgress >= 70 ? '#03D59D' : globalProgress >= 30 ? '#5E6AD2' : '#FEAD69'"
-                                        stroke-width="3" stroke-linecap="round"
-                                        [attr.stroke-dasharray]="(globalProgress * 1) + ' 100'"
-                                        class="transition-all duration-700" />
+                                        stroke-width="4" stroke-linecap="round"
+                                        [attr.stroke-dasharray]="((globalProgress / 100) * 87.96).toFixed(1) + ' 87.96'"
+                                        class="transition-all duration-1000" />
                                 </svg>
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <span class="text-[14px] font-bold text-white">{{ globalProgress }}%</span>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span class="text-[15px] font-bold text-white">{{ globalProgress }}%</span>
                                 </div>
                             </div>
-                            <div class="space-y-2">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
-                                    <span class="text-[12px] text-[#EDEDED]">{{ completedTasks }} done</span>
+
+                            <div class="flex flex-col gap-2">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></div>
+                                    <span class="text-[12px] text-[#EDEDED]"><span class="font-semibold">{{
+                                            completedTasks }}</span> done</span>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <div class="w-2 h-2 rounded-full bg-[#5E6AD2]"></div>
-                                    <span class="text-[12px] text-[#8A8F98]">{{ totalTasks - completedTasks }}
-                                        pending</span>
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-2 h-2 rounded-full bg-[#5E6AD2] shrink-0"></div>
+                                    <span class="text-[12px] text-[#8A8F98]"><span
+                                            class="font-semibold text-[#EDEDED]">{{ totalTasks - completedTasks
+                                            }}</span> pending</span>
+                                </div>
+                                <div *ngIf="overdueProjects.length > 0" class="flex items-center gap-2.5">
+                                    <div class="w-2 h-2 rounded-full bg-red-500 shrink-0 animate-pulse"></div>
+                                    <span class="text-[12px] text-red-400"><span class="font-semibold">{{
+                                            overdueProjects.length }}</span> overdue</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Status breakdown bars -->
-                        <div class="space-y-2.5">
-                            <div class="flex items-center gap-3 text-[12px]">
-                                <span class="text-[#8A8F98] w-16 shrink-0">Active</span>
-                                <div class="flex-1 h-1.5 bg-[#2E3035] rounded-full overflow-hidden">
-                                    <div class="h-full bg-[#5E6AD2] rounded-full"
+                        <!-- Distribution bars -->
+                        <div class="border-t border-[#1C1C1E] pt-5 space-y-3">
+                            <div class="flex items-center gap-3">
+                                <span class="text-[11px] text-[#8A8F98] w-16 shrink-0">Active</span>
+                                <div class="flex-1 h-1 bg-[#2E3035] rounded-full overflow-hidden">
+                                    <div class="h-full bg-[#5E6AD2] rounded-full transition-all duration-700"
                                         [style.width.%]="projects.length ? (activeProjects.length / projects.length * 100) : 0">
                                     </div>
                                 </div>
-                                <span class="text-[#EDEDED] w-5 text-right">{{ activeProjects.length }}</span>
+                                <span class="text-[11px] text-[#EDEDED] font-semibold w-4 text-right">{{
+                                    activeProjects.length }}</span>
                             </div>
-                            <div class="flex items-center gap-3 text-[12px]">
-                                <span class="text-[#8A8F98] w-16 shrink-0">Archived</span>
-                                <div class="flex-1 h-1.5 bg-[#2E3035] rounded-full overflow-hidden">
-                                    <div class="h-full bg-[#3A3C42] rounded-full"
+                            <div class="flex items-center gap-3">
+                                <span class="text-[11px] text-[#8A8F98] w-16 shrink-0">Archived</span>
+                                <div class="flex-1 h-1 bg-[#2E3035] rounded-full overflow-hidden">
+                                    <div class="h-full bg-[#2E3035] rounded-full transition-all duration-700"
                                         [style.width.%]="projects.length ? (archivedCount / projects.length * 100) : 0">
                                     </div>
                                 </div>
-                                <span class="text-[#EDEDED] w-5 text-right">{{ archivedCount }}</span>
+                                <span class="text-[11px] text-[#EDEDED] font-semibold w-4 text-right">{{ archivedCount
+                                    }}</span>
                             </div>
-                            <div class="flex items-center gap-3 text-[12px]">
-                                <span class="text-[#8A8F98] w-16 shrink-0">Overdue</span>
-                                <div class="flex-1 h-1.5 bg-[#2E3035] rounded-full overflow-hidden">
-                                    <div class="h-full bg-red-500 rounded-full"
-                                        [style.width.%]="projects.length ? (overdueProjects.length / projects.length * 100) : 0">
+                            <div class="flex items-center gap-3">
+                                <span class="text-[11px] text-[#8A8F98] w-16 shrink-0">Overdue</span>
+                                <div class="flex-1 h-1 bg-[#2E3035] rounded-full overflow-hidden">
+                                    <div class="h-full bg-red-500 rounded-full transition-all duration-700"
+                                        [style.width.%]="activeProjects.length ? (overdueProjects.length / activeProjects.length * 100) : 0">
                                     </div>
                                 </div>
-                                <span class="text-red-400 w-5 text-right">{{ overdueProjects.length }}</span>
+                                <span class="text-[11px] font-semibold w-4 text-right"
+                                    [ngClass]="overdueProjects.length > 0 ? 'text-red-400' : 'text-[#EDEDED]'">
+                                    {{ overdueProjects.length }}
+                                </span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Quick actions -->
+                    <!-- Quick Actions -->
                     <div class="bg-[#111113] border border-[#1C1C1E] rounded-2xl p-5">
-                        <h3 class="text-[11px] font-semibold text-[#8A8F98] uppercase tracking-wider mb-3">Quick Actions
+                        <h3 class="text-[11px] font-semibold text-[#8A8F98] uppercase tracking-wider mb-4">Quick Actions
                         </h3>
-                        <div class="space-y-1">
+                        <div class="space-y-1.5">
                             <button (click)="openCreateDialog()"
-                                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#1C1C1E] text-[#8A8F98] hover:text-white transition-colors text-left group">
-                                <div
-                                    class="w-7 h-7 rounded-lg bg-[#5E6AD2]/15 group-hover:bg-[#5E6AD2]/25 flex items-center justify-center transition-colors">
-                                    <mat-icon class="!w-3.5 !h-3.5 !text-[14px] text-[#5E6AD2]">add</mat-icon>
-                                </div>
-                                <span class="text-[13px]">New project</span>
+                                class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-[#5E6AD2]/10 hover:bg-[#5E6AD2]/20 border border-[#5E6AD2]/20 hover:border-[#5E6AD2]/40 transition-all text-left group">
+                                <mat-icon class="!w-4 !h-4 !text-[16px] text-[#5E6AD2]">add_circle_outline</mat-icon>
+                                <span class="text-[13px] text-[#EDEDED] group-hover:text-white transition-colors">New
+                                    project</span>
                             </button>
                             <a routerLink="/projects"
-                                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#1C1C1E] text-[#8A8F98] hover:text-white transition-colors group">
-                                <div
-                                    class="w-7 h-7 rounded-lg bg-amber-500/10 group-hover:bg-amber-500/20 flex items-center justify-center transition-colors">
-                                    <mat-icon class="!w-3.5 !h-3.5 !text-[14px] text-amber-400">grid_view</mat-icon>
-                                </div>
-                                <span class="text-[13px]">Browse projects</span>
+                                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-[#1C1C1E] border border-transparent hover:border-[#2E3035] transition-all group">
+                                <mat-icon
+                                    class="!w-4 !h-4 !text-[16px] text-[#8A8F98] group-hover:text-[#5E6AD2] transition-colors">grid_view</mat-icon>
+                                <span class="text-[13px] text-[#8A8F98] group-hover:text-white transition-colors">Browse
+                                    all projects</span>
                             </a>
                         </div>
                     </div>
 
-                    <!-- Overdue alert widget -->
+                    <!-- Overdue Alert -->
                     <div *ngIf="overdueProjects.length > 0"
-                        class="bg-red-900/10 border border-red-900/30 rounded-2xl p-5">
+                        class="bg-red-950/30 border border-red-900/40 rounded-2xl p-5">
                         <h3
-                            class="text-[11px] font-semibold text-red-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                            <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">warning</mat-icon>
-                            Overdue ({{ overdueProjects.length }})
+                            class="text-[11px] font-semibold text-red-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">warning_amber</mat-icon>
+                            Past Deadline
                         </h3>
-                        <div class="space-y-2">
-                            <div *ngFor="let p of overdueProjects" (click)="openProject(p.id)"
-                                class="flex items-center gap-2 cursor-pointer group">
-                                <div class="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></div>
+                        <div class="space-y-2.5">
+                            <div *ngFor="let p of overdueProjects; let last = last" (click)="openProject(p.id)"
+                                class="flex items-center gap-2.5 cursor-pointer group" [class.pb-2.5]="!last"
+                                [class.border-b]="!last" [class.border-red-900/20]="!last">
+                                <div class="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 animate-pulse"></div>
                                 <span
-                                    class="text-[12px] text-[#EDEDED] truncate group-hover:text-red-400 transition-colors">{{
+                                    class="text-[12px] text-[#EDEDED] truncate flex-1 group-hover:text-red-300 transition-colors">{{
                                     p.name }}</span>
-                                <span class="text-[10px] text-red-400 ml-auto shrink-0">{{ getDaysLeft(p) }}</span>
+                                <span class="text-[10px] text-red-400 shrink-0 font-medium">{{ getDaysLeft(p) }}</span>
                             </div>
                         </div>
                     </div>
 
-                </div>
-            </div>
+                </div><!-- /RIGHT -->
+            </div><!-- /2-col -->
 
         </ng-container>
-    </div>
+    </div><!-- /content -->
 </div>
