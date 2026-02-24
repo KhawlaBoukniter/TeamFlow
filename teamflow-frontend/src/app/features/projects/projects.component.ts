@@ -34,6 +34,7 @@ export class ProjectsComponent implements OnInit {
     userEmail: string | null;
     projects: Project[] = [];
     loading = false;
+    private currentUserId: number | null = null;
 
     private authService = inject(AuthService);
     private projectService = inject(ProjectService);
@@ -46,6 +47,7 @@ export class ProjectsComponent implements OnInit {
 
     constructor() {
         this.userEmail = this.authService.getUserEmail();
+        this.currentUserId = this.authService.getCurrentUserId();
     }
 
     ngOnInit(): void {
@@ -104,6 +106,21 @@ export class ProjectsComponent implements OnInit {
         if (progress < 30) return '#FEAD69';
         if (progress < 70) return '#5E6AD2';
         return '#03D59D';
+    }
+
+    /**
+     * Returns true if the current user can manage (edit/archive/delete) the project.
+     * A user can manage if they are the owner OR a MANAGER member.
+     */
+    canManageProject(project: Project): boolean {
+        if (!this.currentUserId) return false;
+        if (project.ownerId === this.currentUserId) return true;
+        if (project.team) {
+            return project.team.some((m: any) =>
+                m.userId === this.currentUserId && m.roleInProject === 'MANAGER'
+            );
+        }
+        return false;
     }
 
     openCreateDialog(): void {
@@ -182,7 +199,7 @@ export class ProjectsComponent implements OnInit {
 
     archiveProject(project: Project): void {
         if (confirm(`Archive project "${project.name}"?`)) {
-            this.projectService.updateProject(project.id, { status: 'ARCHIVED' }).subscribe({
+            this.projectService.updateProject(project.id, { ...project, status: 'ARCHIVED' }).subscribe({
                 next: () => {
                     this.loadProjects();
                     this.snackBar.open('Project archived', 'Close', { duration: 2000 });
@@ -196,7 +213,7 @@ export class ProjectsComponent implements OnInit {
     }
 
     unarchiveProject(project: Project): void {
-        this.projectService.updateProject(project.id, { status: 'ACTIVE' }).subscribe({
+        this.projectService.updateProject(project.id, { ...project, status: 'ACTIVE' }).subscribe({
             next: () => {
                 this.loadProjects();
                 this.snackBar.open('Project unarchived', 'Close', { duration: 2000 });

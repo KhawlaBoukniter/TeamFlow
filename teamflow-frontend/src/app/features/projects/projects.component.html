@@ -125,19 +125,22 @@
                             <mat-icon class="!w-4 !h-4 !text-[16px]">group</mat-icon>
                             <span class="text-sm">Members</span>
                         </button>
-                        <mat-divider></mat-divider>
-                        <button mat-menu-item *ngIf="project.status === 'ACTIVE'" (click)="archiveProject(project)">
-                            <mat-icon class="!w-4 !h-4 !text-[16px]">archive</mat-icon>
-                            <span class="text-sm">Archive</span>
-                        </button>
-                        <button mat-menu-item *ngIf="project.status !== 'ACTIVE'" (click)="unarchiveProject(project)">
-                            <mat-icon class="!w-4 !h-4 !text-[16px]">unarchive</mat-icon>
-                            <span class="text-sm">Restore</span>
-                        </button>
-                        <button mat-menu-item class="!text-red-400" (click)="deleteProject(project)">
-                            <mat-icon class="!w-4 !h-4 !text-[16px] !text-red-400">delete</mat-icon>
-                            <span class="text-sm">Delete</span>
-                        </button>
+                        <ng-container *ngIf="canManageProject(project)">
+                            <mat-divider></mat-divider>
+                            <button mat-menu-item *ngIf="project.status === 'ACTIVE'" (click)="archiveProject(project)">
+                                <mat-icon class="!w-4 !h-4 !text-[16px]">archive</mat-icon>
+                                <span class="text-sm">Archive</span>
+                            </button>
+                            <button mat-menu-item *ngIf="project.status !== 'ACTIVE'"
+                                (click)="unarchiveProject(project)">
+                                <mat-icon class="!w-4 !h-4 !text-[16px]">unarchive</mat-icon>
+                                <span class="text-sm">Restore</span>
+                            </button>
+                            <button mat-menu-item class="!text-red-400" (click)="deleteProject(project)">
+                                <mat-icon class="!w-4 !h-4 !text-[16px] !text-red-400">delete</mat-icon>
+                                <span class="text-sm">Delete</span>
+                            </button>
+                        </ng-container>
                     </mat-menu>
                 </div>
 
@@ -288,19 +291,21 @@
                             <mat-icon class="!w-4 !h-4 !text-[16px]">group</mat-icon>
                             <span class="text-sm">Members</span>
                         </button>
-                        <mat-divider></mat-divider>
-                        <button mat-menu-item *ngIf="project.status === 'ACTIVE'" (click)="archiveProject(project)">
-                            <mat-icon class="!w-4 !h-4 !text-[16px]">archive</mat-icon>
-                            <span class="text-sm">Archive</span>
-                        </button>
-                        <button mat-menu-item *ngIf="project.status !== 'ACTIVE'" (click)="unarchiveProject(project)">
-                            <mat-icon class="!w-4 !h-4 !text-[16px]">unarchive</mat-icon>
-                            <span class="text-sm">Restore</span>
-                        </button>
-                        <button mat-menu-item class="!text-red-400" (click)="deleteProject(project)">
-                            <mat-icon class="!w-4 !h-4 !text-[16px] !text-red-400">delete</mat-icon>
-                            <span class="text-sm">Delete</span>
-                        </button>
+                        <ng-container *ngIf="canManageProject(project)">
+                            <mat-divider></mat-divider>
+                            <button mat-menu-item *ngIf="project.status === 'ACTIVE'" (click)="archiveProject(project)">
+                                <mat-icon class="!w-4 !h-4 !text-[16px]">archive</mat-icon>
+                                <span class="text-sm">Archive</span>
+                            </button>
+                            <button mat-menu-item *ngIf="project.status !== 'ACTIVE'"
+                                (click)="unarchiveProject(project)">
+                                <mat-icon class="!w-4 !h-4 !text-[16px]">unarchive</mat-icon>
+                                <span class="text-sm">Restore</span>
+                            </button>
+                            <button mat-menu-item class="!text-red-400" (click)="deleteProject(project)">
+                                <mat-icon class="!w-4 !h-4 !text-[16px] !text-red-400">delete</mat-icon>
+                                <span class="text-sm">Delete</span>
+                            </button>
                     </mat-menu>
 
                 </div>

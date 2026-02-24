@@ -313,27 +313,6 @@
                         </div>
                     </div>
 
-                    <!-- Quick Actions -->
-                    <div class="bg-[#111113] border border-[#1C1C1E] rounded-2xl p-5">
-                        <h3 class="text-[11px] font-semibold text-[#8A8F98] uppercase tracking-wider mb-4">Quick Actions
-                        </h3>
-                        <div class="space-y-1.5">
-                            <button (click)="openCreateDialog()"
-                                class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-[#5E6AD2]/10 hover:bg-[#5E6AD2]/20 border border-[#5E6AD2]/20 hover:border-[#5E6AD2]/40 transition-all text-left group">
-                                <mat-icon class="!w-4 !h-4 !text-[16px] text-[#5E6AD2]">add_circle_outline</mat-icon>
-                                <span class="text-[13px] text-[#EDEDED] group-hover:text-white transition-colors">New
-                                    project</span>
-                            </button>
-                            <a routerLink="/projects"
-                                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-[#1C1C1E] border border-transparent hover:border-[#2E3035] transition-all group">
-                                <mat-icon
-                                    class="!w-4 !h-4 !text-[16px] text-[#8A8F98] group-hover:text-[#5E6AD2] transition-colors">grid_view</mat-icon>
-                                <span class="text-[13px] text-[#8A8F98] group-hover:text-white transition-colors">Browse
-                                    all projects</span>
-                            </a>
-                        </div>
-                    </div>
-
                     <!-- Overdue Alert -->
                     <div *ngIf="overdueProjects.length > 0"
                         class="bg-red-950/30 border border-red-900/40 rounded-2xl p-5">
