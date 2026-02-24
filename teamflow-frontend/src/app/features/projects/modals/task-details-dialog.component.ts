@@ -196,7 +196,7 @@ export class TaskDetailsDialogComponent implements OnInit {
     }
 
     toggleSubTask(subTask: SubTask): void {
-        this.subTaskService.updateSubTask(subTask.id, { isDone: !subTask.isDone }).subscribe({
+        this.subTaskService.updateSubTask(subTask.id, { ...subTask, isDone: !subTask.isDone }).subscribe({
             next: () => this.loadSubTasks(),
             error: (err) => {
                 console.error('Failed to toggle subtask', err);
