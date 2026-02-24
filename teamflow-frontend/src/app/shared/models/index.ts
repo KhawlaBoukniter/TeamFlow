@@ -83,7 +83,7 @@ export interface TaskSummary {
 export interface SubTask {
     id: number;
     title: string;
-    completed: boolean;
+    isDone: boolean;
     taskId: number;
 }
 

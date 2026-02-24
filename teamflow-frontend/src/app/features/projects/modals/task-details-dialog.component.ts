@@ -182,7 +182,7 @@ export class TaskDetailsDialogComponent implements OnInit {
         const title = this.newSubTaskForm.value.title?.trim();
         if (!title) return;
 
-        this.subTaskService.createSubTask(this.task.id, { title, completed: false }).subscribe({
+        this.subTaskService.createSubTask(this.task.id, { title, isDone: false }).subscribe({
             next: () => {
                 this.loadSubTasks();
                 this.newSubTaskForm.reset();
@@ -196,7 +196,7 @@ export class TaskDetailsDialogComponent implements OnInit {
     }
 
     toggleSubTask(subTask: SubTask): void {
-        this.subTaskService.updateSubTask(subTask.id, { completed: !subTask.completed }).subscribe({
+        this.subTaskService.updateSubTask(subTask.id, { isDone: !subTask.isDone }).subscribe({
             next: () => this.loadSubTasks(),
             error: (err) => {
                 console.error('Failed to toggle subtask', err);

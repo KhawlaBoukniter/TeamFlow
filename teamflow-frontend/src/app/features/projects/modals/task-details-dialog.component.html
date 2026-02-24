@@ -102,9 +102,9 @@
                 <div class="space-y-1.5">
                     <div *ngFor="let st of subTasks"
                         class="flex items-center gap-3 p-2.5 hover:bg-[#25262B] rounded-lg group transition-colors border border-transparent hover:border-[#2E3035]">
-                        <mat-checkbox [checked]="st.completed" (change)="toggleSubTask(st)" color="primary"
+                        <mat-checkbox [checked]="st.isDone" (change)="toggleSubTask(st)" color="primary"
                             class="round-checkbox"></mat-checkbox>
-                        <span [class.line-through]="st.completed" [class.!text-[#555]]="st.completed"
+                        <span [class.line-through]="st.isDone" [class.!text-[#555]]="st.isDone"
                             class="text-sm text-[#EDEDED] flex-1">{{ st.title }}</span>
                         <button mat-icon-button color="warn"
                             class="opacity-0 group-hover:opacity-100 transition-opacity !w-7 !h-7"
