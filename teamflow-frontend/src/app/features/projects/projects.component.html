@@ -283,7 +283,7 @@
                             <mat-icon class="!w-4 !h-4 !text-[16px]">visibility</mat-icon>
                             <span class="text-sm">Details</span>
                         </button>
-                        <button mat-menu-item (click)="openProjectEdit(project)">
+                        <button mat-menu-item *ngIf="canManageProject(project)" (click)="openProjectEdit(project)">
                             <mat-icon class="!w-4 !h-4 !text-[16px]">edit</mat-icon>
                             <span class="text-sm">Edit</span>
                         </button>
@@ -306,6 +306,7 @@
                                 <mat-icon class="!w-4 !h-4 !text-[16px] !text-red-400">delete</mat-icon>
                                 <span class="text-sm">Delete</span>
                             </button>
+                        </ng-container>
                     </mat-menu>
 
                 </div>
