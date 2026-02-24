@@ -30,7 +30,13 @@ import { BRANDING } from '../../constants/branding';
       <!-- Scrollable Nav -->
       <nav class="flex-1 px-3 space-y-0.5 overflow-y-auto mt-3">
 
-        <!-- Primary Items — DISABLED (not yet implemented) -->
+        <!-- Primary Items -->
+        <a routerLink="/dashboard"
+           routerLinkActive="!bg-[#25262B] !text-white font-medium"
+           class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-[#1C1C1E] hover:text-white transition-colors cursor-pointer text-[#8A8F98]">
+          <mat-icon class="!w-4 !h-4 !text-[16px]">space_dashboard</mat-icon>
+          <span class="text-[13px]">Dashboard</span>
+        </a>
         <div
           matTooltip="Coming soon"
           matTooltipPosition="right"
