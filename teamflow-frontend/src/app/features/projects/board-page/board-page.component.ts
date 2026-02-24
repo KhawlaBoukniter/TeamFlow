@@ -15,12 +15,14 @@ import { TaskService } from '../../../core/services/task.service';
 import { Project, ProjectColumn, Task } from '../../../shared/models';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDividerModule } from '@angular/material/divider';
 import { TaskCreateEditComponent } from '../modals/task-create-edit.component';
 import { TaskDetailsDialogComponent } from '../modals/task-details-dialog.component';
 import { CreateColumnDialogComponent } from '../components/create-column-dialog/create-column-dialog.component';
 import { CreateTaskDialogComponent } from '../components/create-task-dialog/create-task-dialog.component';
 import { EditTaskDialogComponent } from '../components/edit-task-dialog/edit-task-dialog.component';
 import { MembersDialogComponent } from '../components/members-dialog/members-dialog.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-board-page',
@@ -39,7 +41,9 @@ import { MembersDialogComponent } from '../components/members-dialog/members-dia
     MembersDialogComponent,
     CreateColumnDialogComponent,
     CreateTaskDialogComponent,
-    MatTooltipModule
+    MatTooltipModule,
+    MatDividerModule,
+    FormsModule
   ],
   templateUrl: './board-page.component.html',
   styleUrl: './board-page.component.css'
@@ -49,6 +53,13 @@ export class BoardPageComponent implements OnInit {
   columns: ProjectColumn[] = [];
   tasksByColumn: { [key: number]: Task[] } = {};
   connectedTo: string[] = [];
+
+  // Filtering
+  searchQuery: string = '';
+  activeFilters = {
+    priorities: [] as string[],
+    assigneeIds: [] as number[]
+  };
 
   private route = inject(ActivatedRoute);
   private projectService = inject(ProjectService);
@@ -99,7 +110,67 @@ export class BoardPageComponent implements OnInit {
   }
 
   getTasks(columnId: number): Task[] {
-    return this.tasksByColumn[columnId] || [];
+    let tasks = this.tasksByColumn[columnId] || [];
+
+    // Apply Search Filter
+    if (this.searchQuery) {
+      const query = this.searchQuery.toLowerCase().trim();
+      tasks = tasks.filter(t => t.title.toLowerCase().includes(query));
+    }
+
+    // Apply Priority Filter
+    if (this.activeFilters.priorities.length > 0) {
+      tasks = tasks.filter(t => this.activeFilters.priorities.includes(t.priority));
+    }
+
+    // Apply Assignee Filter
+    if (this.activeFilters.assigneeIds.length > 0) {
+      tasks = tasks.filter(t =>
+        t.assignments?.some(a => this.activeFilters.assigneeIds.includes(a.userId))
+      );
+    }
+
+    return tasks;
+  }
+
+  togglePriorityFilter(priority: string): void {
+    const index = this.activeFilters.priorities.indexOf(priority);
+    if (index >= 0) {
+      this.activeFilters.priorities.splice(index, 1);
+    } else {
+      this.activeFilters.priorities.push(priority);
+    }
+  }
+
+  toggleAssigneeFilter(userId: number): void {
+    const index = this.activeFilters.assigneeIds.indexOf(userId);
+    if (index >= 0) {
+      this.activeFilters.assigneeIds.splice(index, 1);
+    } else {
+      this.activeFilters.assigneeIds.push(userId);
+    }
+  }
+
+  clearFilters(): void {
+    this.activeFilters.priorities = [];
+    this.activeFilters.assigneeIds = [];
+    this.searchQuery = '';
+  }
+
+  get hasActiveFilters(): boolean {
+    return this.activeFilters.priorities.length > 0 || this.activeFilters.assigneeIds.length > 0 || !!this.searchQuery;
+  }
+
+  getAvailableAssignees(): any[] {
+    const assignees = new Map<number, any>();
+    Object.values(this.tasksByColumn).flat().forEach(task => {
+      task.assignments?.forEach(a => {
+        if (!assignees.has(a.userId)) {
+          assignees.set(a.userId, { id: a.userId, name: a.userName, email: a.userEmail });
+        }
+      });
+    });
+    return Array.from(assignees.values());
   }
 
   drop(event: CdkDragDrop<Task[]>, targetColumnId: number): void {

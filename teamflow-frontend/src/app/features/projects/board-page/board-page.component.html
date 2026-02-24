@@ -33,13 +33,66 @@
     <!-- ══════════════════════════════════════════
          ROW 2 — Actions bar
          ══════════════════════════════════════════ -->
-    <div class="h-10 border-b border-[#1C1C1E] px-4 flex items-center justify-end gap-2 bg-[#09090b] shrink-0">
-        <!-- Filters (static) -->
-        <button
-            class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[12px] text-[#8A8F98] hover:bg-[#1C1C1E] hover:text-white rounded-md transition-colors">
+    <div class="h-10 border-b border-[#1C1C1E] px-4 flex items-center gap-2 bg-[#09090b] shrink-0">
+        <!-- Search -->
+        <div class="relative flex items-center group">
+            <mat-icon
+                class="absolute left-2.5 !w-3.5 !h-3.5 !text-[14px] text-[#8A8F98] group-focus-within:text-white transition-colors">search</mat-icon>
+            <input type="text" [(ngModel)]="searchQuery" placeholder="Search tasks..."
+                class="bg-[#1C1C1E] border border-[#2E3035] rounded-md pl-8 pr-3 py-1 text-[12px] text-white placeholder-[#8A8F98] focus:outline-none focus:border-[#4A4B50] focus:bg-[#25262B] transition-all w-[160px] focus:w-[240px]">
+        </div>
+
+        <div class="flex-1"></div>
+        <!-- Filters -->
+        <button [matMenuTriggerFor]="filterMenu"
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[12px] text-[#8A8F98] hover:bg-[#1C1C1E] hover:text-white rounded-md transition-colors relative"
+            [class.text-white]="hasActiveFilters" [class.bg-[#1C1C1E]]="hasActiveFilters">
             <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">filter_list</mat-icon>
             Filters
+            <span *ngIf="hasActiveFilters"
+                class="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full border border-[#09090b]"></span>
         </button>
+
+        <mat-menu #filterMenu="matMenu" class="linear-menu">
+            <!-- Clear Filters -->
+            <button mat-menu-item (click)="clearFilters()" *ngIf="hasActiveFilters" class="!text-blue-400">
+                <mat-icon class="!text-blue-400">clear_all</mat-icon>
+                <span>Clear All Filters</span>
+            </button>
+            <mat-divider *ngIf="hasActiveFilters"></mat-divider>
+
+            <!-- Priority Submenu -->
+            <button mat-menu-item [matMenuTriggerFor]="priorityMenu">
+                <mat-icon>priority_high</mat-icon>
+                <span>Priority</span>
+            </button>
+
+            <!-- Assignee Submenu -->
+            <button mat-menu-item [matMenuTriggerFor]="assigneeMenu" *ngIf="getAvailableAssignees().length > 0">
+                <mat-icon>person_search</mat-icon>
+                <span>Assignee</span>
+            </button>
+        </mat-menu>
+
+        <mat-menu #priorityMenu="matMenu" class="linear-menu">
+            <button mat-menu-item *ngFor="let p of ['URGENT', 'HIGH', 'MEDIUM', 'LOW']"
+                (click)="togglePriorityFilter(p); $event.stopPropagation()">
+                <mat-icon [class.text-blue-400]="activeFilters.priorities.includes(p)">
+                    {{ activeFilters.priorities.includes(p) ? 'check_box' : 'check_box_outline_blank' }}
+                </mat-icon>
+                <span>{{ p }}</span>
+            </button>
+        </mat-menu>
+
+        <mat-menu #assigneeMenu="matMenu" class="linear-menu">
+            <button mat-menu-item *ngFor="let u of getAvailableAssignees()"
+                (click)="toggleAssigneeFilter(u.id); $event.stopPropagation()">
+                <mat-icon [class.text-blue-400]="activeFilters.assigneeIds.includes(u.id)">
+                    {{ activeFilters.assigneeIds.includes(u.id) ? 'check_box' : 'check_box_outline_blank' }}
+                </mat-icon>
+                <span>{{ u.name || u.email }}</span>
+            </button>
+        </mat-menu>
 
         <div class="w-px h-4 bg-[#2E3035] shrink-0"></div>
 
