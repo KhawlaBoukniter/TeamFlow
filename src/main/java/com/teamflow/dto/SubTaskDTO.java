@@ -19,6 +19,7 @@ public class SubTaskDTO {
     @NotBlank(groups = { Create.class, Update.class })
     private String title;
 
+    @JsonProperty("isDone")
     private boolean isDone;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
