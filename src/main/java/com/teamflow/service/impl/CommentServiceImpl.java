@@ -7,7 +7,7 @@ import com.teamflow.entity.User;
 import com.teamflow.exception.ResourceNotFoundException;
 import com.teamflow.repository.CommentRepository;
 import com.teamflow.repository.TaskRepository;
-import com.teamflow.repository.UserRepository;
+import com.teamflow.security.SecurityUtils;
 import com.teamflow.service.interfaces.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,6 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -40,19 +39,17 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentDTO createComment(Long taskId, Long userId, CommentDTO dto) {
+    public CommentDTO createComment(Long taskId, CommentDTO dto) {
         Task task = taskRepository.findById(taskId)
                 .filter(t -> t.getDeletedAt() == null)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
 
-        User user = userRepository.findById(userId)
-                .filter(u -> u.getDeletedAt() == null)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        User currentUser = SecurityUtils.getCurrentUser();
 
         Comment comment = new Comment();
         comment.setContent(dto.getContent());
         comment.setTask(task);
-        comment.setAuthor(user);
+        comment.setAuthor(currentUser);
 
         Comment savedComment = commentRepository.save(comment);
         return toDTO(savedComment);

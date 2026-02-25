@@ -6,7 +6,7 @@ import java.util.List;
 public interface CommentService {
     List<CommentDTO> getCommentsByTaskId(Long taskId);
 
-    CommentDTO createComment(Long taskId, Long userId, CommentDTO dto);
+    CommentDTO createComment(Long taskId, CommentDTO dto);
 
     CommentDTO updateComment(Long id, CommentDTO dto);
 

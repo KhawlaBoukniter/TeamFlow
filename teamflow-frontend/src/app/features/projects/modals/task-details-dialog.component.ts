@@ -224,13 +224,7 @@ export class TaskDetailsDialogComponent implements OnInit {
         const content = this.newCommentForm.value.content?.trim();
         if (!content) return;
 
-        const userId = this.authService.getCurrentUserId();
-        if (!userId) {
-            this.snackBar.open('Cannot determine current user', 'Close', { duration: 3000 });
-            return;
-        }
-
-        this.commentService.createComment(this.task.id, userId, { content }).subscribe({
+        this.commentService.createComment(this.task.id, { content }).subscribe({
             next: () => {
                 this.loadComments();
                 this.newCommentForm.reset();

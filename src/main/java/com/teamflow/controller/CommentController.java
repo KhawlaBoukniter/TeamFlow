@@ -27,9 +27,9 @@ public class CommentController {
     }
 
     @PostMapping("/tasks/{taskId}/comments")
-    public ResponseEntity<CommentDTO> createComment(@PathVariable Long taskId, @RequestParam Long userId,
+    public ResponseEntity<CommentDTO> createComment(@PathVariable Long taskId,
             @Validated(Create.class) @RequestBody CommentDTO dto) {
-        return new ResponseEntity<>(commentService.createComment(taskId, userId, dto), HttpStatus.CREATED);
+        return new ResponseEntity<>(commentService.createComment(taskId, dto), HttpStatus.CREATED);
     }
 
     @PutMapping("/comments/{id}")
