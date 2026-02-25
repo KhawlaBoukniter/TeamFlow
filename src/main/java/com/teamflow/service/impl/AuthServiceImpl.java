@@ -3,6 +3,8 @@ package com.teamflow.service.impl;
 import com.teamflow.dto.auth.AuthResponse;
 import com.teamflow.dto.auth.LoginRequest;
 import com.teamflow.dto.auth.RegisterRequest;
+import com.teamflow.dto.auth.TokenRefreshRequest;
+import com.teamflow.service.interfaces.RefreshTokenService;
 import com.teamflow.entity.User;
 import com.teamflow.exception.InvalidCredentialsException;
 import com.teamflow.repository.UserRepository;
@@ -29,6 +31,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     @Transactional
@@ -48,10 +51,7 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
-        CustomUserDetails userDetails = new CustomUserDetails(user);
-        String token = jwtService.generateToken(generateExtraClaims(user), userDetails);
-
-        return buildAuthResponse(user, token);
+        return generateAuthResponse(user);
     }
 
     @Override
@@ -70,10 +70,36 @@ public class AuthServiceImpl implements AuthService {
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
 
+        return generateAuthResponse(user);
+    }
+
+    @Override
+    @Transactional
+    public AuthResponse refreshToken(TokenRefreshRequest request) {
+        return refreshTokenService.findByToken(request.getRefreshToken())
+                .map(refreshTokenService::verifyExpiration)
+                .map(com.teamflow.entity.RefreshToken::getUser)
+                .map(user -> {
+                    CustomUserDetails userDetails = new CustomUserDetails(user);
+                    String token = jwtService.generateToken(generateExtraClaims(user), userDetails);
+                    return buildAuthResponse(user, token, request.getRefreshToken());
+                })
+                .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
+    }
+
+    @Override
+    @Transactional
+    public void logout() {
+        Long userId = com.teamflow.security.SecurityUtils.getCurrentUserId();
+        refreshTokenService.deleteByUserId(userId);
+    }
+
+    private AuthResponse generateAuthResponse(User user) {
         CustomUserDetails userDetails = new CustomUserDetails(user);
         String token = jwtService.generateToken(generateExtraClaims(user), userDetails);
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId()).getToken();
 
-        return buildAuthResponse(user, token);
+        return buildAuthResponse(user, token, refreshToken);
     }
 
     private Map<String, Object> generateExtraClaims(User user) {
@@ -83,9 +109,10 @@ public class AuthServiceImpl implements AuthService {
         return extraClaims;
     }
 
-    private AuthResponse buildAuthResponse(User user, String token) {
+    private AuthResponse buildAuthResponse(User user, String token, String refreshToken) {
         return AuthResponse.builder()
                 .token(token)
+                .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .userId(user.getId())
                 .email(user.getEmail())
