@@ -36,6 +36,12 @@ public class ProjectDTO {
     private ProjectType type;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Long ownerId;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String ownerEmail;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime createdAt;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

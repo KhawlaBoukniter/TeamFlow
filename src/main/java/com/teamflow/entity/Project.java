@@ -38,6 +38,10 @@ public class Project {
     @Column(nullable = false)
     private ProjectType type;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
