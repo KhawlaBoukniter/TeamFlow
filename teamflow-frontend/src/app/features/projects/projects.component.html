@@ -121,7 +121,8 @@
                             <mat-icon class="!w-4 !h-4 !text-[16px]">edit</mat-icon>
                             <span class="text-sm">Edit</span>
                         </button>
-                        <button mat-menu-item (click)="openMembersDialog(project, $event)">
+                        <button mat-menu-item *ngIf="project.type === 'TEAM'"
+                            (click)="openMembersDialog(project, $event)">
                             <mat-icon class="!w-4 !h-4 !text-[16px]">group</mat-icon>
                             <span class="text-sm">Members</span>
                         </button>
@@ -182,7 +183,7 @@
                             </ng-container>
                         </div>
                         <!-- Add Member Button -->
-                        <button (click)="openMembersDialog(project, $event)"
+                        <button *ngIf="project.type === 'TEAM'" (click)="openMembersDialog(project, $event)"
                             class="h-6 w-6 rounded-full bg-[#2C2D32] text-white flex items-center justify-center ml-2 hover:bg-[#3A3C42] transition-colors border border-[#3A3C42] z-20"
                             matTooltip="Add Member">
                             <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">add</mat-icon>
@@ -252,7 +253,7 @@
                                 </div>
                             </ng-container>
                             <!-- Add Member Button -->
-                            <button (click)="openMembersDialog(project, $event)"
+                            <button *ngIf="project.type === 'TEAM'" (click)="openMembersDialog(project, $event)"
                                 class="h-7 w-7 rounded-full bg-[#2C2D32] text-white flex items-center justify-center ml-2 hover:bg-[#3A3C42] transition-colors border border-[#3A3C42] z-20"
                                 matTooltip="Add Member">
                                 <mat-icon class="!w-4 !h-4 !text-[16px]">add</mat-icon>
@@ -287,7 +288,8 @@
                             <mat-icon class="!w-4 !h-4 !text-[16px]">edit</mat-icon>
                             <span class="text-sm">Edit</span>
                         </button>
-                        <button mat-menu-item (click)="openMembersDialog(project, $event)">
+                        <button mat-menu-item *ngIf="project.type === 'TEAM'"
+                            (click)="openMembersDialog(project, $event)">
                             <mat-icon class="!w-4 !h-4 !text-[16px]">group</mat-icon>
                             <span class="text-sm">Members</span>
                         </button>
