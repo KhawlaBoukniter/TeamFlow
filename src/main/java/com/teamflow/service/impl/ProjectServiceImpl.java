@@ -1,9 +1,18 @@
 package com.teamflow.service.impl;
 
+import com.teamflow.dto.MembershipDTO;
 import com.teamflow.dto.ProjectDTO;
+import com.teamflow.entity.Membership;
 import com.teamflow.entity.Project;
+import com.teamflow.entity.ProjectColumn;
+import com.teamflow.entity.User;
+import com.teamflow.entity.enums.RoleInProject;
+import com.teamflow.exception.AccessDeniedException;
 import com.teamflow.exception.ResourceNotFoundException;
+import com.teamflow.repository.ColumnRepository;
+import com.teamflow.repository.MembershipRepository;
 import com.teamflow.repository.ProjectRepository;
+import com.teamflow.security.SecurityUtils;
 import com.teamflow.service.interfaces.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,15 +27,15 @@ import java.util.stream.Collectors;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final com.teamflow.repository.ColumnRepository columnRepository;
-    private final com.teamflow.repository.TaskRepository taskRepository;
-    private final com.teamflow.repository.MembershipRepository membershipRepository;
+    private final ColumnRepository columnRepository;
+    private final MembershipRepository membershipRepository;
 
     @Override
     @Transactional(readOnly = true)
     public List<ProjectDTO> getAllProjects() {
-        return projectRepository.findAll().stream()
-                .filter(p -> p.getDeletedAt() == null)
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        return projectRepository.findProjectsByUserAccess(currentUserId)
+                .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
@@ -34,15 +43,16 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional(readOnly = true)
     public ProjectDTO getProjectById(Long id) {
-        Project project = projectRepository.findById(id)
-                .filter(p -> p.getDeletedAt() == null)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+        Project project = findProjectOrThrow(id);
+        verifyMembership(project);
         return toDTO(project);
     }
 
     @Override
     @Transactional
     public ProjectDTO createProject(ProjectDTO dto) {
+        User currentUser = SecurityUtils.getCurrentUser();
+
         Project project = new Project();
         project.setName(dto.getName());
         project.setDescription(dto.getDescription());
@@ -50,36 +60,35 @@ public class ProjectServiceImpl implements ProjectService {
         project.setEndDate(dto.getEndDate());
         project.setStatus(dto.getStatus());
         project.setType(dto.getType());
+        project.setOwner(currentUser);
 
         Project savedProject = projectRepository.save(project);
 
-        createDefaultColumn(savedProject, "To Do", 0);
-        createDefaultColumn(savedProject, "In Progress", 1);
-        createDefaultColumn(savedProject, "Done", 2);
+        createDefaultColumns(savedProject);
+
+        Membership ownerMembership = new Membership();
+        ownerMembership.setProject(savedProject);
+        ownerMembership.setUser(currentUser);
+        ownerMembership.setRoleInProject(RoleInProject.MANAGER);
+        ownerMembership.setJoinedAt(LocalDateTime.now());
+        membershipRepository.save(ownerMembership);
 
         return toDTO(savedProject);
-    }
-
-    private void createDefaultColumn(Project project, String name, int order) {
-        com.teamflow.entity.ProjectColumn column = new com.teamflow.entity.ProjectColumn();
-        column.setName(name);
-        column.setOrderIndex(order);
-        column.setProject(project);
-        columnRepository.save(column);
     }
 
     @Override
     @Transactional
     public ProjectDTO updateProject(Long id, ProjectDTO dto) {
-        Project project = projectRepository.findById(id)
-                .filter(p -> p.getDeletedAt() == null)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+        Project project = findProjectOrThrow(id);
+        verifyManagerOrOwner(project);
 
         project.setName(dto.getName());
         project.setDescription(dto.getDescription());
         project.setStartDate(dto.getStartDate());
         project.setEndDate(dto.getEndDate());
-        project.setStatus(dto.getStatus());
+        if (dto.getStatus() != null) {
+            project.setStatus(dto.getStatus());
+        }
 
         Project updatedProject = projectRepository.save(project);
         return toDTO(updatedProject);
@@ -88,12 +97,53 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public void deleteProject(Long id) {
-        Project project = projectRepository.findById(id)
-                .filter(p -> p.getDeletedAt() == null)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+        Project project = findProjectOrThrow(id);
+        verifyManagerOrOwner(project);
 
         project.setDeletedAt(LocalDateTime.now());
         projectRepository.save(project);
+    }
+
+    private Project findProjectOrThrow(Long id) {
+        return projectRepository.findById(id)
+                .filter(p -> p.getDeletedAt() == null)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+    }
+
+    private void verifyMembership(Project project) {
+        User currentUser = SecurityUtils.getCurrentUser();
+        if (project.getOwner() != null && project.getOwner().getId().equals(currentUser.getId())) {
+            return;
+        }
+        boolean isMember = membershipRepository.existsByProjectIdAndUserIdAndDeletedAtIsNull(
+                project.getId(), currentUser.getId());
+        if (!isMember) {
+            throw new AccessDeniedException("You do not have access to this project");
+        }
+    }
+
+    private void verifyManagerOrOwner(Project project) {
+        User currentUser = SecurityUtils.getCurrentUser();
+        if (project.getOwner() != null && project.getOwner().getId().equals(currentUser.getId())) {
+            return;
+        }
+        Membership membership = membershipRepository
+                .findByProjectIdAndUserIdAndDeletedAtIsNull(project.getId(), currentUser.getId())
+                .orElseThrow(() -> new AccessDeniedException("You do not have access to this project"));
+        if (membership.getRoleInProject() != RoleInProject.MANAGER) {
+            throw new AccessDeniedException("Only the owner or a manager can perform this action");
+        }
+    }
+
+    private void createDefaultColumns(Project project) {
+        String[] defaultColumns = { "To Do", "In Progress", "Done" };
+        for (int i = 0; i < defaultColumns.length; i++) {
+            ProjectColumn column = new ProjectColumn();
+            column.setName(defaultColumns[i]);
+            column.setOrderIndex(i);
+            column.setProject(project);
+            columnRepository.save(column);
+        }
     }
 
     private ProjectDTO toDTO(Project project) {
@@ -108,29 +158,41 @@ public class ProjectServiceImpl implements ProjectService {
         dto.setCreatedAt(project.getCreatedAt());
         dto.setUpdatedAt(project.getUpdatedAt());
 
-        long totalTasks = 0;
-        long completedTasks = 0;
+        if (project.getOwner() != null) {
+            dto.setOwnerId(project.getOwner().getId());
+            dto.setOwnerEmail(project.getOwner().getEmail());
+        }
 
-        java.util.List<com.teamflow.entity.Membership> members = membershipRepository.findByProjectId(project.getId());
-        dto.setTeam(members.stream()
-                .limit(3)
-                .map(m -> {
-                    com.teamflow.dto.MembershipDTO memDto = new com.teamflow.dto.MembershipDTO();
-                    memDto.setId(m.getId());
-                    memDto.setUserName(m.getUser().getFullName());
-                    memDto.setUserEmail(m.getUser().getEmail());
-                    memDto.setRoleInProject(m.getRoleInProject());
-                    memDto.setUserId(m.getUser().getId());
-                    return memDto;
-                })
-                .collect(java.util.stream.Collectors.toList()));
+        long totalTasks = project.getColumns().stream()
+                .flatMap(col -> col.getTasks().stream())
+                .filter(t -> t.getDeletedAt() == null)
+                .count();
 
-        totalTasks = taskRepository.countByColumn_Project_Id(project.getId());
-        completedTasks = taskRepository.countByColumn_Project_IdAndColumn_Name(project.getId(), "Done");
+        long completedTasks = project.getColumns().stream()
+                .filter(col -> "Done".equalsIgnoreCase(col.getName()))
+                .flatMap(col -> col.getTasks().stream())
+                .filter(t -> t.getDeletedAt() == null)
+                .count();
 
         dto.setTotalTasks(totalTasks);
         dto.setCompletedTasks(completedTasks);
-        dto.setProgress(totalTasks > 0 ? (double) completedTasks / totalTasks * 100.0 : 0.0);
+        dto.setProgress(totalTasks > 0 ? (double) completedTasks / totalTasks * 100 : 0);
+
+        List<MembershipDTO> team = project.getMemberships().stream()
+                .filter(m -> m.getDeletedAt() == null)
+                .limit(3)
+                .map(m -> {
+                    MembershipDTO mdto = new MembershipDTO();
+                    mdto.setId(m.getId());
+                    mdto.setUserId(m.getUser().getId());
+                    mdto.setUserName(m.getUser().getFullName());
+                    mdto.setUserEmail(m.getUser().getEmail());
+                    mdto.setRoleInProject(m.getRoleInProject());
+                    mdto.setProjectId(project.getId());
+                    return mdto;
+                })
+                .collect(Collectors.toList());
+        dto.setTeam(team);
 
         return dto;
     }
