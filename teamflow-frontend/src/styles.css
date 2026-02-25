@@ -508,55 +508,101 @@ main>*:not(router-outlet) {
     background-color: #1C1C1E !important;
 }
 
-/* Linear Menu Override */
-.linear-menu.mat-mdc-menu-panel {
-    background-color: #1C1C1E !important;
-    /* Slightly darker for better contrast */
-    border: 1px solid #3A3C42 !important;
+/* =============================================================================
+   LINEAR FILTER MENU — Exact Linear Match
+   ============================================================================= */
+
+/* Menu panel container */
+.mat-mdc-menu-panel.linear-menu,
+.mat-mdc-menu-panel {
+    background-color: #1F2023 !important;
+    background: #1F2023 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
     border-radius: 8px !important;
-    padding: 4px !important;
-    min-width: 160px !important;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.6) !important;
+    min-width: 200px !important;
+    max-width: 280px !important;
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.4),
+        0 4px 16px rgba(0, 0, 0, 0.5),
+        0 12px 40px rgba(0, 0, 0, 0.4) !important;
+    padding: 4px 0 !important;
+    overflow: hidden !important;
 }
 
-.linear-menu .mat-mdc-menu-content {
+/* Inner content wrapper */
+.mat-mdc-menu-content {
+    background: transparent !important;
     padding: 0 !important;
 }
 
-.linear-menu .mat-mdc-menu-item {
-    color: #EDEDED !important;
-    font-family: 'Inter', sans-serif !important;
-    font-size: 11px !important;
-    /* Smaller as requested */
-    font-weight: 500 !important;
-    min-height: 28px !important;
-    height: 28px !important;
-    line-height: 28px !important;
+/* Menu items — 32px height, 13px font like Linear */
+.mat-mdc-menu-item {
+    min-height: 32px !important;
+    height: 32px !important;
+    line-height: 32px !important;
+    font-size: 13px !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-weight: 400 !important;
+    color: #E2E2E3 !important;
+    padding: 0 12px !important;
     border-radius: 4px !important;
-    margin-bottom: 1px !important;
-    padding: 0 8px !important;
-    transition: background-color 0.1s ease;
+    margin: 0 4px !important;
+    transition: background-color 0.1s ease !important;
+    letter-spacing: -0.01em !important;
 }
 
-.linear-menu .mat-mdc-menu-item:hover {
-    background-color: #2C2D32 !important;
+.mat-mdc-menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+    color: #FFFFFF !important;
 }
 
-.linear-menu .mat-mdc-menu-item .mat-icon {
-    color: #8A8F98 !important;
-    margin-right: 8px !important;
-    font-size: 14px !important;
-    width: 14px !important;
-    height: 14px !important;
+/* Icons — 16px, muted gray matching Linear's lch(64.892% 1.933 272) */
+.mat-mdc-menu-item .mat-icon {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    margin-right: 10px !important;
+    color: #9B9CA0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-.linear-menu .mat-mdc-menu-item:hover .mat-icon {
-    color: #EDEDED !important;
+.mat-mdc-menu-item:hover .mat-icon {
+    color: #C8C9CC !important;
 }
 
-.linear-menu .mat-divider {
-    border-top-color: #3A3C42 !important;
+/* Dividers — subtle like Linear */
+.mat-mdc-menu-panel .mat-divider {
+    border-top-color: rgba(255, 255, 255, 0.06) !important;
     margin: 4px 0 !important;
+}
+
+/* Filter header label */
+.linear-menu-header {
+    padding: 8px 16px 4px 16px !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    color: #6B6F76 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Submenu trigger arrow — match Linear's ▶ */
+.mat-mdc-menu-item .mat-mdc-menu-submenu-icon {
+    color: #6B6F76 !important;
+}
+
+/* Active filter count badge */
+.linear-filter-count {
+    font-size: 11px !important;
+    background: rgba(99, 102, 241, 0.15) !important;
+    color: #818CF8 !important;
+    padding: 1px 6px !important;
+    border-radius: 10px !important;
+    margin-left: auto !important;
+    font-weight: 500 !important;
 }
 
 /* =============================================================================

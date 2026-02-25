@@ -42,6 +42,10 @@ export class LoginComponent {
             email: ['', [Validators.required, Validators.email]],
             password: ['', [Validators.required, Validators.minLength(6)]]
         });
+
+        if (this.authService.isAuthenticated()) {
+            this.router.navigate(['/dashboard']);
+        }
     }
 
     onSubmit(): void {
@@ -57,7 +61,7 @@ export class LoginComponent {
         this.authService.login(loginRequest).subscribe({
             next: () => {
                 this.loading = false;
-                this.router.navigate(['/projects']);
+                this.router.navigate(['/dashboard']);
             },
             error: (error) => {
                 this.loading = false;

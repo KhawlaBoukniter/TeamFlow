@@ -53,13 +53,13 @@
                 class="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full border border-[#09090b]"></span>
         </button>
 
-        <mat-menu #filterMenu="matMenu" class="linear-menu">
-            <div class="px-2 py-1.5 text-[9px] font-bold text-[#8A8F98] tracking-wider uppercase">Filters</div>
+        <mat-menu #filterMenu="matMenu" panelClass="linear-menu">
+            <div class="linear-menu-header">Filters</div>
 
             <!-- Clear Filters -->
-            <button mat-menu-item (click)="clearFilters()" *ngIf="hasActiveFilters" class="!text-blue-400">
-                <mat-icon class="!text-blue-400">clear_all</mat-icon>
-                <span>Clear All Filters</span>
+            <button mat-menu-item (click)="clearFilters()" *ngIf="hasActiveFilters">
+                <mat-icon style="color: #818CF8 !important">clear_all</mat-icon>
+                <span style="color: #818CF8">Clear All Filters</span>
             </button>
             <mat-divider *ngIf="hasActiveFilters"></mat-divider>
 
@@ -67,8 +67,7 @@
             <button mat-menu-item [matMenuTriggerFor]="priorityMenu">
                 <mat-icon>priority_high</mat-icon>
                 <span>Priority</span>
-                <span *ngIf="activeFilters.priorities.length"
-                    class="ml-auto text-[10px] bg-[#2C2D32] px-1.5 py-0.5 rounded-full text-blue-400">
+                <span *ngIf="activeFilters.priorities.length" class="linear-filter-count">
                     {{ activeFilters.priorities.length }}
                 </span>
             </button>
@@ -77,32 +76,31 @@
             <button mat-menu-item [matMenuTriggerFor]="assigneeMenu" *ngIf="availableAssignees.length > 0">
                 <mat-icon>person_search</mat-icon>
                 <span>Assignee</span>
-                <span *ngIf="activeFilters.assigneeIds.length"
-                    class="ml-auto text-[10px] bg-[#2C2D32] px-1.5 py-0.5 rounded-full text-blue-400">
+                <span *ngIf="activeFilters.assigneeIds.length" class="linear-filter-count">
                     {{ activeFilters.assigneeIds.length }}
                 </span>
             </button>
         </mat-menu>
 
-        <mat-menu #priorityMenu="matMenu" class="linear-menu">
-            <div class="px-2 py-1.5 text-[9px] font-bold text-[#8A8F98] tracking-wider uppercase">Priority</div>
+        <mat-menu #priorityMenu="matMenu" panelClass="linear-menu">
+            <div class="linear-menu-header">Priority</div>
             <button mat-menu-item *ngFor="let p of ['URGENT', 'HIGH', 'MEDIUM', 'LOW']"
                 (click)="togglePriorityFilter(p); $event.stopPropagation()">
-                <mat-icon [class.text-blue-400]="isPrioritySelected(p)">
-                    {{ isPrioritySelected(p) ? 'check_circle' : 'circle_outline' }}
+                <mat-icon [style.color]="isPrioritySelected(p) ? '#818CF8' : ''">
+                    {{ isPrioritySelected(p) ? 'check' : '' }}
                 </mat-icon>
-                <span [class.text-blue-400]="isPrioritySelected(p)">{{ p }}</span>
+                <span [style.color]="isPrioritySelected(p) ? '#818CF8' : ''">{{ p }}</span>
             </button>
         </mat-menu>
 
-        <mat-menu #assigneeMenu="matMenu" class="linear-menu">
-            <div class="px-2 py-1.5 text-[9px] font-bold text-[#8A8F98] tracking-wider uppercase">Assignee</div>
+        <mat-menu #assigneeMenu="matMenu" panelClass="linear-menu">
+            <div class="linear-menu-header">Assignee</div>
             <button mat-menu-item *ngFor="let u of availableAssignees"
                 (click)="toggleAssigneeFilter(u.id); $event.stopPropagation()">
-                <mat-icon [class.text-blue-400]="isAssigneeSelected(u.id)">
-                    {{ isAssigneeSelected(u.id) ? 'check_circle' : 'circle_outline' }}
+                <mat-icon [style.color]="isAssigneeSelected(u.id) ? '#818CF8' : ''">
+                    {{ isAssigneeSelected(u.id) ? 'check' : '' }}
                 </mat-icon>
-                <span [class.text-blue-400]="isAssigneeSelected(u.id)">{{ u.name || u.email }}</span>
+                <span [style.color]="isAssigneeSelected(u.id) ? '#818CF8' : ''">{{ u.name || u.email }}</span>
             </button>
         </mat-menu>
 
