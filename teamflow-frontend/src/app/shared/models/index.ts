@@ -16,6 +16,7 @@ export interface Project {
     name: string;
     description: string;
     ownerId: number;
+    ownerEmail?: string;
     startDate?: string;
     endDate?: string;
     status?: 'ACTIVE' | 'ARCHIVED';
