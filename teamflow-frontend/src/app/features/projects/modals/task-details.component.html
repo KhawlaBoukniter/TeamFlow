@@ -11,9 +11,9 @@
                 <div *ngIf="subTasks.length === 0" class="text-gray-400 italic text-sm">No subtasks yet.</div>
                 <ul class="space-y-2">
                     <li *ngFor="let st of subTasks" class="flex items-center gap-2">
-                        <mat-icon class="text-gray-500 text-sm h-4 w-4">{{ st.completed ? 'check_box' :
+                        <mat-icon class="text-gray-500 text-sm h-4 w-4">{{ st.isDone ? 'check_box' :
                             'check_box_outline_blank' }}</mat-icon>
-                        <span [class.line-through]="st.completed">{{ st.title }}</span>
+                        <span [class.line-through]="st.isDone">{{ st.title }}</span>
                     </li>
                 </ul>
             </div>
