@@ -53,7 +53,7 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
-        auditLogService.logAction("REGISTER", "User", user.getId(), "User registered successfully");
+        auditLogService.logAction("REGISTER", "User", user.getId(), "User registered successfully", user);
 
         return generateAuthResponse(user);
     }
@@ -74,7 +74,7 @@ public class AuthServiceImpl implements AuthService {
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
 
-        auditLogService.logAction("LOGIN", "User", user.getId(), "User logged in successfully");
+        auditLogService.logAction("LOGIN", "User", user.getId(), "User logged in successfully", user);
 
         return generateAuthResponse(user);
     }
