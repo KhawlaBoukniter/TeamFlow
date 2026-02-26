@@ -94,6 +94,21 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenService.deleteByUserId(userId);
     }
 
+    @Override
+    @Transactional
+    public void changePassword(com.teamflow.dto.auth.ChangePasswordRequest request) {
+        Long userId = com.teamflow.security.SecurityUtils.getCurrentUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new InvalidCredentialsException("Current password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
     private AuthResponse generateAuthResponse(User user) {
         CustomUserDetails userDetails = new CustomUserDetails(user);
         String token = jwtService.generateToken(generateExtraClaims(user), userDetails);
