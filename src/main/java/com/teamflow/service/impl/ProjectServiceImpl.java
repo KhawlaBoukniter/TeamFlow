@@ -133,6 +133,9 @@ public class ProjectServiceImpl implements ProjectService {
             column.setName(defaultColumns[i]);
             column.setOrderIndex(i);
             column.setProject(project);
+            if ("Done".equalsIgnoreCase(defaultColumns[i])) {
+                column.setFinal(true);
+            }
             columnRepository.save(column);
         }
     }

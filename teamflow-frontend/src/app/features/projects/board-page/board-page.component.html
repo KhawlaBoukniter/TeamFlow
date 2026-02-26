@@ -178,7 +178,7 @@
 
                     <!-- Task Card -->
                     <div *ngFor="let task of getTasks(column.id)" cdkDrag
-                        [cdkDragDisabled]="task.blocked || !canManageProject()"
+                        [cdkDragDisabled]="task.blocked || !canMoveTask(task)"
                         class="bg-[#1C1C1E] border border-[#2E3035] rounded-xl p-3 hover:border-[#3A3C42] hover:bg-[#25262B] transition-all duration-200 group"
                         [ngClass]="{
                           'border-l-2 border-l-red-500': task.blocked,

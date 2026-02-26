@@ -94,7 +94,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    @PreAuthorize("@projectSecurity.isManagerForTask(#id) and @projectSecurity.isMemberForColumn(#targetColumnId)")
+    @PreAuthorize("@projectSecurity.canMoveTask(#id) and @projectSecurity.isMemberForColumn(#targetColumnId)")
     public TaskDTO moveTask(Long id, Long targetColumnId) {
         Task task = taskRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
@@ -259,6 +259,12 @@ public class TaskServiceImpl implements TaskService {
         if (task.isBlocked() != shouldBeBlocked) {
             task.setBlocked(shouldBeBlocked);
             taskRepository.save(task);
+
+            // Recursively update tasks that depend on this one
+            List<com.teamflow.entity.TaskDependency> dependents = taskDependencyRepository.findByPrerequisiteId(taskId);
+            for (com.teamflow.entity.TaskDependency dep : dependents) {
+                updateBlockedStatus(dep.getDependent().getId());
+            }
         }
     }
 

@@ -35,6 +35,7 @@ export interface ProjectColumn {
     orderIndex: number;
     projectId: number;
     tasks?: Task[];
+    isFinal: boolean;
 }
 
 export enum TaskPriority {

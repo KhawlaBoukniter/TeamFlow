@@ -87,6 +87,16 @@ export class BoardPageComponent implements OnInit {
     return false;
   }
 
+  canMoveTask(task: Task): boolean {
+    if (this.canManageProject()) return true;
+
+    const currentUserId = this.authService.getCurrentUserId();
+    if (!currentUserId || !task.assignments) return false;
+
+    // Check if current user is an assignee
+    return task.assignments.some(a => a.userId === currentUserId || Number(a.userId) === Number(currentUserId));
+  }
+
   ngOnInit(): void {
     const projectId = Number(this.route.snapshot.paramMap.get('id'));
     if (projectId) {
@@ -256,6 +266,8 @@ export class BoardPageComponent implements OnInit {
     // API call
     this.taskService.moveTask(task.id, targetColumnId).subscribe({
       next: () => {
+        // Refresh all columns because moving a task might unblock others
+        this.loadColumns(this.project!.id);
         this.snackBar.open('Task moved successfully', 'Close', { duration: 2000 });
       },
       error: (err) => {
@@ -306,7 +318,8 @@ export class BoardPageComponent implements OnInit {
 
         const payload: Partial<ProjectColumn> = {
           name: result.name,
-          orderIndex: orderIndex
+          orderIndex: orderIndex,
+          isFinal: result.isFinal
         };
 
         this.columnService.createColumn(this.project.id, payload).subscribe({
@@ -358,18 +371,21 @@ export class BoardPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        if (result.refreshNeeded) {
+          // If dependencies were changed inside the dialog
+          this.loadColumns(this.project!.id);
+          return;
+        }
+
         console.log('Edit Task - Form result:', result);
-
         this.taskService.updateTask(task.id, result).subscribe({
-          next: (updatedTask) => {
-            console.log('Edit Task - Backend response:', updatedTask);
-
-            this.loadTasks(task.columnId);
+          next: () => {
+            this.loadColumns(this.project!.id); // Reload all to see blocked status updates elsewhere
             this.snackBar.open('Task updated successfully', 'Close', { duration: 3000 });
           },
           error: (err) => {
             console.error('Failed to update task', err);
-            this.snackBar.open('Failed to update task. Please try again.', 'Close', { duration: 5000 });
+            this.snackBar.open('Failed to update task', 'Close', { duration: 5000 });
           }
         });
       }

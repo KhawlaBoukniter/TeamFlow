@@ -42,6 +42,7 @@ export class EditTaskDialogComponent {
     priorities = [TaskPriority.LOW, TaskPriority.MEDIUM, TaskPriority.HIGH, TaskPriority.URGENT];
     allAvailableTasks: any[] = [];
     currentDependencies: any[] = [];
+    hasChanges = false;
 
     constructor(
         private fb: FormBuilder,
@@ -73,6 +74,7 @@ export class EditTaskDialogComponent {
                 const dep = this.data.allTasks.find(t => t.id === dependencyId);
                 if (dep) {
                     this.currentDependencies.push(dep);
+                    this.hasChanges = true;
                     this.updateAvailableTasks();
                     this.snackBar.open('Dependency added', 'Close', { duration: 2000 });
                 }
@@ -87,6 +89,7 @@ export class EditTaskDialogComponent {
         this.taskService.removeDependency(this.data.task.id, dependencyId).subscribe({
             next: () => {
                 this.currentDependencies = this.currentDependencies.filter(d => d.id !== dependencyId);
+                this.hasChanges = true;
                 this.updateAvailableTasks();
                 this.snackBar.open('Dependency removed', 'Close', { duration: 2000 });
             },
@@ -109,6 +112,6 @@ export class EditTaskDialogComponent {
     }
 
     onCancel(): void {
-        this.dialogRef.close();
+        this.dialogRef.close(this.hasChanges ? { refreshNeeded: true } : undefined);
     }
 }

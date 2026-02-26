@@ -79,6 +79,22 @@ public class ProjectSecurity {
                 .orElse(false);
     }
 
+    public boolean canMoveTask(Long taskId) {
+        User currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser.isAdmin())
+            return true;
+
+        return taskRepository.findById(taskId).map(task -> {
+            Long projectId = task.getColumn().getProject().getId();
+            if (isManager(projectId))
+                return true;
+
+            // Regular member must be an assignee
+            return task.getAssignments().stream()
+                    .anyMatch(a -> a.getUser().getId().equals(currentUser.getId()));
+        }).orElse(false);
+    }
+
     public boolean isManagerForMembership(Long membershipId) {
         return membershipRepository.findById(membershipId)
                 .map(m -> isManager(m.getProject().getId()))
