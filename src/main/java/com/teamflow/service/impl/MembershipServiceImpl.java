@@ -11,6 +11,7 @@ import com.teamflow.repository.MembershipRepository;
 import com.teamflow.repository.ProjectRepository;
 import com.teamflow.repository.UserRepository;
 import com.teamflow.service.interfaces.MembershipService;
+import com.teamflow.service.interfaces.AuditLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ public class MembershipServiceImpl implements MembershipService {
     private final MembershipRepository membershipRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
 
     @Override
     @Transactional(readOnly = true)
@@ -62,6 +64,10 @@ public class MembershipServiceImpl implements MembershipService {
         membership.setJoinedAt(LocalDateTime.now());
 
         Membership savedMembership = membershipRepository.save(membership);
+
+        auditLogService.logAction("ADD_MEMBER", "Membership", savedMembership.getId(),
+                "Added user " + user.getEmail() + " as " + dto.getRoleInProject() + " to project " + project.getName());
+
         return toDTO(savedMembership);
     }
 
@@ -72,9 +78,15 @@ public class MembershipServiceImpl implements MembershipService {
                 .filter(m -> m.getDeletedAt() == null)
                 .orElseThrow(() -> new ResourceNotFoundException("Membership not found with id: " + id));
 
+        String oldRole = membership.getRoleInProject().name();
         membership.setRoleInProject(dto.getRoleInProject());
 
         Membership updatedMembership = membershipRepository.save(membership);
+
+        auditLogService.logAction("UPDATE_ROLE", "Membership", id,
+                "Changed role from " + oldRole + " to " + dto.getRoleInProject() + " for user "
+                        + membership.getUser().getEmail());
+
         return toDTO(updatedMembership);
     }
 
@@ -84,6 +96,10 @@ public class MembershipServiceImpl implements MembershipService {
         Membership membership = membershipRepository.findById(id)
                 .filter(m -> m.getDeletedAt() == null)
                 .orElseThrow(() -> new ResourceNotFoundException("Membership not found with id: " + id));
+
+        auditLogService.logAction("REMOVE_MEMBER", "Membership", id,
+                "Removed user " + membership.getUser().getEmail() + " from project "
+                        + membership.getProject().getName());
 
         membership.setDeletedAt(LocalDateTime.now());
         membershipRepository.save(membership);
