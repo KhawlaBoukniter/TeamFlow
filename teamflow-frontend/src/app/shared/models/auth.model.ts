@@ -11,6 +11,11 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
     token: string;
+    refreshToken: string;
     type: string;
     email: string;
+}
+
+export interface TokenRefreshRequest {
+    refreshToken: string;
 }
