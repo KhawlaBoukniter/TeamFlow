@@ -48,6 +48,15 @@ public class AuditLogServiceImpl implements AuditLogService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<AuditLogDTO> getAllLogs() {
+        return auditLogRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
     private AuditLogDTO toDTO(AuditLog log) {
         AuditLogDTO dto = new AuditLogDTO();
         dto.setId(log.getId());
