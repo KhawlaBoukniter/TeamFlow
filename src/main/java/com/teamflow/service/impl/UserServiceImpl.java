@@ -7,6 +7,7 @@ import com.teamflow.repository.UserRepository;
 import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.service.interfaces.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream()
                 .filter(user -> user.getDeletedAt() == null)
@@ -51,6 +53,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public UserDTO updateUser(Long id, UserDTO dto) {
         User user = userRepository.findById(id)
                 .filter(u -> u.getDeletedAt() == null)
@@ -62,6 +65,9 @@ public class UserServiceImpl implements UserService {
         if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
             user.setEmail(dto.getEmail());
         }
+        if (dto.isAdmin() != user.isAdmin()) {
+            user.setAdmin(dto.isAdmin());
+        }
 
         User savedUser = userRepository.save(user);
         auditLogService.logAction("UPDATE", "User", savedUser.getId(), "Updated user details");
@@ -70,6 +76,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .filter(u -> u.getDeletedAt() == null)
@@ -83,6 +90,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public UserDTO toggleActive(Long id) {
         User user = userRepository.findById(id)
                 .filter(u -> u.getDeletedAt() == null)
