@@ -76,8 +76,10 @@
                     <th mat-header-cell *matHeaderCellDef> Status </th>
                     <td mat-cell *matCellDef="let user">
                         <span class="flex items-center gap-2">
-                            <div class="w-2 h-2 rounded-full" [class.bg-brand]="user.isActive"
-                                [class.bg-red-500]="!user.isActive"></div>
+                            <mat-icon class="!w-4 !h-4 !text-[16px]" [class.text-brand]="user.isActive"
+                                [class.text-red-500]="!user.isActive">
+                                {{user.isActive ? 'check_circle' : 'error_outline'}}
+                            </mat-icon>
                             <span [class.text-brand]="user.isActive" [class.text-red-500]="!user.isActive"
                                 class="text-xs font-medium">
                                 {{user.isActive ? 'Active' : 'Inactive'}}
@@ -98,19 +100,22 @@
                     <td mat-cell *matCellDef="let user" class="text-right">
                         <div class="flex items-center justify-end gap-1">
                             <button mat-icon-button [matTooltip]="user.isAdmin ? 'Revoke Admin' : 'Grant Admin'"
-                                (click)="toggleAdmin(user)" class="hover:bg-[#2E3035]">
-                                <mat-icon [class.text-[#5E6AD2]]="user.isAdmin"
+                                (click)="toggleAdmin(user)" [class.bg-[#5E6AD2]\/10]="user.isAdmin"
+                                [class.hover:bg-[#5E6AD2]\/20]="user.isAdmin"
+                                class="!w-9 !h-9 !rounded-lg transition-all border border-transparent"
+                                [class.!border-[#5E6AD2]\/20]="user.isAdmin">
+                                <mat-icon [class.text-[#5E6AD2]]="user.isAdmin" [class.text-[#8A8F98]]="!user.isAdmin"
                                     class="!w-5 !h-5 !text-[20px]">security</mat-icon>
                             </button>
                             <button mat-icon-button [matTooltip]="user.isActive ? 'Deactivate User' : 'Activate User'"
-                                (click)="toggleActive(user)" [class.bg-red-500\/10]="user.isActive"
-                                [class.bg-brand\/10]="!user.isActive" [class.hover:bg-red-500\/20]="user.isActive"
-                                [class.hover:bg-brand\/20]="!user.isActive"
-                                class="!w-9 !h-9 !rounded-lg transition-all border border-transparent"
-                                [class.!border-red-500\/20]="user.isActive" [class.!border-brand\/20]="!user.isActive">
-                                <mat-icon [class.text-red-500]="user.isActive" [class.text-brand]="!user.isActive"
+                                (click)="toggleActive(user)" [class.bg-brand\/10]="user.isActive"
+                                [class.bg-red-500\/10]="!user.isActive" [class.hover:bg-brand\/20]="user.isActive"
+                                [class.hover:bg-red-500\/20]="!user.isActive"
+                                class="!w-9 !h-9 !rounded-lg transition-all border"
+                                [class.border-brand\/30]="user.isActive" [class.border-red-500\/30]="!user.isActive">
+                                <mat-icon [class.text-brand]="user.isActive" [class.text-red-500]="!user.isActive"
                                     class="!w-5 !h-5 !text-[20px]">
-                                    {{user.isActive ? 'block' : 'check_circle'}}
+                                    {{user.isActive ? 'person' : 'person_off'}}
                                 </mat-icon>
                             </button>
                             <button mat-icon-button matTooltip="Delete" color="warn" (click)="deleteUser(user)"
