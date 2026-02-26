@@ -13,6 +13,7 @@ import com.teamflow.repository.ColumnRepository;
 import com.teamflow.repository.MembershipRepository;
 import com.teamflow.repository.ProjectRepository;
 import com.teamflow.security.SecurityUtils;
+import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.service.interfaces.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final ColumnRepository columnRepository;
     private final MembershipRepository membershipRepository;
+    private final AuditLogService auditLogService;
 
     @Override
     @Transactional(readOnly = true)
@@ -73,6 +75,8 @@ public class ProjectServiceImpl implements ProjectService {
         ownerMembership.setJoinedAt(LocalDateTime.now());
         membershipRepository.save(ownerMembership);
 
+        auditLogService.logAction("CREATE", "Project", savedProject.getId(), "Created project: " + dto.getName());
+
         return toDTO(savedProject);
     }
 
@@ -91,6 +95,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         Project updatedProject = projectRepository.save(project);
+        auditLogService.logAction("UPDATE", "Project", updatedProject.getId(), "Updated project details");
         return toDTO(updatedProject);
     }
 
@@ -102,6 +107,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         project.setDeletedAt(LocalDateTime.now());
         projectRepository.save(project);
+        auditLogService.logAction("DELETE", "Project", project.getId(), "Project archived/deleted");
     }
 
     private Project findProjectOrThrow(Long id) {

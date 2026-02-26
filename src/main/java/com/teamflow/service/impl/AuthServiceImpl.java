@@ -10,6 +10,7 @@ import com.teamflow.exception.InvalidCredentialsException;
 import com.teamflow.repository.UserRepository;
 import com.teamflow.security.CustomUserDetails;
 import com.teamflow.security.JwtService;
+import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.service.interfaces.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService refreshTokenService;
+    private final AuditLogService auditLogService;
 
     @Override
     @Transactional
@@ -51,6 +53,8 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
+        auditLogService.logAction("REGISTER", "User", user.getId(), "User registered successfully");
+
         return generateAuthResponse(user);
     }
 
@@ -69,6 +73,8 @@ public class AuthServiceImpl implements AuthService {
 
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
+
+        auditLogService.logAction("LOGIN", "User", user.getId(), "User logged in successfully");
 
         return generateAuthResponse(user);
     }
@@ -107,6 +113,8 @@ public class AuthServiceImpl implements AuthService {
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+
+        auditLogService.logAction("CHANGE_PASSWORD", "User", user.getId(), "User changed their password");
     }
 
     private AuthResponse generateAuthResponse(User user) {

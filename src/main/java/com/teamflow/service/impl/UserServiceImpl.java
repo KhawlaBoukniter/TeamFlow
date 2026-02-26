@@ -4,6 +4,7 @@ import com.teamflow.dto.UserDTO;
 import com.teamflow.entity.User;
 import com.teamflow.exception.ResourceNotFoundException;
 import com.teamflow.repository.UserRepository;
+import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.service.interfaces.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
 
     @Override
     @Transactional(readOnly = true)
@@ -62,6 +64,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User savedUser = userRepository.save(user);
+        auditLogService.logAction("UPDATE", "User", savedUser.getId(), "Updated user details");
         return toDTO(savedUser);
     }
 
@@ -75,6 +78,7 @@ public class UserServiceImpl implements UserService {
         user.setDeletedAt(LocalDateTime.now());
         user.setActive(false);
         userRepository.save(user);
+        auditLogService.logAction("DELETE", "User", user.getId(), "Soft deleted user");
     }
 
     @Override
@@ -86,6 +90,8 @@ public class UserServiceImpl implements UserService {
 
         user.setActive(!user.isActive());
         User savedUser = userRepository.save(user);
+        auditLogService.logAction("TOGGLE_ACTIVE", "User", savedUser.getId(),
+                "Toggled user active status to: " + savedUser.isActive());
         return toDTO(savedUser);
     }
 

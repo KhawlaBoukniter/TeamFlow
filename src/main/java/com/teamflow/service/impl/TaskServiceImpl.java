@@ -6,6 +6,7 @@ import com.teamflow.entity.Task;
 import com.teamflow.exception.ResourceNotFoundException;
 import com.teamflow.repository.ColumnRepository;
 import com.teamflow.repository.TaskRepository;
+import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.service.interfaces.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class TaskServiceImpl implements TaskService {
     private final com.teamflow.repository.UserRepository userRepository;
     private final com.teamflow.repository.TaskAssignmentRepository taskAssignmentRepository;
     private final com.teamflow.repository.TaskDependencyRepository taskDependencyRepository;
+    private final AuditLogService auditLogService;
 
     @Override
     @Transactional(readOnly = true)
@@ -63,6 +65,7 @@ public class TaskServiceImpl implements TaskService {
         task.setColumn(column);
 
         Task savedTask = taskRepository.save(task);
+        auditLogService.logAction("CREATE", "Task", savedTask.getId(), "Created task: " + dto.getTitle());
         return toDTO(savedTask);
     }
 
@@ -80,6 +83,7 @@ public class TaskServiceImpl implements TaskService {
         task.setBlocked(dto.isBlocked());
 
         Task updatedTask = taskRepository.save(task);
+        auditLogService.logAction("UPDATE", "Task", updatedTask.getId(), "Updated task details");
         return toDTO(updatedTask);
     }
 
@@ -101,6 +105,8 @@ public class TaskServiceImpl implements TaskService {
 
         task.setColumn(targetColumn);
         Task updatedTask = taskRepository.save(task);
+        auditLogService.logAction("MOVE", "Task", updatedTask.getId(),
+                "Moved task to column: " + targetColumn.getName());
         return toDTO(updatedTask);
     }
 
@@ -113,6 +119,7 @@ public class TaskServiceImpl implements TaskService {
 
         task.setDeletedAt(LocalDateTime.now());
         taskRepository.save(task);
+        auditLogService.logAction("DELETE", "Task", task.getId(), "Task deleted");
     }
 
     @Override
@@ -136,6 +143,9 @@ public class TaskServiceImpl implements TaskService {
 
         com.teamflow.entity.TaskAssignment savedAssignment = taskAssignmentRepository.save(assignment);
 
+        auditLogService.logAction("ASSIGN", "Task", task.getId(),
+                "Assigned user " + user.getFullName() + " as " + role);
+
         return toAssignmentDTO(savedAssignment);
     }
 
@@ -147,6 +157,7 @@ public class TaskServiceImpl implements TaskService {
                         "Assignment not found for task " + taskId + " and user " + userId));
 
         taskAssignmentRepository.delete(assignment);
+        auditLogService.logAction("UNASSIGN", "Task", taskId, "Removed assignment for user ID " + userId);
     }
 
     @Override
@@ -181,6 +192,7 @@ public class TaskServiceImpl implements TaskService {
 
         task.setBlocked(true);
         taskRepository.save(task);
+        auditLogService.logAction("ADD_DEPENDENCY", "Task", taskId, "Added dependency on task ID " + dependencyId);
     }
 
     @Override
@@ -199,6 +211,7 @@ public class TaskServiceImpl implements TaskService {
             task.setBlocked(isStillBlocked);
             taskRepository.save(task);
         }
+        auditLogService.logAction("REMOVE_DEPENDENCY", "Task", taskId, "Removed dependency on task ID " + dependencyId);
     }
 
     private boolean createsCycle(Long taskId, Long newDependencyId) {

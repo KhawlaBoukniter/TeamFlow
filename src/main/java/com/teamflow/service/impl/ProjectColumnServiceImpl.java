@@ -6,6 +6,7 @@ import com.teamflow.entity.ProjectColumn;
 import com.teamflow.exception.ResourceNotFoundException;
 import com.teamflow.repository.ColumnRepository;
 import com.teamflow.repository.ProjectRepository;
+import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.service.interfaces.ProjectColumnService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class ProjectColumnServiceImpl implements ProjectColumnService {
 
     private final ColumnRepository columnRepository;
     private final ProjectRepository projectRepository;
+    private final AuditLogService auditLogService;
 
     @Override
     @Transactional(readOnly = true)
@@ -59,6 +61,8 @@ public class ProjectColumnServiceImpl implements ProjectColumnService {
         column.setProject(project);
 
         ProjectColumn savedColumn = columnRepository.save(column);
+        auditLogService.logAction("CREATE", "ProjectColumn", savedColumn.getId(),
+                "Created workflow column: " + dto.getName());
         return toDTO(savedColumn);
     }
 
@@ -75,6 +79,8 @@ public class ProjectColumnServiceImpl implements ProjectColumnService {
         column.setFinal(dto.isFinal());
 
         ProjectColumn updatedColumn = columnRepository.save(column);
+        auditLogService.logAction("UPDATE", "ProjectColumn", updatedColumn.getId(),
+                "Updated workflow column: " + dto.getName());
         return toDTO(updatedColumn);
     }
 
@@ -87,6 +93,7 @@ public class ProjectColumnServiceImpl implements ProjectColumnService {
 
         column.setDeletedAt(LocalDateTime.now());
         columnRepository.save(column);
+        auditLogService.logAction("DELETE", "ProjectColumn", column.getId(), "Soft deleted workflow column");
     }
 
     private ProjectColumnDTO toDTO(ProjectColumn column) {
