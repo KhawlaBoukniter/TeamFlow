@@ -98,3 +98,4 @@ export interface Comment {
 }
 
 export * from './auth.model';
+export * from './audit-log.model';

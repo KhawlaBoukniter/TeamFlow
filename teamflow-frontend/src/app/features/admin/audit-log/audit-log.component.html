@@ -1,0 +1,49 @@
+<div class="audit-container">
+    <div class="audit-header">
+        <h1>Historique Global (Audit Log)</h1>
+        <button (click)="loadLogs()" class="btn btn-secondary">
+            Actualiser
+        </button>
+    </div>
+
+    <div *ngIf="loading" class="text-center p-5">
+        <span>Chargement de l'historique...</span>
+    </div>
+
+    <div *ngIf="error" class="alert alert-danger">
+        {{ error }}
+    </div>
+
+    <div *ngIf="!loading && !error" class="table-responsive">
+        <table class="audit-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Utilisateur</th>
+                    <th>Action</th>
+                    <th>Entité</th>
+                    <th>ID Entité</th>
+                    <th>Détails</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let log of logs">
+                    <td>{{ log.createdAt | date:'short' }}</td>
+                    <td>{{ log.performedByEmail }}</td>
+                    <td>
+                        <span class="badge" [ngClass]="getActionClass(log.action)">
+                            {{ log.action }}
+                        </span>
+                    </td>
+                    <td>{{ log.entity }}</td>
+                    <td>#{{ log.entityId }}</td>
+                    <td>{{ log.details }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div *ngIf="logs.length === 0" class="text-center p-5 text-muted">
+            Aucun log d'audit trouvé.
+        </div>
+    </div>
+</div>

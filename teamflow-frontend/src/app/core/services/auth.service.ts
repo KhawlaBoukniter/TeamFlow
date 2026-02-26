@@ -90,7 +90,7 @@ export class AuthService {
         if (!token) return true;
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
-            if (!payload.exp) return false;            return (payload.exp * 1000) < (Date.now() + 30000);
+            if (!payload.exp) return false; return (payload.exp * 1000) < (Date.now() + 30000);
         } catch {
             return true;
         }
@@ -105,6 +105,17 @@ export class AuthService {
             return payload.userId ?? payload.id ?? null;
         } catch {
             return null;
+        }
+    }
+
+    isAdmin(): boolean {
+        const token = this.getToken();
+        if (!token) return false;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return !!payload.isAdmin;
+        } catch {
+            return false;
         }
     }
 

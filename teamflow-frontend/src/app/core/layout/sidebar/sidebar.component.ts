@@ -64,6 +64,19 @@ import { BRANDING } from '../../constants/branding';
           <mat-icon class="!w-4 !h-4 !text-[16px]">dns</mat-icon>
           <span class="text-[13px]">Projects</span>
         </a>
+
+        <!-- Admin Section -->
+        <ng-container *ngIf="authService.isAdmin()">
+          <div class="pt-4 pb-1.5 px-2">
+            <span class="text-[10px] font-semibold uppercase tracking-widest text-[#8A8F98]/50">Administration</span>
+          </div>
+          <a routerLink="/admin/audit"
+             routerLinkActive="!bg-[#25262B] !text-white font-medium"
+             class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-[#1C1C1E] hover:text-white transition-colors cursor-pointer text-[#8A8F98]">
+            <mat-icon class="!w-4 !h-4 !text-[16px]">history</mat-icon>
+            <span class="text-[13px]">Audit Log</span>
+          </a>
+        </ng-container>
         <div class="flex items-center gap-3 px-2 py-1.5 rounded-md opacity-thirty cursor-not-allowed pointer-events-none select-none"
           matTooltip="Coming soon" matTooltipPosition="right">
           <mat-icon class="!w-4 !h-4 !text-[16px]">layers</mat-icon>
