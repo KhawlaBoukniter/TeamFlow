@@ -90,6 +90,11 @@ public class TaskServiceImpl implements TaskService {
                 .filter(t -> t.getDeletedAt() == null)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
 
+        if (task.isBlocked()) {
+            throw new com.teamflow.exception.AccessDeniedException(
+                    "Cannot move a blocked task. Resolve its dependencies first.");
+        }
+
         ProjectColumn targetColumn = columnRepository.findById(targetColumnId)
                 .filter(c -> c.getDeletedAt() == null)
                 .orElseThrow(() -> new ResourceNotFoundException("Column not found with id: " + targetColumnId));
