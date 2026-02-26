@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -71,7 +71,7 @@ import { User } from '../../../shared/models';
     `]
 })
 export class UserManagementComponent implements OnInit {
-    users: User[] = [];
+    users = new MatTableDataSource<User>([]);
     loading = true;
     displayedColumns: string[] = ['fullName', 'email', 'role', 'status', 'lastLogin', 'actions'];
 
@@ -87,7 +87,7 @@ export class UserManagementComponent implements OnInit {
         this.loading = true;
         this.userService.getAllUsers().subscribe({
             next: (data) => {
-                this.users = data;
+                this.users.data = data;
                 this.loading = false;
             },
             error: (err) => {
