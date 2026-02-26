@@ -9,6 +9,7 @@ import com.teamflow.repository.ProjectRepository;
 import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.service.interfaces.ProjectColumnService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,92 +21,99 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProjectColumnServiceImpl implements ProjectColumnService {
 
-    private final ColumnRepository columnRepository;
-    private final ProjectRepository projectRepository;
-    private final AuditLogService auditLogService;
+        private final ColumnRepository columnRepository;
+        private final ProjectRepository projectRepository;
+        private final AuditLogService auditLogService;
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<ProjectColumnDTO> getColumnsByProjectId(Long projectId) {
-        Project project = projectRepository.findById(projectId)
-                .filter(p -> p.getDeletedAt() == null)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+        @Override
+        @Transactional(readOnly = true)
+        @PreAuthorize("@projectSecurity.isMember(#projectId)")
+        public List<ProjectColumnDTO> getColumnsByProjectId(Long projectId) {
+                Project project = projectRepository.findById(projectId)
+                                .filter(p -> p.getDeletedAt() == null)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Project not found with id: " + projectId));
 
-        return project.getColumns().stream()
-                .filter(c -> c.getDeletedAt() == null)
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-    }
+                return project.getColumns().stream()
+                                .filter(c -> c.getDeletedAt() == null)
+                                .map(this::toDTO)
+                                .collect(Collectors.toList());
+        }
 
-    @Override
-    @Transactional(readOnly = true)
-    public ProjectColumnDTO getColumnById(Long id) {
-        ProjectColumn column = columnRepository.findById(id)
-                .filter(c -> c.getDeletedAt() == null)
-                .orElseThrow(() -> new ResourceNotFoundException("Column not found with id: " + id));
-        return toDTO(column);
-    }
+        @Override
+        @Transactional(readOnly = true)
+        @PreAuthorize("@projectSecurity.isMemberForColumn(#id)")
+        public ProjectColumnDTO getColumnById(Long id) {
+                ProjectColumn column = columnRepository.findById(id)
+                                .filter(c -> c.getDeletedAt() == null)
+                                .orElseThrow(() -> new ResourceNotFoundException("Column not found with id: " + id));
+                return toDTO(column);
+        }
 
-    @Override
-    @Transactional
-    public ProjectColumnDTO createColumn(Long projectId, ProjectColumnDTO dto) {
-        Project project = projectRepository.findById(projectId)
-                .filter(p -> p.getDeletedAt() == null)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+        @Override
+        @Transactional
+        @PreAuthorize("@projectSecurity.isManager(#projectId)")
+        public ProjectColumnDTO createColumn(Long projectId, ProjectColumnDTO dto) {
+                Project project = projectRepository.findById(projectId)
+                                .filter(p -> p.getDeletedAt() == null)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Project not found with id: " + projectId));
 
-        ProjectColumn column = new ProjectColumn();
-        column.setName(dto.getName());
-        column.setOrderIndex(dto.getOrderIndex());
-        column.setRequiresValidation(dto.isRequiresValidation());
-        column.setFinal(dto.isFinal());
-        column.setProject(project);
+                ProjectColumn column = new ProjectColumn();
+                column.setName(dto.getName());
+                column.setOrderIndex(dto.getOrderIndex());
+                column.setRequiresValidation(dto.isRequiresValidation());
+                column.setFinal(dto.isFinal());
+                column.setProject(project);
 
-        ProjectColumn savedColumn = columnRepository.save(column);
-        auditLogService.logAction("CREATE", "ProjectColumn", savedColumn.getId(),
-                "Created workflow column: " + dto.getName());
-        return toDTO(savedColumn);
-    }
+                ProjectColumn savedColumn = columnRepository.save(column);
+                auditLogService.logAction("CREATE", "ProjectColumn", savedColumn.getId(),
+                                "Created workflow column: " + dto.getName());
+                return toDTO(savedColumn);
+        }
 
-    @Override
-    @Transactional
-    public ProjectColumnDTO updateColumn(Long id, ProjectColumnDTO dto) {
-        ProjectColumn column = columnRepository.findById(id)
-                .filter(c -> c.getDeletedAt() == null)
-                .orElseThrow(() -> new ResourceNotFoundException("Column not found with id: " + id));
+        @Override
+        @Transactional
+        @PreAuthorize("@projectSecurity.isManagerForColumn(#id)")
+        public ProjectColumnDTO updateColumn(Long id, ProjectColumnDTO dto) {
+                ProjectColumn column = columnRepository.findById(id)
+                                .filter(c -> c.getDeletedAt() == null)
+                                .orElseThrow(() -> new ResourceNotFoundException("Column not found with id: " + id));
 
-        column.setName(dto.getName());
-        column.setOrderIndex(dto.getOrderIndex());
-        column.setRequiresValidation(dto.isRequiresValidation());
-        column.setFinal(dto.isFinal());
+                column.setName(dto.getName());
+                column.setOrderIndex(dto.getOrderIndex());
+                column.setRequiresValidation(dto.isRequiresValidation());
+                column.setFinal(dto.isFinal());
 
-        ProjectColumn updatedColumn = columnRepository.save(column);
-        auditLogService.logAction("UPDATE", "ProjectColumn", updatedColumn.getId(),
-                "Updated workflow column: " + dto.getName());
-        return toDTO(updatedColumn);
-    }
+                ProjectColumn updatedColumn = columnRepository.save(column);
+                auditLogService.logAction("UPDATE", "ProjectColumn", updatedColumn.getId(),
+                                "Updated workflow column: " + dto.getName());
+                return toDTO(updatedColumn);
+        }
 
-    @Override
-    @Transactional
-    public void deleteColumn(Long id) {
-        ProjectColumn column = columnRepository.findById(id)
-                .filter(c -> c.getDeletedAt() == null)
-                .orElseThrow(() -> new ResourceNotFoundException("Column not found with id: " + id));
+        @Override
+        @Transactional
+        @PreAuthorize("@projectSecurity.isManagerForColumn(#id)")
+        public void deleteColumn(Long id) {
+                ProjectColumn column = columnRepository.findById(id)
+                                .filter(c -> c.getDeletedAt() == null)
+                                .orElseThrow(() -> new ResourceNotFoundException("Column not found with id: " + id));
 
-        column.setDeletedAt(LocalDateTime.now());
-        columnRepository.save(column);
-        auditLogService.logAction("DELETE", "ProjectColumn", column.getId(), "Soft deleted workflow column");
-    }
+                column.setDeletedAt(LocalDateTime.now());
+                columnRepository.save(column);
+                auditLogService.logAction("DELETE", "ProjectColumn", column.getId(), "Soft deleted workflow column");
+        }
 
-    private ProjectColumnDTO toDTO(ProjectColumn column) {
-        ProjectColumnDTO dto = new ProjectColumnDTO();
-        dto.setId(column.getId());
-        dto.setName(column.getName());
-        dto.setOrderIndex(column.getOrderIndex());
-        dto.setRequiresValidation(column.isRequiresValidation());
-        dto.setFinal(column.isFinal());
-        dto.setProjectId(column.getProject().getId());
-        dto.setCreatedAt(column.getCreatedAt());
-        dto.setUpdatedAt(column.getUpdatedAt());
-        return dto;
-    }
+        private ProjectColumnDTO toDTO(ProjectColumn column) {
+                ProjectColumnDTO dto = new ProjectColumnDTO();
+                dto.setId(column.getId());
+                dto.setName(column.getName());
+                dto.setOrderIndex(column.getOrderIndex());
+                dto.setRequiresValidation(column.isRequiresValidation());
+                dto.setFinal(column.isFinal());
+                dto.setProjectId(column.getProject().getId());
+                dto.setCreatedAt(column.getCreatedAt());
+                dto.setUpdatedAt(column.getUpdatedAt());
+                return dto;
+        }
 }
