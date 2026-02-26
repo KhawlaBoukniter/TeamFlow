@@ -45,13 +45,63 @@
             </mat-form-field>
         </div>
 
-        <!-- Is Blocked -->
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-[#1C1C1E] border border-[#2E3035]">
-            <mat-checkbox formControlName="blocked" color="warn"></mat-checkbox>
-            <div>
-                <span class="text-sm font-medium text-white">Mark as Blocked</span>
-                <p class="text-xs text-[#8A8F98] m-0">This task is waiting on another task or external dependency</p>
+        <mat-divider></mat-divider>
+
+        <!-- Dependencies Section -->
+        <div class="flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <mat-icon class="text-[#8A8F98] !text-[18px]">link</mat-icon>
+                    <span class="text-sm font-semibold text-white">Task Dependencies</span>
+                </div>
+                <button mat-button type="button" [matMenuTriggerFor]="addDepMenu"
+                    class="!text-[12px] text-brand hover:bg-brand/10" *ngIf="allAvailableTasks.length > 0">
+                    <mat-icon class="!text-[14px] !w-3.5 !h-3.5">add</mat-icon>
+                    Add Prerequisite
+                </button>
+                <mat-menu #addDepMenu="matMenu" class="linear-menu">
+                    <div class="px-3 py-2 text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider">Select Task
+                    </div>
+                    <button mat-menu-item *ngFor="let t of allAvailableTasks" (click)="addDependency(t.id)">
+                        <div class="flex flex-col py-1">
+                            <span class="text-[13px] text-white leading-tight">{{t.title}}</span>
+                            <span class="text-[10px] text-[#8A8F98]">#{{t.id}}</span>
+                        </div>
+                    </button>
+                </mat-menu>
             </div>
+
+            <!-- Current Dependencies List -->
+            <div class="flex flex-col gap-2">
+                <div *ngIf="currentDependencies.length === 0"
+                    class="p-4 rounded-lg border border-dashed border-[#2E3035] flex flex-col items-center justify-center gap-1 opacity-60">
+                    <mat-icon class="text-[#8A8F98]">link_off</mat-icon>
+                    <span class="text-[11px] text-[#8A8F98]">No prerequisites defined</span>
+                </div>
+
+                <div *ngFor="let dep of currentDependencies"
+                    class="flex items-center gap-3 p-2.5 rounded-lg bg-[#1C1C1E] border border-[#2E3035] group">
+                    <mat-icon class="!text-[18px] text-[#8A8F98]">assignment</mat-icon>
+                    <div class="flex-1 flex flex-col">
+                        <span class="text-[13px] text-white font-medium line-clamp-1">{{dep.title}}</span>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-[#2C2D32] text-[#8A8F98]">#{{dep.id}}</span>
+                            <span *ngIf="dep.blocked" class="text-[10px] text-red-400 flex items-center gap-1">
+                                <mat-icon class="!text-[12px] !w-3 !h-3">block</mat-icon>
+                                Locked
+                            </span>
+                        </div>
+                    </div>
+                    <button mat-icon-button type="button" (click)="removeDependency(dep.id)"
+                        class="!w-8 !h-8 opacity-0 group-hover:opacity-100 transition-opacity text-[#8A8F98] hover:text-red-400">
+                        <mat-icon class="!text-[18px]">close</mat-icon>
+                    </button>
+                </div>
+            </div>
+            <p class="text-[11px] text-[#8A8F98] italic m-0">
+                Note: This task will be blocked until all prerequisites are moved to a final column.
+            </p>
         </div>
     </mat-dialog-content>
 

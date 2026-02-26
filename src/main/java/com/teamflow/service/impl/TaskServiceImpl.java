@@ -111,6 +111,12 @@ public class TaskServiceImpl implements TaskService {
 
         task.setColumn(targetColumn);
         Task updatedTask = taskRepository.save(task);
+
+        List<com.teamflow.entity.TaskDependency> dependents = taskDependencyRepository.findByPrerequisiteId(id);
+        for (com.teamflow.entity.TaskDependency dep : dependents) {
+            updateBlockedStatus(dep.getDependent().getId());
+        }
+
         auditLogService.logAction("MOVE", "Task", updatedTask.getId(),
                 "Moved task to column: " + targetColumn.getName());
         return toDTO(updatedTask);
@@ -200,8 +206,7 @@ public class TaskServiceImpl implements TaskService {
 
         taskDependencyRepository.save(taskDependency);
 
-        task.setBlocked(true);
-        taskRepository.save(task);
+        updateBlockedStatus(taskId);
         auditLogService.logAction("ADD_DEPENDENCY", "Task", taskId, "Added dependency on task ID " + dependencyId);
     }
 
@@ -214,14 +219,7 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new ResourceNotFoundException("Dependency not found"));
 
         taskDependencyRepository.delete(dependency);
-
-        // Check if task is still blocked
-        boolean isStillBlocked = !taskDependencyRepository.findByDependentId(taskId).isEmpty();
-        Task task = dependency.getDependent();
-        if (task.isBlocked() != isStillBlocked) {
-            task.setBlocked(isStillBlocked);
-            taskRepository.save(task);
-        }
+        updateBlockedStatus(taskId);
         auditLogService.logAction("REMOVE_DEPENDENCY", "Task", taskId, "Removed dependency on task ID " + dependencyId);
     }
 
@@ -247,6 +245,21 @@ public class TaskServiceImpl implements TaskService {
             }
         }
         return false;
+    }
+
+    private void updateBlockedStatus(Long taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+
+        List<com.teamflow.entity.TaskDependency> dependencies = taskDependencyRepository.findByDependentId(taskId);
+
+        boolean shouldBeBlocked = dependencies.stream()
+                .anyMatch(dep -> !dep.getPrerequisite().getColumn().isFinal());
+
+        if (task.isBlocked() != shouldBeBlocked) {
+            task.setBlocked(shouldBeBlocked);
+            taskRepository.save(task);
+        }
     }
 
     private TaskDTO toDTO(Task task) {

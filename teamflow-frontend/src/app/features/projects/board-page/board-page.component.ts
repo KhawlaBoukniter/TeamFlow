@@ -350,7 +350,10 @@ export class BoardPageComponent implements OnInit {
     const dialogRef = this.dialog.open(EditTaskDialogComponent, {
       width: '600px',
       panelClass: 'linear-dialog',
-      data: { task }
+      data: {
+        task,
+        allTasks: Object.values(this.tasksByColumn).flat()
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -441,5 +444,11 @@ export class BoardPageComponent implements OnInit {
       },
       error: () => this.snackBar.open('Failed to delete column', 'Close', { duration: 3000 })
     });
+  }
+
+  getBlockingTooltip(task: Task): string {
+    if (!task.blockingTasks || task.blockingTasks.length === 0) return 'Blocked';
+    const titles = task.blockingTasks.map(t => `• ${t.title}`).join('\n');
+    return `Waiting on:\n${titles}`;
   }
 }

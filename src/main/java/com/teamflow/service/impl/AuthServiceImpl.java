@@ -65,6 +65,7 @@ public class AuthServiceImpl implements AuthService {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         } catch (Exception e) {
+            System.err.println("Authentication failed for user: " + request.getEmail() + " - " + e.getMessage());
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
