@@ -4,6 +4,7 @@ import com.teamflow.dto.ProjectColumnDTO;
 import com.teamflow.dto.validation.Create;
 import com.teamflow.dto.validation.Update;
 import com.teamflow.service.interfaces.ProjectColumnService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,13 +14,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class ProjectColumnController {
 
     private final ProjectColumnService columnService;
-
-    public ProjectColumnController(ProjectColumnService columnService) {
-        this.columnService = columnService;
-    }
 
     @GetMapping("/projects/{projectId}/columns")
     public ResponseEntity<List<ProjectColumnDTO>> getColumnsByProjectId(@PathVariable Long projectId) {

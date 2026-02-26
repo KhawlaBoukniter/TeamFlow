@@ -4,6 +4,7 @@ import com.teamflow.dto.TaskDTO;
 import com.teamflow.dto.validation.Create;
 import com.teamflow.dto.validation.Update;
 import com.teamflow.service.interfaces.TaskService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,13 +14,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class TaskController {
 
     private final TaskService taskService;
-
-    public TaskController(TaskService taskService) {
-        this.taskService = taskService;
-    }
 
     @GetMapping("/columns/{columnId}/tasks")
     public ResponseEntity<List<TaskDTO>> getTasksByColumnId(@PathVariable Long columnId) {

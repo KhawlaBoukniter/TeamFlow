@@ -4,6 +4,7 @@ import com.teamflow.dto.SubTaskDTO;
 import com.teamflow.dto.validation.Create;
 import com.teamflow.dto.validation.Update;
 import com.teamflow.service.interfaces.SubTaskService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,13 +14,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class SubTaskController {
 
     private final SubTaskService subTaskService;
-
-    public SubTaskController(SubTaskService subTaskService) {
-        this.subTaskService = subTaskService;
-    }
 
     @GetMapping("/tasks/{taskId}/subtasks")
     public ResponseEntity<List<SubTaskDTO>> getSubTasksByTaskId(@PathVariable Long taskId) {

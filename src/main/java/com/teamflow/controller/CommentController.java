@@ -4,6 +4,7 @@ import com.teamflow.dto.CommentDTO;
 import com.teamflow.dto.validation.Create;
 import com.teamflow.dto.validation.Update;
 import com.teamflow.service.interfaces.CommentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,13 +14,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
-
-    public CommentController(CommentService commentService) {
-        this.commentService = commentService;
-    }
 
     @GetMapping("/tasks/{taskId}/comments")
     public ResponseEntity<List<CommentDTO>> getCommentsByTaskId(@PathVariable Long taskId) {
