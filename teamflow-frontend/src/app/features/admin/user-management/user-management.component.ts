@@ -75,6 +75,18 @@ export class UserManagementComponent implements OnInit {
     loading = true;
     displayedColumns: string[] = ['fullName', 'email', 'role', 'status', 'lastLogin', 'actions'];
 
+    get totalUsers(): number {
+        return this.users.data.length;
+    }
+
+    get adminCount(): number {
+        return this.users.data.filter(u => u.isAdmin).length;
+    }
+
+    get activeCount(): number {
+        return this.users.data.filter(u => u.isActive).length;
+    }
+
     private userService = inject(UserService);
     private authService = inject(AuthService);
     private snackBar = inject(MatSnackBar);

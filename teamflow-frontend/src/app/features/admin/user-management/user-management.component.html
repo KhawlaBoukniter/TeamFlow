@@ -1,43 +1,74 @@
 <div class="h-full flex flex-col bg-[#09090b] page-enter overflow-hidden">
     <div class="flex-1 overflow-y-auto custom-scrollbar p-8">
 
-        <div class="header-section">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
             <div>
-                <h1 class="text-3xl font-bold text-white tracking-tight mb-2">User Management</h1>
-                <p class="text-[#8A8F98]">Manage global accounts, roles and status.</p>
+                <h1 class="text-3xl font-bold text-white tracking-tight mb-6">User Management</h1>
+
+                <!-- Stats Row -->
+                <div class="flex items-center gap-12">
+                    <div class="flex flex-col">
+                        <span class="text-3xl font-bold text-white mb-1">{{ totalUsers }}</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-[#8A8F98]"></div>
+                            <span class="text-sm font-medium text-[#8A8F98]">Total Users</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-3xl font-bold text-white mb-1">{{ adminCount }}</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-[#5E6AD2]"></div>
+                            <span class="text-sm font-medium text-[#8A8F98]">Admins</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-3xl font-bold text-white mb-1">{{ activeCount }}</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-brand"></div>
+                            <span class="text-sm font-medium text-[#8A8F98]">Active</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <button mat-flat-button color="primary" (click)="loadUsers()" [disabled]="loading">
+
+            <button mat-flat-button color="primary" (click)="loadUsers()" [disabled]="loading" class="btn-press">
                 <mat-icon>refresh</mat-icon>
                 Refresh
             </button>
         </div>
 
-        <div class="bg-[#1C1C1E] border border-[#2E3035] rounded-xl overflow-hidden shadow-xl">
+        <div class="bg-[#1C1C1E] border border-[#2E3035] rounded-xl overflow-hidden shadow-xl animate-slide-up">
             <table mat-table [dataSource]="users" class="user-table">
 
-                <!-- ID Column (Hidden usually, keeping for debug) -->
                 <ng-container matColumnDef="fullName">
-                    <th mat-header-cell *matHeaderCellDef> Name </th>
+                    <th mat-header-cell *matHeaderCellDef> User </th>
                     <td mat-cell *matCellDef="let user">
-                        <div class="flex flex-col">
-                            <span class="font-bold text-white">{{user.fullName}}</span>
-                            <span class="text-[10px] text-[#8A8F98]">ID: {{user.id}}</span>
+                        <div class="flex items-center gap-3 py-2">
+                            <div
+                                class="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-[11px] font-bold text-white ring-2 ring-[#2E3035]">
+                                {{user.fullName.charAt(0).toUpperCase()}}
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-white">{{user.fullName}}</span>
+                                <span class="text-[10px] text-[#8A8F98]">UID: {{user.id}}</span>
+                            </div>
                         </div>
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="email">
                     <th mat-header-cell *matHeaderCellDef> Email </th>
-                    <td mat-cell *matCellDef="let user"> {{user.email}} </td>
+                    <td mat-cell *matCellDef="let user" class="text-[#8A8F98]"> {{user.email}} </td>
                 </ng-container>
 
                 <ng-container matColumnDef="role">
                     <th mat-header-cell *matHeaderCellDef> Role </th>
                     <td mat-cell *matCellDef="let user">
                         <span *ngIf="user.isAdmin"
-                            class="px-2 py-0.5 rounded-full text-[10px] bg-[#5E6AD2]/20 text-[#5E6AD2] border border-[#5E6AD2]/30 uppercase font-bold">ADMIN</span>
+                            class="px-2 py-0.5 rounded-full text-[10px] bg-[#5E6AD2]/20 text-[#5E6AD2] border border-[#5E6AD2]/30 uppercase font-bold tracking-wider">ADMIN</span>
                         <span *ngIf="!user.isAdmin"
-                            class="px-2 py-0.5 rounded-full text-[10px] bg-[#8A8F98]/20 text-[#8A8F98] border border-[#8A8F98]/30 uppercase font-bold">MEMBER</span>
+                            class="px-2 py-0.5 rounded-full text-[10px] bg-[#8A8F98]/20 text-[#8A8F98] border border-[#8A8F98]/30 uppercase font-bold tracking-wider">MEMBER</span>
                     </td>
                 </ng-container>
 
@@ -47,7 +78,8 @@
                         <span class="flex items-center gap-2">
                             <div class="w-2 h-2 rounded-full" [class.bg-brand]="user.isActive"
                                 [class.bg-red-500]="!user.isActive"></div>
-                            <span [class.text-brand]="user.isActive" [class.text-red-500]="!user.isActive">
+                            <span [class.text-brand]="user.isActive" [class.text-red-500]="!user.isActive"
+                                class="text-xs font-medium">
                                 {{user.isActive ? 'Active' : 'Inactive'}}
                             </span>
                         </span>
@@ -56,7 +88,7 @@
 
                 <ng-container matColumnDef="lastLogin">
                     <th mat-header-cell *matHeaderCellDef> Last Login </th>
-                    <td mat-cell *matCellDef="let user">
+                    <td mat-cell *matCellDef="let user" class="text-xs text-[#8A8F98]">
                         {{user.lastLogin ? (user.lastLogin | date:'MMM d, HH:mm') : 'Never'}}
                     </td>
                 </ng-container>
@@ -66,17 +98,20 @@
                     <td mat-cell *matCellDef="let user" class="text-right">
                         <div class="flex items-center justify-end gap-1">
                             <button mat-icon-button [matTooltip]="user.isAdmin ? 'Revoke Admin' : 'Grant Admin'"
-                                (click)="toggleAdmin(user)">
-                                <mat-icon [class.text-[#5E6AD2]]="user.isAdmin">security</mat-icon>
+                                (click)="toggleAdmin(user)" class="hover:bg-[#2E3035]">
+                                <mat-icon [class.text-[#5E6AD2]]="user.isAdmin"
+                                    class="!w-5 !h-5 !text-[20px]">security</mat-icon>
                             </button>
                             <button mat-icon-button [matTooltip]="user.isActive ? 'Deactivate' : 'Activate'"
-                                (click)="toggleActive(user)">
-                                <mat-icon [class.text-red-400]="user.isActive" [class.text-brand]="!user.isActive">
+                                (click)="toggleActive(user)" class="hover:bg-[#2E3035]">
+                                <mat-icon [class.text-red-400]="user.isActive" [class.text-brand]="!user.isActive"
+                                    class="!w-5 !h-5 !text-[20px]">
                                     {{user.isActive ? 'block' : 'check_circle'}}
                                 </mat-icon>
                             </button>
-                            <button mat-icon-button matTooltip="Delete" color="warn" (click)="deleteUser(user)">
-                                <mat-icon>delete</mat-icon>
+                            <button mat-icon-button matTooltip="Delete" color="warn" (click)="deleteUser(user)"
+                                class="hover:bg-red-500/10">
+                                <mat-icon class="!w-5 !h-5 !text-[20px]">delete</mat-icon>
                             </button>
                         </div>
                     </td>
@@ -87,13 +122,18 @@
             </table>
 
             <!-- Loading Spinner -->
-            <div *ngIf="loading" class="flex justify-center p-8">
+            <div *ngIf="loading" class="flex justify-center p-12">
                 <mat-spinner diameter="40"></mat-spinner>
             </div>
 
             <!-- Empty State -->
-            <div *ngIf="!loading && users.data.length === 0" class="p-20 text-center">
-                <p class="text-[#8A8F98]">No users found.</p>
+            <div *ngIf="!loading && users.data.length === 0"
+                class="flex flex-col items-center justify-center py-20 text-center">
+                <div class="w-16 h-16 bg-[#2C2D32] rounded-full flex items-center justify-center mb-4">
+                    <mat-icon class="!w-8 !h-8 !text-[32px] text-[#8A8F98]">group</mat-icon>
+                </div>
+                <h3 class="text-white font-bold mb-1">No users found</h3>
+                <p class="text-[#8A8F98] text-sm">Waiting for registrations or database sync.</p>
             </div>
         </div>
     </div>

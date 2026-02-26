@@ -1,65 +1,76 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuditLogService } from '../../../core/services/audit-log.service';
 import { AuditLog } from '../../../shared/models/audit-log.model';
 
 @Component({
     selector: 'app-audit-log',
     standalone: true,
-    imports: [CommonModule],
+    imports: [
+        CommonModule,
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatTooltipModule
+    ],
     templateUrl: './audit-log.component.html',
     styles: [`
-    .audit-container {
-      padding: 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .audit-header {
-      margin-bottom: 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .audit-table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    }
-    .audit-table th, .audit-table td {
-      padding: 1rem;
-      text-align: left;
-      border-bottom: 1px solid #f3f4f6;
-    }
-    .audit-table th {
-      background: #f9fafb;
-      font-weight: 600;
-      color: #374151;
-      text-transform: uppercase;
-      font-size: 0.75rem;
-      letter-spacing: 0.05em;
-    }
-    .badge {
-      padding: 0.25rem 0.625rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 500;
-    }
-    .badge-create { background: #dcfce7; color: #166534; }
-    .badge-update { background: #fef9c3; color: #854d0e; }
-    .badge-delete { background: #fee2e2; color: #991b1b; }
-    .badge-move { background: #e0e7ff; color: #3730a3; }
-    .badge-default { background: #f3f4f6; color: #374151; }
-  `]
+        .audit-table {
+            width: 100%;
+            background: #1C1C1E !important;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #2E3035;
+        }
+        ::ng-deep .audit-table .mat-mdc-header-cell {
+            background: #25262B !important;
+            color: #8A8F98 !important;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #2E3035 !important;
+        }
+        ::ng-deep .audit-table .mat-mdc-cell {
+            color: #E4E4E7 !important;
+            border-bottom: 1px solid #2E3035 !important;
+            padding: 12px 16px !important;
+        }
+        ::ng-deep .audit-table .mat-mdc-row:hover {
+            background: #25262B !important;
+        }
+        .badge-create { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-update { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-delete { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-move { background: rgba(94, 106, 210, 0.2); color: #5E6AD2; border: 1px solid rgba(94, 106, 210, 0.3); }
+        .badge-default { background: rgba(138, 143, 152, 0.2); color: #8A8F98; border: 1px solid rgba(138, 143, 152, 0.3); }
+    `]
 })
 export class AuditLogComponent implements OnInit {
-    logs: AuditLog[] = [];
+    logs = new MatTableDataSource<AuditLog>([]);
     loading = true;
     error: string | null = null;
+    displayedColumns: string[] = ['date', 'user', 'action', 'entity', 'details'];
 
-    constructor(private auditLogService: AuditLogService) { }
+    private auditLogService = inject(AuditLogService);
+
+    get createCount(): number {
+        return this.logs.data.filter(l => l.action === 'CREATE').length;
+    }
+
+    get updateCount(): number {
+        return this.logs.data.filter(l => l.action === 'UPDATE').length;
+    }
+
+    get deleteCount(): number {
+        return this.logs.data.filter(l => l.action === 'DELETE').length;
+    }
 
     ngOnInit(): void {
         this.loadLogs();
@@ -69,7 +80,7 @@ export class AuditLogComponent implements OnInit {
         this.loading = true;
         this.auditLogService.getAllLogs().subscribe({
             next: (data) => {
-                this.logs = data;
+                this.logs.data = data;
                 this.loading = false;
             },
             error: (err) => {
