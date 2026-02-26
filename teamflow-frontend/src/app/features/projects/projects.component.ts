@@ -36,7 +36,7 @@ export class ProjectsComponent implements OnInit {
     loading = false;
     private currentUserId: number | null = null;
 
-    private authService = inject(AuthService);
+    protected authService = inject(AuthService);
     private projectService = inject(ProjectService);
     private router = inject(Router);
     private dialog = inject(MatDialog);
@@ -113,13 +113,20 @@ export class ProjectsComponent implements OnInit {
      * A user can manage if they are the owner OR a MANAGER member.
      */
     canManageProject(project: Project): boolean {
+        // Admins are supervisors (read-only) unless they are specifically owners/managers
         if (!this.currentUserId) return false;
+
+        // If user is owner, they can manage
         if (project.ownerId === this.currentUserId) return true;
+
+        // If user is a MANAGER in the team
         if (project.team) {
-            return project.team.some((m: any) =>
+            const isManager = project.team.some((m: any) =>
                 m.userId === this.currentUserId && m.roleInProject === 'MANAGER'
             );
+            if (isManager) return true;
         }
+
         return false;
     }
 
