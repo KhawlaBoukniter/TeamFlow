@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AuthService } from '../../../core/services/auth.service';
 import { ProjectService } from '../../../core/services/project.service';
 import { ColumnService } from '../../../core/services/column.service';
 import { TaskService } from '../../../core/services/task.service';
@@ -63,12 +64,28 @@ export class BoardPageComponent implements OnInit {
   availableAssignees: any[] = [];
 
   private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
   private projectService = inject(ProjectService);
   private columnService = inject(ColumnService);
   private taskService = inject(TaskService);
   private snackBar = inject(MatSnackBar);
 
   constructor(public dialog: MatDialog) { }
+
+  canManageProject(): boolean {
+    if (!this.project || !this.authService.getCurrentUserId()) return false;
+    const currentUserId = this.authService.getCurrentUserId();
+
+    if (this.project.ownerId === currentUserId) return true;
+
+    // Check membership role if available in project object (assuming team list is loaded)
+    if (this.project.team) {
+      return this.project.team.some((m: any) =>
+        m.userId === currentUserId && m.roleInProject === 'MANAGER'
+      );
+    }
+    return false;
+  }
 
   ngOnInit(): void {
     const projectId = Number(this.route.snapshot.paramMap.get('id'));
