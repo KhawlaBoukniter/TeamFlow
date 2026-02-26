@@ -4,15 +4,13 @@ import com.teamflow.dto.auth.AuthResponse;
 import com.teamflow.dto.auth.LoginRequest;
 import com.teamflow.dto.auth.RegisterRequest;
 import com.teamflow.dto.auth.TokenRefreshRequest;
+import com.teamflow.dto.auth.ChangePasswordRequest;
 import com.teamflow.service.interfaces.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -40,5 +38,11 @@ public class AuthController {
     public ResponseEntity<Void> logout() {
         authService.logout();
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(request);
+        return ResponseEntity.ok().build();
     }
 }
