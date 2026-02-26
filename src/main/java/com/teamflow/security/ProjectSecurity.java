@@ -1,0 +1,87 @@
+package com.teamflow.security;
+
+import com.teamflow.entity.Membership;
+import com.teamflow.entity.Project;
+import com.teamflow.entity.User;
+import com.teamflow.entity.enums.RoleInProject;
+import com.teamflow.repository.ColumnRepository;
+import com.teamflow.repository.MembershipRepository;
+import com.teamflow.repository.ProjectRepository;
+import com.teamflow.repository.TaskRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+
+@Component("projectSecurity")
+@RequiredArgsConstructor
+public class ProjectSecurity {
+
+    private final ProjectRepository projectRepository;
+    private final MembershipRepository membershipRepository;
+    private final TaskRepository taskRepository;
+    private final ColumnRepository columnRepository;
+
+    public boolean isMember(Long projectId) {
+        User currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser.isAdmin()) {
+            return true;
+        }
+
+        Project project = projectRepository.findById(projectId).orElse(null);
+        if (project == null)
+            return false;
+
+        if (project.getOwner() != null && project.getOwner().getId().equals(currentUser.getId())) {
+            return true;
+        }
+
+        return membershipRepository.existsByProjectIdAndUserIdAndDeletedAtIsNull(projectId, currentUser.getId());
+    }
+
+    public boolean isManager(Long projectId) {
+        User currentUser = SecurityUtils.getCurrentUser();
+
+        Project project = projectRepository.findById(projectId).orElse(null);
+        if (project == null)
+            return false;
+
+        if (project.getOwner() != null && project.getOwner().getId().equals(currentUser.getId())) {
+            return true;
+        }
+
+        Optional<Membership> membership = membershipRepository.findByProjectIdAndUserIdAndDeletedAtIsNull(projectId,
+                currentUser.getId());
+        return membership.map(m -> m.getRoleInProject() == RoleInProject.MANAGER).orElse(false);
+    }
+
+    public boolean isManagerForColumn(Long columnId) {
+        return columnRepository.findById(columnId)
+                .map(col -> isManager(col.getProject().getId()))
+                .orElse(false);
+    }
+
+    public boolean isMemberForColumn(Long columnId) {
+        return columnRepository.findById(columnId)
+                .map(col -> isMember(col.getProject().getId()))
+                .orElse(false);
+    }
+
+    public boolean isManagerForTask(Long taskId) {
+        return taskRepository.findById(taskId)
+                .map(task -> isManager(task.getColumn().getProject().getId()))
+                .orElse(false);
+    }
+
+    public boolean isMemberForTask(Long taskId) {
+        return taskRepository.findById(taskId)
+                .map(task -> isMember(task.getColumn().getProject().getId()))
+                .orElse(false);
+    }
+
+    public boolean isManagerForMembership(Long membershipId) {
+        return membershipRepository.findById(membershipId)
+                .map(m -> isManager(m.getProject().getId()))
+                .orElse(false);
+    }
+}
