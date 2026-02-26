@@ -9,6 +9,7 @@ import com.teamflow.repository.TaskRepository;
 import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.service.interfaces.TaskService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("@projectSecurity.isMemberForColumn(#columnId)")
     public List<TaskDTO> getTasksByColumnId(Long columnId) {
         if (!columnRepository.existsById(columnId)) {
             throw new ResourceNotFoundException("Column not found with id: " + columnId);
@@ -42,6 +44,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("@projectSecurity.isMemberForTask(#id)")
     public TaskDTO getTaskById(Long id) {
         Task task = taskRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
@@ -51,6 +54,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    @PreAuthorize("@projectSecurity.isManagerForColumn(#columnId)")
     public TaskDTO createTask(Long columnId, TaskDTO dto) {
         ProjectColumn column = columnRepository.findById(columnId)
                 .filter(c -> c.getDeletedAt() == null)
@@ -71,6 +75,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    @PreAuthorize("@projectSecurity.isManagerForTask(#id)")
     public TaskDTO updateTask(Long id, TaskDTO dto) {
         Task task = taskRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
@@ -89,6 +94,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    @PreAuthorize("@projectSecurity.isManagerForTask(#id) and @projectSecurity.isMemberForColumn(#targetColumnId)")
     public TaskDTO moveTask(Long id, Long targetColumnId) {
         Task task = taskRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
@@ -112,6 +118,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    @PreAuthorize("@projectSecurity.isManagerForTask(#id)")
     public void deleteTask(Long id) {
         Task task = taskRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
@@ -124,6 +131,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    @PreAuthorize("@projectSecurity.isManagerForTask(#taskId)")
     public com.teamflow.dto.TaskAssignmentDTO assignUserToTask(Long taskId, Long userId, String role) {
         Task task = taskRepository.findById(taskId)
                 .filter(t -> t.getDeletedAt() == null)
@@ -151,6 +159,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    @PreAuthorize("@projectSecurity.isManagerForTask(#taskId)")
     public void removeAssignment(Long taskId, Long userId) {
         com.teamflow.entity.TaskAssignment assignment = taskAssignmentRepository.findByTask_IdAndUser_Id(taskId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -162,6 +171,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    @PreAuthorize("@projectSecurity.isManagerForTask(#taskId)")
     public void addDependency(Long taskId, Long dependencyId) {
         if (taskId.equals(dependencyId)) {
             throw new IllegalArgumentException("A task cannot depend on itself");
@@ -197,6 +207,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    @PreAuthorize("@projectSecurity.isManagerForTask(#taskId)")
     public void removeDependency(Long taskId, Long dependencyId) {
         com.teamflow.entity.TaskDependency dependency = taskDependencyRepository
                 .findByDependentIdAndPrerequisiteId(taskId, dependencyId)
