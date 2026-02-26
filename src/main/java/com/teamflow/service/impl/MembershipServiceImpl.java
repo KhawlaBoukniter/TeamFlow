@@ -13,6 +13,7 @@ import com.teamflow.repository.UserRepository;
 import com.teamflow.service.interfaces.MembershipService;
 import com.teamflow.service.interfaces.AuditLogService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,98 +25,108 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MembershipServiceImpl implements MembershipService {
 
-    private final MembershipRepository membershipRepository;
-    private final ProjectRepository projectRepository;
-    private final UserRepository userRepository;
-    private final AuditLogService auditLogService;
+        private final MembershipRepository membershipRepository;
+        private final ProjectRepository projectRepository;
+        private final UserRepository userRepository;
+        private final AuditLogService auditLogService;
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<MembershipDTO> getMembershipsByProjectId(Long projectId) {
-        Project project = projectRepository.findById(projectId)
-                .filter(p -> p.getDeletedAt() == null)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+        @Override
+        @Transactional(readOnly = true)
+        @PreAuthorize("@projectSecurity.isMember(#projectId)")
+        public List<MembershipDTO> getMembershipsByProjectId(Long projectId) {
+                Project project = projectRepository.findById(projectId)
+                                .filter(p -> p.getDeletedAt() == null)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Project not found with id: " + projectId));
 
-        return project.getMemberships().stream()
-                .filter(m -> m.getDeletedAt() == null)
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public MembershipDTO addMember(Long projectId, MembershipDTO dto) {
-        Project project = projectRepository.findById(projectId)
-                .filter(p -> p.getDeletedAt() == null)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
-
-        if (project.getType() == ProjectType.PERSONAL) {
-            throw new AccessDeniedException("Cannot add members to a personal project");
+                return project.getMemberships().stream()
+                                .filter(m -> m.getDeletedAt() == null)
+                                .map(this::toDTO)
+                                .collect(Collectors.toList());
         }
 
-        User user = userRepository.findById(dto.getUserId())
-                .filter(u -> u.getDeletedAt() == null)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + dto.getUserId()));
+        @Override
+        @Transactional
+        @PreAuthorize("@projectSecurity.isManager(#projectId)")
+        public MembershipDTO addMember(Long projectId, MembershipDTO dto) {
+                Project project = projectRepository.findById(projectId)
+                                .filter(p -> p.getDeletedAt() == null)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Project not found with id: " + projectId));
 
-        Membership membership = new Membership();
-        membership.setProject(project);
-        membership.setUser(user);
-        membership.setRoleInProject(dto.getRoleInProject());
-        membership.setJoinedAt(LocalDateTime.now());
+                if (project.getType() == ProjectType.PERSONAL) {
+                        throw new AccessDeniedException("Cannot add members to a personal project");
+                }
 
-        Membership savedMembership = membershipRepository.save(membership);
+                User user = userRepository.findById(dto.getUserId())
+                                .filter(u -> u.getDeletedAt() == null)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "User not found with id: " + dto.getUserId()));
 
-        auditLogService.logAction("ADD_MEMBER", "Membership", savedMembership.getId(),
-                "Added user " + user.getEmail() + " as " + dto.getRoleInProject() + " to project " + project.getName());
+                Membership membership = new Membership();
+                membership.setProject(project);
+                membership.setUser(user);
+                membership.setRoleInProject(dto.getRoleInProject());
+                membership.setJoinedAt(LocalDateTime.now());
 
-        return toDTO(savedMembership);
-    }
+                Membership savedMembership = membershipRepository.save(membership);
 
-    @Override
-    @Transactional
-    public MembershipDTO updateMemberRole(Long id, MembershipDTO dto) {
-        Membership membership = membershipRepository.findById(id)
-                .filter(m -> m.getDeletedAt() == null)
-                .orElseThrow(() -> new ResourceNotFoundException("Membership not found with id: " + id));
+                auditLogService.logAction("ADD_MEMBER", "Membership", savedMembership.getId(),
+                                "Added user " + user.getEmail() + " as " + dto.getRoleInProject() + " to project "
+                                                + project.getName());
 
-        String oldRole = membership.getRoleInProject().name();
-        membership.setRoleInProject(dto.getRoleInProject());
+                return toDTO(savedMembership);
+        }
 
-        Membership updatedMembership = membershipRepository.save(membership);
+        @Override
+        @Transactional
+        @PreAuthorize("@projectSecurity.isManagerForMembership(#id)")
+        public MembershipDTO updateMemberRole(Long id, MembershipDTO dto) {
+                Membership membership = membershipRepository.findById(id)
+                                .filter(m -> m.getDeletedAt() == null)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Membership not found with id: " + id));
 
-        auditLogService.logAction("UPDATE_ROLE", "Membership", id,
-                "Changed role from " + oldRole + " to " + dto.getRoleInProject() + " for user "
-                        + membership.getUser().getEmail());
+                String oldRole = membership.getRoleInProject().name();
+                membership.setRoleInProject(dto.getRoleInProject());
 
-        return toDTO(updatedMembership);
-    }
+                Membership updatedMembership = membershipRepository.save(membership);
 
-    @Override
-    @Transactional
-    public void removeMember(Long id) {
-        Membership membership = membershipRepository.findById(id)
-                .filter(m -> m.getDeletedAt() == null)
-                .orElseThrow(() -> new ResourceNotFoundException("Membership not found with id: " + id));
+                auditLogService.logAction("UPDATE_ROLE", "Membership", id,
+                                "Changed role from " + oldRole + " to " + dto.getRoleInProject() + " for user "
+                                                + membership.getUser().getEmail());
 
-        auditLogService.logAction("REMOVE_MEMBER", "Membership", id,
-                "Removed user " + membership.getUser().getEmail() + " from project "
-                        + membership.getProject().getName());
+                return toDTO(updatedMembership);
+        }
 
-        membership.setDeletedAt(LocalDateTime.now());
-        membershipRepository.save(membership);
-    }
+        @Override
+        @Transactional
+        @PreAuthorize("@projectSecurity.isManagerForMembership(#id)")
+        public void removeMember(Long id) {
+                Membership membership = membershipRepository.findById(id)
+                                .filter(m -> m.getDeletedAt() == null)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Membership not found with id: " + id));
 
-    private MembershipDTO toDTO(Membership membership) {
-        MembershipDTO dto = new MembershipDTO();
-        dto.setId(membership.getId());
-        dto.setRoleInProject(membership.getRoleInProject());
-        dto.setUserId(membership.getUser().getId());
-        dto.setUserName(membership.getUser().getFullName());
-        dto.setUserEmail(membership.getUser().getEmail());
-        dto.setProjectId(membership.getProject().getId());
-        dto.setJoinedAt(membership.getJoinedAt());
-        dto.setCreatedAt(membership.getCreatedAt());
-        dto.setUpdatedAt(membership.getUpdatedAt());
-        return dto;
-    }
+                auditLogService.logAction("REMOVE_MEMBER", "Membership", id,
+                                "Removed user " + membership.getUser().getEmail() + " from project "
+                                                + membership.getProject().getName());
+
+                membership.setDeletedAt(LocalDateTime.now());
+                membershipRepository.save(membership);
+        }
+
+        private MembershipDTO toDTO(Membership membership) {
+                MembershipDTO dto = new MembershipDTO();
+                dto.setId(membership.getId());
+                dto.setRoleInProject(membership.getRoleInProject());
+                dto.setUserId(membership.getUser().getId());
+                dto.setUserName(membership.getUser().getFullName());
+                dto.setUserEmail(membership.getUser().getEmail());
+                dto.setProjectId(membership.getProject().getId());
+                dto.setJoinedAt(membership.getJoinedAt());
+                dto.setCreatedAt(membership.getCreatedAt());
+                dto.setUpdatedAt(membership.getUpdatedAt());
+                return dto;
+        }
 }
