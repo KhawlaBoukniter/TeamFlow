@@ -102,9 +102,13 @@
                                 <mat-icon [class.text-[#5E6AD2]]="user.isAdmin"
                                     class="!w-5 !h-5 !text-[20px]">security</mat-icon>
                             </button>
-                            <button mat-icon-button [matTooltip]="user.isActive ? 'Deactivate' : 'Activate'"
-                                (click)="toggleActive(user)" class="hover:bg-[#2E3035]">
-                                <mat-icon [class.text-red-400]="user.isActive" [class.text-brand]="!user.isActive"
+                            <button mat-icon-button [matTooltip]="user.isActive ? 'Deactivate User' : 'Activate User'"
+                                (click)="toggleActive(user)" [class.bg-red-500\/10]="user.isActive"
+                                [class.bg-brand\/10]="!user.isActive" [class.hover:bg-red-500\/20]="user.isActive"
+                                [class.hover:bg-brand\/20]="!user.isActive"
+                                class="!w-9 !h-9 !rounded-lg transition-all border border-transparent"
+                                [class.!border-red-500\/20]="user.isActive" [class.!border-brand\/20]="!user.isActive">
+                                <mat-icon [class.text-red-500]="user.isActive" [class.text-brand]="!user.isActive"
                                     class="!w-5 !h-5 !text-[20px]">
                                     {{user.isActive ? 'block' : 'check_circle'}}
                                 </mat-icon>
