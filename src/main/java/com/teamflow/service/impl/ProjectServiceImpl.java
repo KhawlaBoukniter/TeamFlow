@@ -16,6 +16,7 @@ import com.teamflow.security.SecurityUtils;
 import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.service.interfaces.ProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,18 +36,27 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional(readOnly = true)
     public List<ProjectDTO> getAllProjects() {
-        Long currentUserId = SecurityUtils.getCurrentUserId();
-        return projectRepository.findProjectsByUserAccess(currentUserId)
-                .stream()
+        User currentUser = SecurityUtils.getCurrentUser();
+
+        List<Project> projects;
+        if (currentUser.isAdmin()) {
+            projects = projectRepository.findAll().stream()
+                    .filter(p -> p.getDeletedAt() == null)
+                    .collect(Collectors.toList());
+        } else {
+            projects = projectRepository.findProjectsByUserAccess(currentUser.getId());
+        }
+
+        return projects.stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("@projectSecurity.isMember(#id)")
     public ProjectDTO getProjectById(Long id) {
         Project project = findProjectOrThrow(id);
-        verifyMembership(project);
         return toDTO(project);
     }
 
@@ -82,9 +92,9 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
+    @PreAuthorize("@projectSecurity.isManager(#id)")
     public ProjectDTO updateProject(Long id, ProjectDTO dto) {
         Project project = findProjectOrThrow(id);
-        verifyManagerOrOwner(project);
 
         project.setName(dto.getName());
         project.setDescription(dto.getDescription());
@@ -101,9 +111,9 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
+    @PreAuthorize("@projectSecurity.isManager(#id)")
     public void deleteProject(Long id) {
         Project project = findProjectOrThrow(id);
-        verifyManagerOrOwner(project);
 
         project.setDeletedAt(LocalDateTime.now());
         projectRepository.save(project);
@@ -114,31 +124,6 @@ public class ProjectServiceImpl implements ProjectService {
         return projectRepository.findById(id)
                 .filter(p -> p.getDeletedAt() == null)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
-    }
-
-    private void verifyMembership(Project project) {
-        User currentUser = SecurityUtils.getCurrentUser();
-        if (project.getOwner() != null && project.getOwner().getId().equals(currentUser.getId())) {
-            return;
-        }
-        boolean isMember = membershipRepository.existsByProjectIdAndUserIdAndDeletedAtIsNull(
-                project.getId(), currentUser.getId());
-        if (!isMember) {
-            throw new AccessDeniedException("You do not have access to this project");
-        }
-    }
-
-    private void verifyManagerOrOwner(Project project) {
-        User currentUser = SecurityUtils.getCurrentUser();
-        if (project.getOwner() != null && project.getOwner().getId().equals(currentUser.getId())) {
-            return;
-        }
-        Membership membership = membershipRepository
-                .findByProjectIdAndUserIdAndDeletedAtIsNull(project.getId(), currentUser.getId())
-                .orElseThrow(() -> new AccessDeniedException("You do not have access to this project"));
-        if (membership.getRoleInProject() != RoleInProject.MANAGER) {
-            throw new AccessDeniedException("Only the owner or a manager can perform this action");
-        }
     }
 
     private void createDefaultColumns(Project project) {
