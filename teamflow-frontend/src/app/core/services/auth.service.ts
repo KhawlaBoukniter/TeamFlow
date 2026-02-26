@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 export class AuthService {
     private readonly API_URL = `${environment.apiUrl}/auth`;
     private readonly TOKEN_KEY = 'teamflow_token';
+    private readonly REFRESH_TOKEN_KEY = 'teamflow_refresh_token';
     private readonly EMAIL_KEY = 'teamflow_email';
 
     private http = inject(HttpClient);
@@ -18,6 +19,10 @@ export class AuthService {
 
     private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
     public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+
+    private isRefreshingSubject = new BehaviorSubject<boolean>(false);
+    public isRefreshing$ = this.isRefreshingSubject.asObservable();
+    public refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
     constructor() {
         if (this.hasToken()) {
@@ -35,8 +40,22 @@ export class AuthService {
         );
     }
 
+    refreshToken(refreshToken: string): Observable<AuthResponse> {
+        return this.http.post<AuthResponse>(`${this.API_URL}/refresh-token`, { refreshToken }).pipe(
+            tap(response => this.handleAuthSuccess(response))
+        );
+    }
+
     logout(): void {
+        this.http.post(`${this.API_URL}/logout`, {}).subscribe({
+            next: () => this.clearSession(),
+            error: () => this.clearSession()
+        });
+    }
+
+    clearSession(): void {
         localStorage.removeItem(this.TOKEN_KEY);
+        localStorage.removeItem(this.REFRESH_TOKEN_KEY);
         localStorage.removeItem(this.EMAIL_KEY);
         this.isAuthenticatedSubject.next(false);
         this.router.navigate(['/login']);
@@ -44,6 +63,10 @@ export class AuthService {
 
     getToken(): string | null {
         return localStorage.getItem(this.TOKEN_KEY);
+    }
+
+    getRefreshToken(): string | null {
+        return localStorage.getItem(this.REFRESH_TOKEN_KEY);
     }
 
     getUserEmail(): string | null {
@@ -57,9 +80,6 @@ export class AuthService {
     isAuthenticated(): boolean {
         if (!this.hasToken()) return false;
         if (this.isTokenExpired()) {
-            localStorage.removeItem(this.TOKEN_KEY);
-            localStorage.removeItem(this.EMAIL_KEY);
-            this.isAuthenticatedSubject.next(false);
             return false;
         }
         return true;
@@ -70,8 +90,7 @@ export class AuthService {
         if (!token) return true;
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
-            if (!payload.exp) return false;
-            return (payload.exp * 1000) < Date.now();
+            if (!payload.exp) return false;            return (payload.exp * 1000) < (Date.now() + 30000);
         } catch {
             return true;
         }
@@ -91,6 +110,7 @@ export class AuthService {
 
     private handleAuthSuccess(response: AuthResponse): void {
         localStorage.setItem(this.TOKEN_KEY, response.token);
+        localStorage.setItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
         localStorage.setItem(this.EMAIL_KEY, response.email);
         this.isAuthenticatedSubject.next(true);
     }
