@@ -1,9 +1,12 @@
 package com.teamflow.controller;
 
+import com.teamflow.dto.AuditLogDTO;
 import com.teamflow.dto.MembershipDTO;
 import com.teamflow.dto.validation.Create;
 import com.teamflow.dto.validation.Update;
+import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.service.interfaces.MembershipService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,13 +16,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class MembershipController {
 
     private final MembershipService membershipService;
-
-    public MembershipController(MembershipService membershipService) {
-        this.membershipService = membershipService;
-    }
+    private final AuditLogService auditLogService;
 
     @GetMapping("/projects/{projectId}/members")
     public ResponseEntity<List<MembershipDTO>> getMembershipsByProjectId(@PathVariable Long projectId) {
@@ -42,5 +43,10 @@ public class MembershipController {
     public ResponseEntity<Void> removeMember(@PathVariable Long id) {
         membershipService.removeMember(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/projects/{projectId}/members/history")
+    public ResponseEntity<List<AuditLogDTO>> getMembershipHistory(@PathVariable Long projectId) {
+        return ResponseEntity.ok(auditLogService.getLogsByEntity("Membership", projectId));
     }
 }
