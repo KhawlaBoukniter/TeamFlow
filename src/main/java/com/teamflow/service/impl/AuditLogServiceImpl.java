@@ -24,8 +24,19 @@ public class AuditLogServiceImpl implements AuditLogService {
     @Override
     @Transactional
     public void logAction(String action, String entity, Long entityId, String details) {
-        Long userId = SecurityUtils.getCurrentUserId();
+        Long userId;
+        try {
+            userId = SecurityUtils.getCurrentUserId();
+        } catch (IllegalStateException e) {
+            return;
+        }
         User user = userRepository.findById(userId).orElse(null);
+        logAction(action, entity, entityId, details, user);
+    }
+
+    @Override
+    @Transactional
+    public void logAction(String action, String entity, Long entityId, String details, User user) {
         if (user == null)
             return;
 
