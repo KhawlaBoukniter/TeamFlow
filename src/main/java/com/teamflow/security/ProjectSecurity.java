@@ -24,19 +24,29 @@ public class ProjectSecurity {
 
     public boolean isMember(Long projectId) {
         User currentUser = SecurityUtils.getCurrentUser();
+        System.out.println("[DEBUG isMember] projectId=" + projectId + " currentUserId=" + currentUser.getId()
+                + " isAdmin=" + currentUser.isAdmin());
         if (currentUser.isAdmin()) {
             return true;
         }
 
         Project project = projectRepository.findById(projectId).orElse(null);
-        if (project == null)
+        if (project == null) {
+            System.out.println("[DEBUG isMember] project is NULL");
             return false;
+        }
 
+        System.out.println(
+                "[DEBUG isMember] project.owner=" + (project.getOwner() != null ? project.getOwner().getId() : "null"));
         if (project.getOwner() != null && project.getOwner().getId().equals(currentUser.getId())) {
+            System.out.println("[DEBUG isMember] User is OWNER -> true");
             return true;
         }
 
-        return membershipRepository.existsByProjectIdAndUserIdAndDeletedAtIsNull(projectId, currentUser.getId());
+        boolean hasMembership = membershipRepository.existsByProjectIdAndUserIdAndDeletedAtIsNull(projectId,
+                currentUser.getId());
+        System.out.println("[DEBUG isMember] hasMembership=" + hasMembership);
+        return hasMembership;
     }
 
     public boolean isManager(Long projectId) {
