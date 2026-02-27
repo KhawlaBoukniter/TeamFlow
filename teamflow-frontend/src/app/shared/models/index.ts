@@ -109,5 +109,16 @@ export interface Attachment {
     createdAt: string;
 }
 
+export interface Notification {
+    id: number;
+    type: 'TASK_ASSIGNED' | 'TASK_MOVED' | 'COMMENT_ADDED' | 'PROJECT_INVITE';
+    message: string;
+    isRead: boolean;
+    readAt?: string;
+    entityType: string;
+    entityId: number;
+    createdAt: string;
+}
+
 export * from './auth.model';
 export * from './audit-log.model';
