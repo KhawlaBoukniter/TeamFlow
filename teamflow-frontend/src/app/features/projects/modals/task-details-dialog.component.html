@@ -372,5 +372,75 @@
             </div>
         </mat-tab>
 
+        <!-- Tab 6: Attachments -->
+        <mat-tab label="Attachments">
+            <div class="p-6">
+                <div class="mb-4 flex items-center justify-between">
+                    <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider">
+                        Attachments ({{ attachments.length }})
+                    </h3>
+                    <div>
+                        <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none">
+                        <button mat-button type="button" (click)="fileInput.click()"
+                            class="!text-[12px] text-brand hover:bg-brand/10">
+                            <mat-icon class="!text-[14px] !w-3.5 !h-3.5">upload</mat-icon>
+                            Upload File
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload Progress -->
+                <div *ngIf="uploadProgress !== null"
+                    class="w-full bg-[#2C2D32] rounded-full h-1.5 mt-1 mb-4 overflow-hidden">
+                    <div class="bg-brand h-full transition-all duration-300" [style.width.%]="uploadProgress"></div>
+                </div>
+
+                <!-- Attachments List -->
+                <div class="space-y-2">
+                    <div *ngFor="let file of attachments"
+                        class="flex items-center justify-between p-3 bg-[#25262B] border border-[#2E3035] rounded-xl hover:border-[#3A3C42] transition-all group">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-[#1C1C1E] text-[#8A8F98] flex items-center justify-center">
+                                <mat-icon class="!text-[18px]">insert_drive_file</mat-icon>
+                            </div>
+                            <div>
+                                <div class="font-medium text-sm text-white line-clamp-1 truncate max-w-[300px]"
+                                    [matTooltip]="file.fileName">
+                                    {{ file.fileName }}
+                                </div>
+                                <div class="flex items-center gap-2 mt-0.5 text-[10px] text-[#8A8F98]">
+                                    <span>{{ formatFileSize(file.fileSize) }}</span>
+                                    <span>•</span>
+                                    <span>Added by {{ file.uploadedByUserName }}</span>
+                                    <span>•</span>
+                                    <span>{{ file.createdAt | date:'short' }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-1">
+                            <button mat-icon-button (click)="downloadAttachment(file)"
+                                class="!w-8 !h-8 attachment-action-btn text-[#8A8F98] hover:text-brand hover:bg-brand/10 transition-all rounded-full"
+                                matTooltip="Download">
+                                <mat-icon class="!text-[18px]">download</mat-icon>
+                            </button>
+                            <button mat-icon-button (click)="deleteAttachment(file.id)"
+                                class="!w-8 !h-8 attachment-action-btn text-[#8A8F98] opacity-0 group-hover:opacity-100 hover:text-red-400 hover:bg-red-500/10 transition-all rounded-full"
+                                matTooltip="Delete">
+                                <mat-icon class="!text-[18px]">delete</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div *ngIf="attachments.length === 0 && uploadProgress === null"
+                        class="flex flex-col items-center justify-center py-12 text-[#8A8F98] bg-[#1C1C1E] rounded-xl border border-dashed border-[#2E3035]">
+                        <mat-icon class="text-[#3A3C42] mb-2 !w-8 !h-8 !text-[48px] h-12">description</mat-icon>
+                        <p class="text-xs text-[#8A8F98]">No attachments found for this task.</p>
+                    </div>
+                </div>
+            </div>
+        </mat-tab>
+
     </mat-tab-group>
 </mat-dialog-content>

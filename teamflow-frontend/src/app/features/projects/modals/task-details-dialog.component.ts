@@ -11,12 +11,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Task, SubTask, Comment, TaskAssignment, User, Membership } from '../../../shared/models';
+import { Task, SubTask, Comment, TaskAssignment, User, Membership, Attachment } from '../../../shared/models';
 import { SubTaskService } from '../../../core/services/subtask.service';
 import { CommentService } from '../../../core/services/comment.service';
 import { TaskService } from '../../../core/services/task.service';
 import { MembershipService } from '../../../core/services/membership.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { AttachmentService } from '../../../core/services/attachment.service';
+import { HttpEventType } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { EditTaskDialogComponent } from '../components/edit-task-dialog/edit-task-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -50,6 +52,8 @@ export class TaskDetailsDialogComponent implements OnInit {
     assignments: TaskAssignment[] = [];
     allTasks: Task[] = []; // List of all tasks in the project (for dependency selection)
     selectedDependencyId: number | null = null;
+    attachments: Attachment[] = [];
+    uploadProgress: number | null = null;
 
     // Assignment Logic
     projectId?: number;
@@ -72,6 +76,7 @@ export class TaskDetailsDialogComponent implements OnInit {
         private taskService: TaskService,
         private membershipService: MembershipService,
         private authService: AuthService,
+        private attachmentService: AttachmentService,
         private fb: FormBuilder,
         private dialog: MatDialog,
         private snackBar: MatSnackBar
@@ -96,6 +101,7 @@ export class TaskDetailsDialogComponent implements OnInit {
         this.loadSubTasks();
         this.loadComments();
         this.loadAssignments();
+        this.loadAttachments();
         if (this.isTeamProject() && this.projectId) {
             this.loadProjectMembers();
         }
@@ -130,6 +136,7 @@ export class TaskDetailsDialogComponent implements OnInit {
             next: (updatedTask) => {
                 this.task = updatedTask;
                 this.assignments = updatedTask.assignments || [];
+                this.attachments = updatedTask.attachments || [];
             },
             error: (err) => console.error('Failed to refresh task assignments', err)
         });
@@ -353,5 +360,67 @@ export class TaskDetailsDialogComponent implements OnInit {
                 this.snackBar.open('Failed to remove dependency', 'Close', { duration: 3000 });
             }
         });
+    }
+
+    loadAttachments(): void {
+        this.attachmentService.getAttachments(this.task.id).subscribe({
+            next: (attachments) => this.attachments = attachments,
+            error: (err) => console.error('Failed to load attachments', err)
+        });
+    }
+
+    onFileSelected(event: any): void {
+        const file: File = event.target.files[0];
+        if (file) {
+            this.attachmentService.upload(this.task.id, file).subscribe({
+                next: (event: any) => {
+                    if (event.type === HttpEventType.UploadProgress) {
+                        this.uploadProgress = Math.round(100 * event.loaded / event.total);
+                    } else if (event.type === HttpEventType.Response) {
+                        this.attachments.push(event.body);
+                        this.uploadProgress = null;
+                        this.snackBar.open('File uploaded successfully', 'Close', { duration: 2000 });
+                    }
+                },
+                error: () => {
+                    this.uploadProgress = null;
+                    this.snackBar.open('File upload failed', 'Close', { duration: 3000 });
+                }
+            });
+        }
+    }
+
+    downloadAttachment(attachment: Attachment): void {
+        this.attachmentService.download(attachment.id).subscribe({
+            next: (blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = attachment.fileName;
+                a.click();
+                window.URL.revokeObjectURL(url);
+            },
+            error: () => {
+                this.snackBar.open('Download failed', 'Close', { duration: 3000 });
+            }
+        });
+    }
+
+    deleteAttachment(attachmentId: number): void {
+        if (!confirm('Are you sure you want to delete this file?')) return;
+
+        this.attachmentService.delete(attachmentId).subscribe({
+            next: () => {
+                this.attachments = this.attachments.filter(a => a.id !== attachmentId);
+                this.snackBar.open('File deleted', 'Close', { duration: 2000 });
+            },
+            error: () => {
+                this.snackBar.open('Delete failed', 'Close', { duration: 3000 });
+            }
+        });
+    }
+
+    formatFileSize(bytes: number): string {
+        return this.attachmentService.getFileSizeDisplay(bytes);
     }
 }
