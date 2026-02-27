@@ -27,6 +27,7 @@ public class TaskServiceImpl implements TaskService {
     private final com.teamflow.repository.UserRepository userRepository;
     private final com.teamflow.repository.TaskAssignmentRepository taskAssignmentRepository;
     private final com.teamflow.repository.TaskDependencyRepository taskDependencyRepository;
+    private final com.teamflow.repository.AttachmentRepository attachmentRepository;
     private final AuditLogService auditLogService;
 
     @Override
@@ -313,6 +314,10 @@ public class TaskServiceImpl implements TaskService {
                 .map(dep -> toSummaryDTO(dep.getDependent()))
                 .collect(Collectors.toList()));
 
+        dto.setAttachments(attachmentRepository.findByTaskIdAndDeletedAtIsNull(task.getId()).stream()
+                .map(this::toAttachmentDTO)
+                .collect(Collectors.toList()));
+
         return dto;
     }
 
@@ -338,5 +343,18 @@ public class TaskServiceImpl implements TaskService {
         dto.setRoleInTask(assignment.getRoleInTask());
         dto.setAssignedAt(assignment.getAssignedAt());
         return dto;
+    }
+
+    private com.teamflow.dto.AttachmentDTO toAttachmentDTO(com.teamflow.entity.Attachment attachment) {
+        return com.teamflow.dto.AttachmentDTO.builder()
+                .id(attachment.getId())
+                .fileName(attachment.getFileName())
+                .fileUrl(attachment.getFileUrl())
+                .fileType(attachment.getFileType())
+                .fileSize(attachment.getFileSize())
+                .uploadedByUserName(
+                        attachment.getUploadedBy() != null ? attachment.getUploadedBy().getFullName() : "Unknown")
+                .createdAt(attachment.getCreatedAt())
+                .build();
     }
 }
