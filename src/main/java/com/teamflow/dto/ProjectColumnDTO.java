@@ -25,6 +25,7 @@ public class ProjectColumnDTO {
 
     private boolean requiresValidation;
 
+    @JsonProperty("isFinal")
     private boolean isFinal;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
