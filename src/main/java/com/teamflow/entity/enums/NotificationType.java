@@ -4,5 +4,8 @@ public enum NotificationType {
     TASK_ASSIGNED,
     TASK_MOVED,
     COMMENT_ADDED,
-    PROJECT_INVITE
+    PROJECT_INVITE,
+    ATTACHMENT_ADDED,
+    TASK_BLOCKED,
+    TASK_UNBLOCKED
 }
