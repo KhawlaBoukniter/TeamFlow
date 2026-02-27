@@ -33,6 +33,7 @@ public class Notification {
     private String entityType;
 
     private Long entityId;
+    private Long projectId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
