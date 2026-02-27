@@ -117,6 +117,7 @@ export interface Notification {
     readAt?: string;
     entityType: string;
     entityId: number;
+    projectId?: number;
     createdAt: string;
 }
 
