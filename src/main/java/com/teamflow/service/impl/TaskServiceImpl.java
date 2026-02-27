@@ -3,6 +3,7 @@ package com.teamflow.service.impl;
 import com.teamflow.dto.TaskDTO;
 import com.teamflow.entity.ProjectColumn;
 import com.teamflow.entity.Task;
+import com.teamflow.entity.User;
 import com.teamflow.exception.ResourceNotFoundException;
 import com.teamflow.repository.ColumnRepository;
 import com.teamflow.repository.TaskRepository;
@@ -126,19 +127,25 @@ public class TaskServiceImpl implements TaskService {
                 "Moved task to column: " + targetColumn.getName());
 
         // Notify assignees of task movement
-        if (updatedTask.getAssignments() != null) {
-            final User currentUser = SecurityUtils.getCurrentUser();
-            updatedTask.getAssignments().forEach(assignment -> {
-                if (!assignment.getUser().getId().equals(currentUser.getId())) {
-                    notificationService.createNotification(
-                        assignment.getUser().getId(),
-                        "Task moved to " + targetColumn.getName() + ": " + updatedTask.getTitle(),
-                        NotificationType.TASK_MOVED,
-                        "TASK",
-                        updatedTask.getId()
-                    );
-                }
-            });
+        try {
+            if (updatedTask.getAssignments() != null && !updatedTask.getAssignments().isEmpty()) {
+                final User currentUser = SecurityUtils.getCurrentUser();
+                updatedTask.getAssignments().forEach(assignment -> {
+                    if (assignment.getUser() != null && !assignment.getUser().getId().equals(currentUser.getId())) {
+                        notificationService.createNotification(
+                            assignment.getUser().getId(),
+                            "La tâche '" + updatedTask.getTitle() + "' a été déplacée vers '" + targetColumn.getName() + "'",
+                            NotificationType.TASK_MOVED,
+                            "TASK",
+                            updatedTask.getId(),
+                            targetColumn.getProject().getId()
+                        );
+                    }
+                });
+            }
+        } catch (Exception e) {
+            // Log but don't fail the move operation if notification fails
+            System.err.println("Failed to send movement notification: " + e.getMessage());
         }
 
         return toDTO(updatedTask);
@@ -189,13 +196,18 @@ public class TaskServiceImpl implements TaskService {
         com.teamflow.entity.TaskAssignment savedAssignment = taskAssignmentRepository.save(assignment);
 
         // Notify user of assignment
-        notificationService.createNotification(
-            userId,
-            "You have been assigned to task: " + task.getTitle(),
-            NotificationType.TASK_ASSIGNED,
-            "TASK",
-            task.getId()
-        );
+        try {
+            notificationService.createNotification(
+                userId,
+                "Vous avez été assigné à la tâche : " + task.getTitle(),
+                NotificationType.TASK_ASSIGNED,
+                "TASK",
+                task.getId(),
+                task.getColumn().getProject().getId()
+            );
+        } catch (Exception e) {
+            // Ignore notification errors
+        }
 
         auditLogService.logAction("ASSIGN", "Task", task.getId(),
                 "Assigned user " + user.getFullName() + " as " + role);
@@ -245,9 +257,31 @@ public class TaskServiceImpl implements TaskService {
         taskDependency.setType(com.teamflow.entity.enums.DependencyType.BLOCKING);
 
         taskDependencyRepository.save(taskDependency);
-        taskDependencyRepository.flush();
 
         updateBlockedStatus(taskId);
+        
+        // Notify assignees of new dependency
+        if (task.getAssignments() != null) {
+            final Long projectId = task.getColumn().getProject().getId();
+            final User currentUser = SecurityUtils.getCurrentUser();
+            task.getAssignments().forEach(assignment -> {
+                try {
+                    if (assignment.getUser() != null && !assignment.getUser().getId().equals(currentUser.getId())) {
+                        notificationService.createNotification(
+                            assignment.getUser().getId(),
+                            currentUser.getFullName() + " a ajouté une dépendance à la tâche : " + task.getTitle(),
+                            NotificationType.TASK_BLOCKED,
+                            "TASK",
+                            task.getId(),
+                            projectId
+                        );
+                    }
+                } catch (Exception e) {
+                    // Ignore notification errors
+                }
+            });
+        }
+
         auditLogService.logAction("ADD_DEPENDENCY", "Task", taskId, "Added dependency on task ID " + dependencyId);
     }
 
@@ -260,7 +294,6 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new ResourceNotFoundException("Dependency not found"));
 
         taskDependencyRepository.delete(dependency);
-        taskDependencyRepository.flush();
         updateBlockedStatus(taskId);
         auditLogService.logAction("REMOVE_DEPENDENCY", "Task", taskId, "Removed dependency on task ID " + dependencyId);
     }
@@ -303,21 +336,29 @@ public class TaskServiceImpl implements TaskService {
             taskRepository.save(task);
 
             // Notify assignees about blocking status change
-            if (task.getAssignments() != null) {
-                String message = shouldBeBlocked ? 
-                    "Task is now BLOCKED: " + task.getTitle() : 
-                    "Task is now UNBLOCKED: " + task.getTitle();
-                NotificationType type = shouldBeBlocked ? NotificationType.TASK_BLOCKED : NotificationType.TASK_UNBLOCKED;
-                
-                task.getAssignments().forEach(assignment -> {
-                    notificationService.createNotification(
-                        assignment.getUser().getId(),
-                        message,
-                        type,
-                        "TASK",
-                        task.getId()
-                    );
-                });
+            try {
+                if (task.getAssignments() != null && !task.getAssignments().isEmpty()) {
+                    String message = shouldBeBlocked ? 
+                        "Task is now BLOCKED: " + task.getTitle() : 
+                        "Task is now UNBLOCKED: " + task.getTitle();
+                    NotificationType type = shouldBeBlocked ? NotificationType.TASK_BLOCKED : NotificationType.TASK_UNBLOCKED;
+                    
+                    final Long projectId = task.getColumn().getProject().getId();
+                    task.getAssignments().forEach(assignment -> {
+                        if (assignment.getUser() != null) {
+                            notificationService.createNotification(
+                                assignment.getUser().getId(),
+                                message,
+                                type,
+                                "TASK",
+                                task.getId(),
+                                projectId
+                            );
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to send blocking status notification: " + e.getMessage());
             }
 
             // Recursively update tasks that depend on this one
