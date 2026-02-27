@@ -56,15 +56,43 @@ public class CommentServiceImpl implements CommentService {
 
         Comment savedComment = commentRepository.save(comment);
 
+        final Long projectId = task.getColumn().getProject().getId();
+
         // Notify task author (if it's not the commenter)
-        if (task.getCreatedBy() != null && !task.getCreatedBy().getId().equals(currentUser.getId())) {
-            notificationService.createNotification(
-                task.getCreatedBy().getId(),
-                "New comment on your task: " + task.getTitle(),
-                NotificationType.COMMENT_ADDED,
-                "TASK",
-                task.getId()
-            );
+        try {
+            if (task.getCreatedBy() != null && !task.getCreatedBy().getId().equals(currentUser.getId())) {
+                notificationService.createNotification(
+                    task.getCreatedBy().getId(),
+                    currentUser.getFullName() + " a commenté votre tâche : " + task.getTitle(),
+                    NotificationType.COMMENT_ADDED,
+                    "TASK",
+                    task.getId(),
+                    projectId
+                );
+            }
+        } catch (Exception e) {
+            // Ignore notification errors
+        }
+
+        // Notify all assignees
+        if (task.getAssignments() != null) {
+            final Long currentUserId = currentUser.getId();
+            task.getAssignments().forEach(assignment -> {
+                try {
+                    if (assignment.getUser() != null && !assignment.getUser().getId().equals(currentUserId)) {
+                        notificationService.createNotification(
+                            assignment.getUser().getId(),
+                            currentUser.getFullName() + " a commenté la tâche : " + task.getTitle(),
+                            NotificationType.COMMENT_ADDED,
+                            "TASK",
+                            task.getId(),
+                            projectId
+                        );
+                    }
+                } catch (Exception e) {
+                    // Ignore notification errors
+                }
+            });
         }
 
         return toDTO(savedComment);
