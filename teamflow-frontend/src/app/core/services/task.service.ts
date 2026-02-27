@@ -19,6 +19,10 @@ export class TaskService {
         return this.http.get<Task>(`${this.apiUrl}/${id}`);
     }
 
+    getMyTasks(): Observable<Task[]> {
+        return this.http.get<Task[]>(`${environment.apiUrl}/dashboard/my-tasks`);
+    }
+
     createTask(columnId: number, task: Partial<Task>): Observable<Task> {
         const payload: any = { ...task };
 

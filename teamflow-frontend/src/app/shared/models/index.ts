@@ -63,6 +63,7 @@ export interface Task {
     priority: TaskPriority;
     dueDate?: string;
     columnId: number;
+    projectName?: string;
     blocked: boolean;
     position: number;
     assignments?: TaskAssignment[];
