@@ -381,6 +381,7 @@ public class TaskServiceImpl implements TaskService {
             dto.setColumnId(task.getColumn().getId());
             if (task.getColumn().getProject() != null) {
                 dto.setProjectName(task.getColumn().getProject().getName());
+                dto.setProjectId(task.getColumn().getProject().getId());
             }
         }
         dto.setCreatedAt(task.getCreatedAt());

@@ -126,7 +126,7 @@
     <div class="flex-1 overflow-x-auto overflow-y-hidden bg-[#09090b] p-5">
 
         <!-- Loading Skeleton -->
-        <div *ngIf="columns.length === 0" class="flex gap-4 h-full">
+        <div *ngIf="isLoading" class="flex gap-4 h-full">
             <div class="bg-[#1C1C1E] border border-[#2E3035] rounded-xl w-[280px] min-w-[280px] p-4"
                 *ngFor="let i of [1,2,3]">
                 <div class="flex items-center justify-between mb-4">
@@ -141,8 +141,21 @@
             </div>
         </div>
 
+        <!-- Empty State (No Columns) -->
+        <div *ngIf="!isLoading && columns.length === 0" class="h-full flex flex-col items-center justify-center animate-fade-in border-2 border-dashed border-[#1C1C1E] rounded-3xl mx-auto max-w-2xl px-8 text-center bg-[#0c0c0e]/50">
+            <div class="p-6 rounded-3xl bg-[#1C1C1E]/50 mb-6 border border-[#2E3035] shadow-2xl">
+                <mat-icon class="!w-12 !h-12 !text-[48px] text-[#3A3C42]">view_column</mat-icon>
+            </div>
+            <h2 class="text-[17px] font-bold text-white mb-2">No columns yet</h2>
+            <p class="text-[14px] text-[#8A8F98] leading-relaxed mb-8 max-w-sm">Every great project starts with structure. Add your first column to begin organizing tasks.</p>
+            <button *ngIf="canManageProject()" (click)="openAddColumnDialog()"
+                class="px-8 py-3 bg-[#5E6AD2] hover:bg-[#4E58B2] text-white rounded-xl text-[14px] font-bold transition-all shadow-xl shadow-[#5E6AD2]/20 btn-press">
+                Setup Board
+            </button>
+        </div>
+
         <!-- Columns (with DnD) -->
-        <div class="flex h-full gap-4 pb-2" *ngIf="columns.length > 0" cdkDropListGroup>
+        <div class="flex h-full gap-4 pb-2" *ngIf="!isLoading && columns.length > 0" cdkDropListGroup>
 
             <div *ngFor="let column of columns"
                 class="bg-[#111113] border border-[#2E3035] rounded-xl flex flex-col w-[280px] min-w-[280px] max-h-full">

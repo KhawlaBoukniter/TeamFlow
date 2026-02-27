@@ -38,6 +38,9 @@ public class TaskDTO {
     private String projectName;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Long projectId;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime createdAt;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

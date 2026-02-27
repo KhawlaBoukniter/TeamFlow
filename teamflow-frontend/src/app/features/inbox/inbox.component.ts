@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationService } from '../../core/services/notification.service';
+import { TaskService } from '../../core/services/task.service';
 import { Notification } from '../../shared/models';
 
 @Component({
@@ -166,11 +167,17 @@ import { Notification } from '../../shared/models';
             <div class="flex flex-col gap-5">
                <h4 class="text-[11px] font-bold text-[#3A3C42] uppercase tracking-[0.2em]">Quick Actions</h4>
                <div class="grid grid-cols-2 gap-4">
-                  <a [routerLink]="['/projects', selectedNotification.projectId, 'board']" [queryParams]="{ taskId: selectedNotification.entityId }"
+                  <a *ngIf="selectedNotification.projectId"
+                     [routerLink]="['/projects', selectedNotification.projectId, 'board']" [queryParams]="{ taskId: selectedNotification.entityId }"
                      class="flex items-center justify-center gap-2.5 px-6 py-3.5 bg-[#1C1C1E] hover:bg-[#2C2C2E] rounded-xl transition-all text-[13px] font-bold border border-[#2E3035] group/btn">
                     <mat-icon class="!w-4 !h-4 !text-[18px] text-[#8A8F98] group-hover/btn:text-white transition-colors">visibility</mat-icon>
                     View Task Context
                   </a>
+                  <div *ngIf="!selectedNotification.projectId" 
+                       class="flex items-center justify-center gap-2.5 px-6 py-3.5 bg-[#1C1C1E]/50 rounded-xl text-[13px] font-bold border border-[#2E3035] text-[#8A8F98] cursor-wait">
+                    <mat-icon class="!w-4 !h-4 !text-[18px] animate-spin">refresh</mat-icon>
+                    Refreshing context...
+                  </div>
                   <button class="flex items-center justify-center gap-2.5 px-6 py-3.5 bg-transparent hover:bg-[#1C1C1E] rounded-xl transition-all text-[13px] font-bold border border-transparent hover:border-[#2E3035] text-[#8A8F98] hover:text-[#EDEDED]">
                     <mat-icon class="!w-4 !h-4 !text-[18px]">reply</mat-icon>
                     Reply Directly
@@ -231,6 +238,7 @@ import { Notification } from '../../shared/models';
 })
 export class InboxComponent implements OnInit {
   private notificationService = inject(NotificationService);
+  private taskService = inject(TaskService);
   notifications: Notification[] = [];
   selectedNotification: Notification | null = null;
 
@@ -255,6 +263,18 @@ export class InboxComponent implements OnInit {
     this.selectedNotification = notif;
     if (!notif.isRead) {
       this.markAsRead(notif);
+    }
+
+    // Repair context if missing
+    if (!notif.projectId && notif.entityType === 'TASK') {
+      this.taskService.getTaskById(notif.entityId).subscribe({
+        next: (task) => {
+          if (task.projectId) {
+            notif.projectId = task.projectId;
+          }
+        },
+        error: () => console.warn('Could not repair notification context')
+      });
     }
   }
 

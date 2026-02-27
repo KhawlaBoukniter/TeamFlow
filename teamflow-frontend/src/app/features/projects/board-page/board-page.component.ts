@@ -54,6 +54,7 @@ export class BoardPageComponent implements OnInit {
   columns: ProjectColumn[] = [];
   tasksByColumn: { [key: number]: Task[] } = {};
   connectedTo: string[] = [];
+  isLoading: boolean = true;
 
   // Filtering
   searchQuery: string = '';
@@ -98,11 +99,37 @@ export class BoardPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const projectId = Number(this.route.snapshot.paramMap.get('id'));
-    if (projectId) {
-      this.loadProject(projectId);
-      this.loadColumns(projectId);
-    }
+    // Reactive route handling
+    this.route.paramMap.subscribe(params => {
+      const projectId = Number(params.get('id'));
+      if (projectId) {
+        this.loadProject(projectId);
+        this.loadColumns(projectId);
+      }
+    });
+
+    // Handle taskId from query params to auto-open task details
+    this.route.queryParamMap.subscribe(params => {
+      const taskId = params.get('taskId');
+      if (taskId) {
+        this.autoOpenTask(Number(taskId));
+      }
+    });
+  }
+
+  private autoOpenTask(taskId: number): void {
+    // Wait for tasks to be loaded
+    const checkTasks = setInterval(() => {
+      const allTasks = Object.values(this.tasksByColumn).flat();
+      const task = allTasks.find(t => t.id === taskId);
+      if (task) {
+        this.openTaskDetails(task);
+        clearInterval(checkTasks);
+      }
+    }, 500);
+
+    // Timeout after 5 seconds
+    setTimeout(() => clearInterval(checkTasks), 5000);
   }
 
   loadProject(id: number): void {
@@ -110,15 +137,18 @@ export class BoardPageComponent implements OnInit {
   }
 
   loadColumns(projectId: number): void {
+    this.isLoading = true;
     this.columnService.getColumnsByProject(projectId).subscribe({
       next: (cols) => {
         this.columns = cols.sort((a, b) => a.orderIndex - b.orderIndex);
         this.connectedTo = this.columns.map(c => `col-${c.id}`);
         this.columns.forEach(col => this.loadTasks(col.id));
+        this.isLoading = false;
       },
       error: (err) => {
         console.error('Failed to load columns', err);
         this.snackBar.open('Failed to load board columns', 'Close', { duration: 5000 });
+        this.isLoading = false;
       }
     });
   }
