@@ -9,6 +9,8 @@ import com.teamflow.repository.AttachmentRepository;
 import com.teamflow.repository.TaskRepository;
 import com.teamflow.security.SecurityUtils;
 import com.teamflow.service.interfaces.AttachmentService;
+import com.teamflow.service.interfaces.NotificationService;
+import com.teamflow.entity.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -32,6 +34,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     private final AttachmentRepository attachmentRepository;
     private final TaskRepository taskRepository;
+    private final NotificationService notificationService;
     private final Path root = Paths.get("uploads");
 
     @Override
@@ -65,6 +68,23 @@ public class AttachmentServiceImpl implements AttachmentService {
             attachment.setUploadedBy(currentUser);
 
             Attachment saved = attachmentRepository.save(attachment);
+
+            // Notify task assignees about the new attachment
+            if (task.getAssignments() != null) {
+                task.getAssignments().forEach(assignment -> {
+                    // Don't notify the uploader
+                    if (!assignment.getUser().getId().equals(currentUser.getId())) {
+                        notificationService.createNotification(
+                            assignment.getUser().getId(),
+                            "New attachment added to task: " + task.getTitle() + " by " + currentUser.getFullName(),
+                            NotificationType.ATTACHMENT_ADDED,
+                            "TASK",
+                            task.getId()
+                        );
+                    }
+                });
+            }
+
             return toDTO(saved);
 
         } catch (IOException e) {
