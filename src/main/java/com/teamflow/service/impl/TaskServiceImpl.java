@@ -8,6 +8,7 @@ import com.teamflow.repository.ColumnRepository;
 import com.teamflow.repository.TaskRepository;
 import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.service.interfaces.TaskService;
+import com.teamflow.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -120,6 +121,15 @@ public class TaskServiceImpl implements TaskService {
         auditLogService.logAction("MOVE", "Task", updatedTask.getId(),
                 "Moved task to column: " + targetColumn.getName());
         return toDTO(updatedTask);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TaskDTO> getMyActiveTasks() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        return taskRepository.findActiveTasksByUserId(userId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -280,6 +290,9 @@ public class TaskServiceImpl implements TaskService {
         dto.setBlocked(task.isBlocked());
         if (task.getColumn() != null) {
             dto.setColumnId(task.getColumn().getId());
+            if (task.getColumn().getProject() != null) {
+                dto.setProjectName(task.getColumn().getProject().getName());
+            }
         }
         dto.setCreatedAt(task.getCreatedAt());
         dto.setUpdatedAt(task.getUpdatedAt());

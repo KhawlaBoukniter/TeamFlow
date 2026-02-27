@@ -1,5 +1,6 @@
 package com.teamflow.service.interfaces;
 
+import com.teamflow.dto.TaskAssignmentDTO;
 import com.teamflow.dto.TaskDTO;
 import java.util.List;
 
@@ -14,7 +15,9 @@ public interface TaskService {
 
     TaskDTO moveTask(Long taskId, Long targetColumnId);
 
-    com.teamflow.dto.TaskAssignmentDTO assignUserToTask(Long taskId, Long userId, String role);
+    List<TaskDTO> getMyActiveTasks();
+
+    TaskAssignmentDTO assignUserToTask(Long taskId, Long userId, String role);
 
     void removeAssignment(Long taskId, Long userId);
 
