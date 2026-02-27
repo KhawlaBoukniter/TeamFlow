@@ -79,13 +79,18 @@ public class MembershipServiceImpl implements MembershipService {
                                                 + project.getName());
 
                 // Notify user of project invitation
-                notificationService.createNotification(
+                try {
+                    notificationService.createNotification(
                         user.getId(),
-                        "You have been added to project: " + project.getName(),
+                        "Vous avez été ajouté au projet : " + project.getName(),
                         NotificationType.PROJECT_INVITE,
                         "PROJECT",
+                        project.getId(),
                         project.getId()
-                );
+                    );
+                } catch (Exception e) {
+                    // Ignore notification errors to avoid rolling back the main transaction
+                }
 
                 return toDTO(savedMembership);
         }
