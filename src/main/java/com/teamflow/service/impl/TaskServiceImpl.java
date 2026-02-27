@@ -124,6 +124,23 @@ public class TaskServiceImpl implements TaskService {
 
         auditLogService.logAction("MOVE", "Task", updatedTask.getId(),
                 "Moved task to column: " + targetColumn.getName());
+
+        // Notify assignees of task movement
+        if (updatedTask.getAssignments() != null) {
+            final User currentUser = SecurityUtils.getCurrentUser();
+            updatedTask.getAssignments().forEach(assignment -> {
+                if (!assignment.getUser().getId().equals(currentUser.getId())) {
+                    notificationService.createNotification(
+                        assignment.getUser().getId(),
+                        "Task moved to " + targetColumn.getName() + ": " + updatedTask.getTitle(),
+                        NotificationType.TASK_MOVED,
+                        "TASK",
+                        updatedTask.getId()
+                    );
+                }
+            });
+        }
+
         return toDTO(updatedTask);
     }
 
@@ -284,6 +301,24 @@ public class TaskServiceImpl implements TaskService {
         if (task.isBlocked() != shouldBeBlocked) {
             task.setBlocked(shouldBeBlocked);
             taskRepository.save(task);
+
+            // Notify assignees about blocking status change
+            if (task.getAssignments() != null) {
+                String message = shouldBeBlocked ? 
+                    "Task is now BLOCKED: " + task.getTitle() : 
+                    "Task is now UNBLOCKED: " + task.getTitle();
+                NotificationType type = shouldBeBlocked ? NotificationType.TASK_BLOCKED : NotificationType.TASK_UNBLOCKED;
+                
+                task.getAssignments().forEach(assignment -> {
+                    notificationService.createNotification(
+                        assignment.getUser().getId(),
+                        message,
+                        type,
+                        "TASK",
+                        task.getId()
+                    );
+                });
+            }
 
             // Recursively update tasks that depend on this one
             List<com.teamflow.entity.TaskDependency> dependents = taskDependencyRepository.findByPrerequisiteId(taskId);
