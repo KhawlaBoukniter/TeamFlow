@@ -7,7 +7,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ProjectService } from '../../core/services/project.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Project } from '../../shared/models';
+import { TaskService } from '../../core/services/task.service';
+import { Project, Task } from '../../shared/models';
 import { ProjectCreateDialogComponent } from '../projects/components/project-create-dialog/project-create-dialog.component';
 
 @Component({
@@ -25,10 +26,12 @@ import { ProjectCreateDialogComponent } from '../projects/components/project-cre
 })
 export class DashboardComponent implements OnInit {
     projects: Project[] = [];
+    myTasks: Task[] = [];
     loading = true;
 
     private projectService = inject(ProjectService);
     private authService = inject(AuthService);
+    private taskService = inject(TaskService);
     private router = inject(Router);
     private dialog = inject(MatDialog);
 
@@ -83,7 +86,20 @@ export class DashboardComponent implements OnInit {
 
     ngOnInit(): void {
         this.projectService.getAllProjects().subscribe({
-            next: data => { this.projects = data; this.loading = false; },
+            next: (data) => {
+                this.projects = data;
+
+                // Fetch my active tasks after projects to keep loading state unified
+                this.taskService.getMyTasks().subscribe({
+                    next: (tasks) => {
+                        this.myTasks = tasks;
+                        this.loading = false;
+                    },
+                    error: () => {
+                        this.loading = false;
+                    }
+                });
+            },
             error: () => { this.loading = false; }
         });
     }
@@ -126,5 +142,17 @@ export class DashboardComponent implements OnInit {
 
     isOverdue(p: Project): boolean {
         return !!p.endDate && new Date(p.endDate) < new Date();
+    }
+
+    getTaskDaysLeft(t: Task): string {
+        if (!t.dueDate) return '';
+        const diff = Math.ceil((new Date(t.dueDate).getTime() - Date.now()) / 86400000);
+        if (diff < 0) return 'Overdue';
+        if (diff === 0) return 'Due today';
+        return `${diff}d left`;
+    }
+
+    isTaskOverdue(t: Task): boolean {
+        return !!t.dueDate && new Date(t.dueDate) < new Date();
     }
 }
