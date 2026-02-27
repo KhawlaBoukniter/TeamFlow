@@ -26,7 +26,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public void createNotification(Long userId, String message, NotificationType type, String entityType,
-            Long entityId) {
+            Long entityId, Long projectId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -36,6 +36,9 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setType(type);
         notification.setEntityType(entityType);
         notification.setEntityId(entityId);
+        notification.setProjectId(projectId);
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setUpdatedAt(LocalDateTime.now());
 
         notificationRepository.save(notification);
     }
@@ -63,6 +66,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         notification.setRead(true);
         notification.setReadAt(LocalDateTime.now());
+        notification.setUpdatedAt(LocalDateTime.now());
         notificationRepository.save(notification);
     }
 
@@ -93,6 +97,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .readAt(notification.getReadAt())
                 .entityType(notification.getEntityType())
                 .entityId(notification.getEntityId())
+                .projectId(notification.getProjectId())
                 .createdAt(notification.getCreatedAt())
                 .build();
     }

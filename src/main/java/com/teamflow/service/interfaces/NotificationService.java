@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface NotificationService {
 
-    void createNotification(Long userId, String message, NotificationType type, String entityType, Long entityId);
+    void createNotification(Long userId, String message, NotificationType type, String entityType, Long entityId, Long projectId);
 
     List<NotificationDTO> getRecentNotifications(Long userId, int limit);
 
