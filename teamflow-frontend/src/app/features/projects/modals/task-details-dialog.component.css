@@ -34,6 +34,22 @@
     margin-top: 1rem;
 }
 
+/* Centering for icon buttons */
+.icon-btn-centered {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+}
+
+.icon-btn-centered mat-icon {
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: normal !important;
+}
+
 /* Centering for attachment buttons */
 .attachment-action-btn {
     display: flex !important;
