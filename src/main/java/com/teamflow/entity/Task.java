@@ -39,6 +39,10 @@ public class Task {
     @com.fasterxml.jackson.annotation.JsonIgnore
     private ProjectColumn column;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_user_id", nullable = true)
+    private User createdBy;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
