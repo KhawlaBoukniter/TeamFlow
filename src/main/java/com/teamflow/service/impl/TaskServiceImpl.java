@@ -9,6 +9,8 @@ import com.teamflow.repository.TaskRepository;
 import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.service.interfaces.TaskService;
 import com.teamflow.security.SecurityUtils;
+import com.teamflow.service.interfaces.NotificationService;
+import com.teamflow.entity.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ public class TaskServiceImpl implements TaskService {
     private final com.teamflow.repository.TaskAssignmentRepository taskAssignmentRepository;
     private final com.teamflow.repository.TaskDependencyRepository taskDependencyRepository;
     private final com.teamflow.repository.AttachmentRepository attachmentRepository;
+    private final NotificationService notificationService;
     private final AuditLogService auditLogService;
 
     @Override
@@ -167,6 +170,15 @@ public class TaskServiceImpl implements TaskService {
         assignment.setRoleInTask(com.teamflow.entity.enums.RoleInTask.valueOf(role));
 
         com.teamflow.entity.TaskAssignment savedAssignment = taskAssignmentRepository.save(assignment);
+
+        // Notify user of assignment
+        notificationService.createNotification(
+            userId,
+            "You have been assigned to task: " + task.getTitle(),
+            NotificationType.TASK_ASSIGNED,
+            "TASK",
+            task.getId()
+        );
 
         auditLogService.logAction("ASSIGN", "Task", task.getId(),
                 "Assigned user " + user.getFullName() + " as " + role);

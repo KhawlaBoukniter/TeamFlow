@@ -4,11 +4,13 @@ import com.teamflow.dto.CommentDTO;
 import com.teamflow.entity.Comment;
 import com.teamflow.entity.Task;
 import com.teamflow.entity.User;
+import com.teamflow.entity.enums.NotificationType;
 import com.teamflow.exception.ResourceNotFoundException;
 import com.teamflow.repository.CommentRepository;
 import com.teamflow.repository.TaskRepository;
 import com.teamflow.security.SecurityUtils;
 import com.teamflow.service.interfaces.CommentService;
+import com.teamflow.service.interfaces.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -52,6 +55,18 @@ public class CommentServiceImpl implements CommentService {
         comment.setAuthor(currentUser);
 
         Comment savedComment = commentRepository.save(comment);
+
+        // Notify task author (if it's not the commenter)
+        if (task.getCreatedBy() != null && !task.getCreatedBy().getId().equals(currentUser.getId())) {
+            notificationService.createNotification(
+                task.getCreatedBy().getId(),
+                "New comment on your task: " + task.getTitle(),
+                NotificationType.COMMENT_ADDED,
+                "TASK",
+                task.getId()
+            );
+        }
+
         return toDTO(savedComment);
     }
 
