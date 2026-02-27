@@ -69,9 +69,9 @@ export interface Task {
     assignments?: TaskAssignment[];
     assignees?: User[];
     subTasks?: SubTask[];
-    comments?: Comment[];
     blockingTasks?: TaskSummary[];
     blockedTasks?: TaskSummary[];
+    attachments?: Attachment[];
 }
 
 export interface TaskSummary {
@@ -96,6 +96,16 @@ export interface Comment {
     taskId: number;
     authorId: number;
     authorName?: string;
+    createdAt: string;
+}
+
+export interface Attachment {
+    id: number;
+    fileName: string;
+    fileUrl: string;
+    fileType: string;
+    fileSize: number;
+    uploadedByUserName: string;
     createdAt: string;
 }
 
