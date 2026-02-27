@@ -69,18 +69,41 @@ public class AttachmentServiceImpl implements AttachmentService {
 
             Attachment saved = attachmentRepository.save(attachment);
 
+            final Long projectId = task.getColumn().getProject().getId();
+
+            // Notify task author (if not uploader)
+            try {
+                if (task.getCreatedBy() != null && !task.getCreatedBy().getId().equals(currentUser.getId())) {
+                    notificationService.createNotification(
+                        task.getCreatedBy().getId(),
+                        currentUser.getFullName() + " a ajouté une pièce jointe à votre tâche : " + task.getTitle(),
+                        NotificationType.ATTACHMENT_ADDED,
+                        "TASK",
+                        task.getId(),
+                        projectId
+                    );
+                }
+            } catch (Exception e) {
+                // Ignore notification errors
+            }
+
             // Notify task assignees about the new attachment
             if (task.getAssignments() != null) {
                 task.getAssignments().forEach(assignment -> {
-                    // Don't notify the uploader
-                    if (!assignment.getUser().getId().equals(currentUser.getId())) {
-                        notificationService.createNotification(
-                            assignment.getUser().getId(),
-                            "New attachment added to task: " + task.getTitle() + " by " + currentUser.getFullName(),
-                            NotificationType.ATTACHMENT_ADDED,
-                            "TASK",
-                            task.getId()
-                        );
+                    try {
+                        // Don't notify the uploader
+                        if (!assignment.getUser().getId().equals(currentUser.getId())) {
+                            notificationService.createNotification(
+                                assignment.getUser().getId(),
+                                currentUser.getFullName() + " a ajouté une pièce jointe à la tâche : " + task.getTitle(),
+                                NotificationType.ATTACHMENT_ADDED,
+                                "TASK",
+                                task.getId(),
+                                projectId
+                            );
+                        }
+                    } catch (Exception e) {
+                        // Ignore notification errors
                     }
                 });
             }
