@@ -103,6 +103,65 @@
                 Note: This task will be blocked until all prerequisites are moved to a final column.
             </p>
         </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Attachments Section -->
+        <div class="flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <mat-icon class="text-[#8A8F98] !text-[18px]">attach_file</mat-icon>
+                    <span class="text-sm font-semibold text-white">Attachments</span>
+                </div>
+                <div>
+                    <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none">
+                    <button mat-button type="button" (click)="fileInput.click()"
+                        class="!text-[12px] text-brand hover:bg-brand/10">
+                        <mat-icon class="!text-[14px] !w-3.5 !h-3.5">upload</mat-icon>
+                        Upload File
+                    </button>
+                </div>
+            </div>
+
+            <!-- Upload Progress -->
+            <div *ngIf="uploadProgress !== null" class="w-full bg-[#2C2D32] rounded-full h-1.5 mt-1 overflow-hidden">
+                <div class="bg-brand h-full transition-all duration-300" [style.width.%]="uploadProgress"></div>
+            </div>
+
+            <!-- Attachments List -->
+            <div class="flex flex-col gap-2">
+                <div *ngIf="currentAttachments.length === 0 && uploadProgress === null"
+                    class="p-4 rounded-lg border border-dashed border-[#2E3035] flex flex-col items-center justify-center gap-1 opacity-60">
+                    <mat-icon class="text-[#8A8F98]">description</mat-icon>
+                    <span class="text-[11px] text-[#8A8F98]">No attachments yet</span>
+                </div>
+
+                <div *ngFor="let file of currentAttachments"
+                    class="flex items-center gap-3 p-2.5 rounded-lg bg-[#1C1C1E] border border-[#2E3035] group">
+                    <mat-icon class="!text-[18px] text-[#8A8F98]">insert_drive_file</mat-icon>
+                    <div class="flex-1 flex flex-col">
+                        <span class="text-[13px] text-white font-medium line-clamp-1">{{file.fileName}}</span>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span class="text-[10px] text-[#8A8F98]">{{formatFileSize(file.fileSize)}}</span>
+                            <span class="text-[10px] text-[#8A8F98]">•</span>
+                            <span class="text-[10px] text-[#8A8F98]">by {{file.uploadedByUserName}}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button mat-icon-button type="button" (click)="downloadAttachment(file)"
+                            class="!w-8 !h-8 attachment-action-btn text-[#8A8F98] hover:text-brand hover:bg-brand/10 transition-colors rounded-full"
+                            matTooltip="Download">
+                            <mat-icon class="!text-[18px]">download</mat-icon>
+                        </button>
+                        <button mat-icon-button type="button" (click)="deleteAttachment(file.id)"
+                            class="!w-8 !h-8 attachment-action-btn text-[#8A8F98] hover:text-red-400 hover:bg-red-500/10 transition-colors rounded-full"
+                            matTooltip="Delete">
+                            <mat-icon class="!text-[18px]">delete</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </mat-dialog-content>
 
     <mat-dialog-actions align="end" class="gap-3 !px-6 !pb-6 border-t border-[#2E3035]">
