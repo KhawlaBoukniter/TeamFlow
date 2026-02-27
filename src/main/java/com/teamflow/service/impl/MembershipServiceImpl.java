@@ -12,6 +12,8 @@ import com.teamflow.repository.ProjectRepository;
 import com.teamflow.repository.UserRepository;
 import com.teamflow.service.interfaces.MembershipService;
 import com.teamflow.service.interfaces.AuditLogService;
+import com.teamflow.service.interfaces.NotificationService;
+import com.teamflow.entity.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class MembershipServiceImpl implements MembershipService {
         private final ProjectRepository projectRepository;
         private final UserRepository userRepository;
         private final AuditLogService auditLogService;
+        private final NotificationService notificationService;
 
         @Override
         @Transactional(readOnly = true)
@@ -74,6 +77,15 @@ public class MembershipServiceImpl implements MembershipService {
                 auditLogService.logAction("ADD_MEMBER", "Membership", savedMembership.getId(),
                                 "Added user " + user.getEmail() + " as " + dto.getRoleInProject() + " to project "
                                                 + project.getName());
+
+                // Notify user of project invitation
+                notificationService.createNotification(
+                        user.getId(),
+                        "You have been added to project: " + project.getName(),
+                        NotificationType.PROJECT_INVITE,
+                        "PROJECT",
+                        project.getId()
+                );
 
                 return toDTO(savedMembership);
         }
