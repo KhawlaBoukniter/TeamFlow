@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 import { BRANDING } from '../../constants/branding';
 
 @Component({
@@ -37,13 +38,16 @@ import { BRANDING } from '../../constants/branding';
           <mat-icon class="!w-4 !h-4 !text-[16px]">space_dashboard</mat-icon>
           <span class="text-[13px]">Dashboard</span>
         </a>
-        <div
-          matTooltip="Coming soon"
-          matTooltipPosition="right"
-          class="flex items-center gap-3 px-2 py-1.5 rounded-md opacity-thirty cursor-not-allowed pointer-events-none select-none">
+        <a routerLink="/inbox"
+           routerLinkActive="!bg-[#25262B] !text-white font-medium"
+           class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-[#1C1C1E] hover:text-white transition-colors cursor-pointer text-[#8A8F98] relative group">
           <mat-icon class="!w-4 !h-4 !text-[16px]">inbox</mat-icon>
-          <span class="text-[13px]">Inbox</span>
-        </div>
+          <span class="text-[13px] flex-1">Inbox</span>
+          <span *ngIf="(unreadCount$ | async) || 0 > 0"
+                class="min-w-[16px] h-4 px-1 bg-[#5E6AD2] text-white text-[9px] font-bold flex items-center justify-center rounded-sm">
+            {{ unreadCount$ | async }}
+          </span>
+        </a>
         <div
           matTooltip="Coming soon"
           matTooltipPosition="right"
@@ -134,7 +138,14 @@ import { BRANDING } from '../../constants/branding';
 export class SidebarComponent {
   readonly BRANDING = BRANDING;
   authService = inject(AuthService);
+  notificationService = inject(NotificationService);
   router = inject(Router);
+
+  unreadCount$ = this.notificationService.unreadCount$;
+
+  ngOnInit() {
+    this.notificationService.refreshUnreadCount();
+  }
 
   get userEmail(): string {
     return this.authService.getUserEmail() || 'User';
