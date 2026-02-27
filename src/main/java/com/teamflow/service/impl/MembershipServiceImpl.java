@@ -5,7 +5,7 @@ import com.teamflow.entity.Membership;
 import com.teamflow.entity.Project;
 import com.teamflow.entity.User;
 import com.teamflow.entity.enums.ProjectType;
-import com.teamflow.exception.AccessDeniedException;
+// Removed AccessDeniedException import
 import com.teamflow.exception.ResourceNotFoundException;
 import com.teamflow.repository.MembershipRepository;
 import com.teamflow.repository.ProjectRepository;
@@ -58,7 +58,7 @@ public class MembershipServiceImpl implements MembershipService {
                                                 "Project not found with id: " + projectId));
 
                 if (project.getType() == ProjectType.PERSONAL) {
-                        throw new AccessDeniedException("Cannot add members to a personal project");
+                        throw new IllegalStateException("Cannot add members to a personal project");
                 }
 
                 User user = userRepository.findById(dto.getUserId())

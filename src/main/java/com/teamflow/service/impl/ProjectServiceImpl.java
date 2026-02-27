@@ -7,7 +7,6 @@ import com.teamflow.entity.Project;
 import com.teamflow.entity.ProjectColumn;
 import com.teamflow.entity.User;
 import com.teamflow.entity.enums.RoleInProject;
-import com.teamflow.exception.AccessDeniedException;
 import com.teamflow.exception.ResourceNotFoundException;
 import com.teamflow.repository.ColumnRepository;
 import com.teamflow.repository.MembershipRepository;

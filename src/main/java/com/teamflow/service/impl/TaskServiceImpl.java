@@ -81,7 +81,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    @PreAuthorize("@projectSecurity.isManagerForTask(#id)")
+    @PreAuthorize("@projectSecurity.isMemberForTask(#id)")
     public TaskDTO updateTask(Long id, TaskDTO dto) {
         Task task = taskRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
@@ -107,7 +107,7 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
 
         if (task.isBlocked()) {
-            throw new com.teamflow.exception.AccessDeniedException(
+            throw new IllegalStateException(
                     "Cannot move a blocked task. Resolve its dependencies first.");
         }
 
@@ -229,7 +229,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    @PreAuthorize("@projectSecurity.isManagerForTask(#taskId)")
+    @PreAuthorize("@projectSecurity.isMemberForTask(#taskId)")
     public void addDependency(Long taskId, Long dependencyId) {
         if (taskId.equals(dependencyId)) {
             throw new IllegalArgumentException("A task cannot depend on itself");
@@ -287,7 +287,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    @PreAuthorize("@projectSecurity.isManagerForTask(#taskId)")
+    @PreAuthorize("@projectSecurity.isMemberForTask(#taskId)")
     public void removeDependency(Long taskId, Long dependencyId) {
         com.teamflow.entity.TaskDependency dependency = taskDependencyRepository
                 .findByDependentIdAndPrerequisiteId(taskId, dependencyId)

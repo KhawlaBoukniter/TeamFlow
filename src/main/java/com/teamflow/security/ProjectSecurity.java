@@ -51,6 +51,9 @@ public class ProjectSecurity {
 
     public boolean isManager(Long projectId) {
         User currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser.isAdmin()) {
+            return true;
+        }
 
         Project project = projectRepository.findById(projectId).orElse(null);
         if (project == null)
