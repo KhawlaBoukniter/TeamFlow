@@ -205,6 +205,7 @@ public class TaskServiceImpl implements TaskService {
         taskDependency.setType(com.teamflow.entity.enums.DependencyType.BLOCKING);
 
         taskDependencyRepository.save(taskDependency);
+        taskDependencyRepository.flush();
 
         updateBlockedStatus(taskId);
         auditLogService.logAction("ADD_DEPENDENCY", "Task", taskId, "Added dependency on task ID " + dependencyId);
@@ -219,6 +220,7 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new ResourceNotFoundException("Dependency not found"));
 
         taskDependencyRepository.delete(dependency);
+        taskDependencyRepository.flush();
         updateBlockedStatus(taskId);
         auditLogService.logAction("REMOVE_DEPENDENCY", "Task", taskId, "Removed dependency on task ID " + dependencyId);
     }
