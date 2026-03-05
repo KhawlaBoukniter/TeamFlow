@@ -13,6 +13,11 @@
 </head>
 
 <body>
+  <script>
+    // Polyfill: SockJS expects Node.js 'global' variable
+    if (typeof globalThis !== 'undefined') { globalThis.global = globalThis; }
+    else if (typeof window !== 'undefined') { window.global = window; }
+  </script>
   <app-root></app-root>
 </body>
 
