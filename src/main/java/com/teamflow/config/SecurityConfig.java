@@ -44,6 +44,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/health").permitAll()
                         .requestMatchers("/api/notifications/**").authenticated()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

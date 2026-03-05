@@ -144,7 +144,6 @@ public class TaskServiceImpl implements TaskService {
                 });
             }
         } catch (Exception e) {
-            // Log but don't fail the move operation if notification fails
             System.err.println("Failed to send movement notification: " + e.getMessage());
         }
 

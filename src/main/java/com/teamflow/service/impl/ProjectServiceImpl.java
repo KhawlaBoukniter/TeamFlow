@@ -13,6 +13,7 @@ import com.teamflow.repository.MembershipRepository;
 import com.teamflow.repository.ProjectRepository;
 import com.teamflow.security.SecurityUtils;
 import com.teamflow.service.interfaces.AuditLogService;
+import com.teamflow.service.interfaces.ChatRoomService;
 import com.teamflow.service.interfaces.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,6 +32,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ColumnRepository columnRepository;
     private final MembershipRepository membershipRepository;
     private final AuditLogService auditLogService;
+    private final ChatRoomService chatRoomService;
 
     @Override
     @Transactional(readOnly = true)
@@ -83,6 +85,8 @@ public class ProjectServiceImpl implements ProjectService {
         ownerMembership.setRoleInProject(RoleInProject.MANAGER);
         ownerMembership.setJoinedAt(LocalDateTime.now());
         membershipRepository.save(ownerMembership);
+
+        chatRoomService.createChatRoom(savedProject);
 
         auditLogService.logAction("CREATE", "Project", savedProject.getId(), "Created project: " + dto.getName());
 

@@ -1997,6 +1997,71 @@
             ]
         },
         {
+            "name": "Chat",
+            "item": [
+                {
+                    "name": "Get Chat Room for Project",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/projects/{{projectId}}/chat-room",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "projects",
+                                "{{projectId}}",
+                                "chat-room"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Message History",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/chat-rooms/{{chatRoomId}}/messages",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chat-rooms",
+                                "{{chatRoomId}}",
+                                "messages"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
             "name": "Audit Logs (Admin)",
             "item": [
                 {
@@ -2099,6 +2164,11 @@
         },
         {
             "key": "attachmentId",
+            "value": "1",
+            "type": "string"
+        },
+        {
+            "key": "chatRoomId",
             "value": "1",
             "type": "string"
         }
