@@ -119,6 +119,14 @@
             <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">group</mat-icon>
             Members
         </button>
+
+        <!-- Chat Toggle -->
+        <button *ngIf="project?.type === 'TEAM'" (click)="chatWindow.toggle()"
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[12px] text-[#8A8F98] hover:bg-[#1C1C1E] hover:text-white rounded-md transition-colors"
+            [class.text-brand-400]="isChatOpen" [class.bg-[#1C1C1E]]="isChatOpen">
+            <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">chat_bubble_outline</mat-icon>
+            Chat
+        </button>
     </div>
 
 
@@ -142,12 +150,14 @@
         </div>
 
         <!-- Empty State (No Columns) -->
-        <div *ngIf="!isLoading && columns.length === 0" class="h-full flex flex-col items-center justify-center animate-fade-in border-2 border-dashed border-[#1C1C1E] rounded-3xl mx-auto max-w-2xl px-8 text-center bg-[#0c0c0e]/50">
+        <div *ngIf="!isLoading && columns.length === 0"
+            class="h-full flex flex-col items-center justify-center animate-fade-in border-2 border-dashed border-[#1C1C1E] rounded-3xl mx-auto max-w-2xl px-8 text-center bg-[#0c0c0e]/50">
             <div class="p-6 rounded-3xl bg-[#1C1C1E]/50 mb-6 border border-[#2E3035] shadow-2xl">
                 <mat-icon class="!w-12 !h-12 !text-[48px] text-[#3A3C42]">view_column</mat-icon>
             </div>
             <h2 class="text-[17px] font-bold text-white mb-2">No columns yet</h2>
-            <p class="text-[14px] text-[#8A8F98] leading-relaxed mb-8 max-w-sm">Every great project starts with structure. Add your first column to begin organizing tasks.</p>
+            <p class="text-[14px] text-[#8A8F98] leading-relaxed mb-8 max-w-sm">Every great project starts with
+                structure. Add your first column to begin organizing tasks.</p>
             <button *ngIf="canManageProject()" (click)="openAddColumnDialog()"
                 class="px-8 py-3 bg-[#5E6AD2] hover:bg-[#4E58B2] text-white rounded-xl text-[14px] font-bold transition-all shadow-xl shadow-[#5E6AD2]/20 btn-press">
                 Setup Board
@@ -291,4 +301,7 @@
             </div>
         </div>
     </div>
+
+    <!-- Chat Window (Slide-in Panel) -->
+    <app-chat-window #chatWindow [projectId]="project?.id || 0"></app-chat-window>
 </div>

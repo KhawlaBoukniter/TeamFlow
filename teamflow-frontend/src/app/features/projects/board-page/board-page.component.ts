@@ -23,6 +23,7 @@ import { CreateColumnDialogComponent } from '../components/create-column-dialog/
 import { CreateTaskDialogComponent } from '../components/create-task-dialog/create-task-dialog.component';
 import { EditTaskDialogComponent } from '../components/edit-task-dialog/edit-task-dialog.component';
 import { MembersDialogComponent } from '../components/members-dialog/members-dialog.component';
+import { ChatWindowComponent } from '../components/chat-window/chat-window.component';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -44,7 +45,8 @@ import { FormsModule } from '@angular/forms';
     CreateTaskDialogComponent,
     MatTooltipModule,
     MatDividerModule,
-    FormsModule
+    FormsModule,
+    ChatWindowComponent
   ],
   templateUrl: './board-page.component.html',
   styleUrl: './board-page.component.css'
@@ -55,6 +57,7 @@ export class BoardPageComponent implements OnInit {
   tasksByColumn: { [key: number]: Task[] } = {};
   connectedTo: string[] = [];
   isLoading: boolean = true;
+  isChatOpen = false;
 
   // Filtering
   searchQuery: string = '';
