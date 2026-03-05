@@ -1,0 +1,103 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { ChatRoom, ChatMessage } from '../../shared/models';
+import { AuthService } from './auth.service';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { Client, IMessage } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class ChatService {
+    private readonly API_URL = environment.apiUrl;
+    private readonly WS_URL = 'http://localhost:8080/ws';
+
+    private http = inject(HttpClient);
+    private authService = inject(AuthService);
+
+    private stompClient: Client | null = null;
+    private messagesSubject = new BehaviorSubject<ChatMessage[]>([]);
+    private connectedSubject = new BehaviorSubject<boolean>(false);
+
+    public messages$ = this.messagesSubject.asObservable();
+    public connected$ = this.connectedSubject.asObservable();
+
+    private currentRoomId: number | null = null;
+
+    getChatRoom(projectId: number): Observable<ChatRoom> {
+        return this.http.get<ChatRoom>(`${this.API_URL}/projects/${projectId}/chat-room`);
+    }
+
+    getMessageHistory(roomId: number): Observable<ChatMessage[]> {
+        return this.http.get<ChatMessage[]>(`${this.API_URL}/chat-rooms/${roomId}/messages`);
+    }
+
+    connect(roomId: number): void {
+        if (this.stompClient?.active) {
+            this.disconnect();
+        }
+
+        this.currentRoomId = roomId;
+
+        // Load existing messages first
+        this.getMessageHistory(roomId).subscribe({
+            next: (messages) => this.messagesSubject.next(messages),
+            error: () => this.messagesSubject.next([])
+        });
+
+        this.stompClient = new Client({
+            webSocketFactory: () => new SockJS(this.WS_URL),
+            reconnectDelay: 5000,
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
+            onConnect: () => {
+                this.connectedSubject.next(true);
+
+                // Subscribe to the project chat topic
+                this.stompClient?.subscribe(`/topic/chat/${roomId}`, (message: IMessage) => {
+                    const chatMessage: ChatMessage = JSON.parse(message.body);
+                    const currentMessages = this.messagesSubject.value;
+                    this.messagesSubject.next([...currentMessages, chatMessage]);
+                });
+            },
+            onDisconnect: () => {
+                this.connectedSubject.next(false);
+            },
+            onStompError: (frame) => {
+                console.error('STOMP error:', frame.headers['message']);
+                this.connectedSubject.next(false);
+            }
+        });
+
+        this.stompClient.activate();
+    }
+
+    sendMessage(content: string): void {
+        if (!this.stompClient?.active || !this.currentRoomId) return;
+
+        const userId = this.authService.getCurrentUserId();
+        if (!userId) return;
+
+        const message: ChatMessage = {
+            content: content,
+            senderId: userId,
+            chatRoomId: this.currentRoomId
+        };
+
+        this.stompClient.publish({
+            destination: `/app/chat/${this.currentRoomId}`,
+            body: JSON.stringify(message)
+        });
+    }
+
+    disconnect(): void {
+        if (this.stompClient?.active) {
+            this.stompClient.deactivate();
+        }
+        this.currentRoomId = null;
+        this.messagesSubject.next([]);
+        this.connectedSubject.next(false);
+    }
+}
