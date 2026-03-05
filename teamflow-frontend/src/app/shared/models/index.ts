@@ -50,7 +50,7 @@ export interface TaskAssignment {
     id: number;
     taskId: number;
     userId: number;
-    userName?: string; // Enriched from User if needed
+    userName?: string;
     userEmail?: string;
     roleInTask: 'RESPONSABLE' | 'CONTRIBUTOR' | 'OBSERVER';
     assignedAt: string;
@@ -120,6 +120,22 @@ export interface Notification {
     entityId: number;
     projectId?: number;
     createdAt: string;
+}
+
+export interface ChatRoom {
+    id: number;
+    name: string;
+    projectId: number;
+    createdAt: string;
+}
+
+export interface ChatMessage {
+    id?: number;
+    content: string;
+    senderId: number;
+    senderName?: string;
+    chatRoomId: number;
+    createdAt?: string;
 }
 
 export * from './auth.model';
