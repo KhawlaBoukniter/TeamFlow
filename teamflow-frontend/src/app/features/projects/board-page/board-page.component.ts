@@ -57,7 +57,6 @@ export class BoardPageComponent implements OnInit {
   tasksByColumn: { [key: number]: Task[] } = {};
   connectedTo: string[] = [];
   isLoading: boolean = true;
-  isChatOpen = false;
 
   // Filtering
   searchQuery: string = '';

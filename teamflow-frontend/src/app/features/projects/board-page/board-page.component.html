@@ -123,7 +123,7 @@
         <!-- Chat Toggle -->
         <button *ngIf="project?.type === 'TEAM'" (click)="chatWindow.toggle()"
             class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[12px] text-[#8A8F98] hover:bg-[#1C1C1E] hover:text-white rounded-md transition-colors"
-            [class.text-brand-400]="isChatOpen" [class.bg-[#1C1C1E]]="isChatOpen">
+            [class.text-white]="chatWindow.isOpen" [class.bg-[#1C1C1E]]="chatWindow.isOpen">
             <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">chat_bubble_outline</mat-icon>
             Chat
         </button>
