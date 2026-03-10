@@ -7,6 +7,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../shared/models';
@@ -22,7 +23,8 @@ import { User } from '../../../shared/models';
         MatTooltipModule,
         MatSnackBarModule,
         MatChipsModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        MatPaginatorModule
     ],
     templateUrl: './user-management.component.html',
     styles: [`
@@ -40,9 +42,17 @@ import { User } from '../../../shared/models';
         .user-table {
             width: 100%;
             background: #1C1C1E !important;
-            border-radius: 12px;
+            border-radius: 12px 12px 0 0;
             overflow: hidden;
             border: 1px solid #2E3035;
+            border-bottom: none;
+        }
+        ::ng-deep .mat-mdc-paginator {
+            background: #1C1C1E !important;
+            color: #8A8F98 !important;
+            border: 1px solid #2E3035;
+            border-top: 1px solid #2E3035;
+            border-radius: 0 0 12px 12px;
         }
         ::ng-deep .user-table .mat-mdc-header-cell {
             background: #25262B !important;
@@ -75,8 +85,12 @@ export class UserManagementComponent implements OnInit {
     loading = true;
     displayedColumns: string[] = ['fullName', 'email', 'role', 'status', 'lastLogin', 'actions'];
 
+    totalElements = 0;
+    pageSize = 20;
+    pageIndex = 0;
+
     get totalUsers(): number {
-        return this.users.data.length;
+        return this.totalElements;
     }
 
     get adminCount(): number {
@@ -95,11 +109,14 @@ export class UserManagementComponent implements OnInit {
         this.loadUsers();
     }
 
-    loadUsers(): void {
+    loadUsers(page: number = this.pageIndex, size: number = this.pageSize): void {
         this.loading = true;
-        this.userService.getAllUsers().subscribe({
-            next: (data) => {
-                this.users.data = data;
+        this.userService.getAllUsers(page, size).subscribe({
+            next: (response) => {
+                this.users.data = response.content;
+                this.totalElements = response.totalElements;
+                this.pageIndex = response.number;
+                this.pageSize = response.size;
                 this.loading = false;
             },
             error: (err) => {
@@ -108,6 +125,12 @@ export class UserManagementComponent implements OnInit {
                 this.loading = false;
             }
         });
+    }
+
+    onPageChange(event: PageEvent): void {
+        this.pageIndex = event.pageIndex;
+        this.pageSize = event.pageSize;
+        this.loadUsers(this.pageIndex, this.pageSize);
     }
 
     toggleActive(user: User): void {
