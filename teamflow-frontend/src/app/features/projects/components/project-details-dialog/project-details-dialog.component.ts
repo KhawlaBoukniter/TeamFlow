@@ -4,8 +4,10 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angu
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
-import { Project } from '../../../../shared/models';
+import { Project, AuditLog } from '../../../../shared/models';
 import { ProjectEditDialogComponent } from '../project-edit-dialog/project-edit-dialog.component';
+import { AuditLogService } from '../../../../core/services/audit-log.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-project-details-dialog',
@@ -93,15 +95,54 @@ import { ProjectEditDialogComponent } from '../project-edit-dialog/project-edit-
 
         <!-- Tab 2: Members -->
         <mat-tab label="Members" *ngIf="isTeamProject()">
-          <div class="p-8 text-center">
-            <div class="w-12 h-12 rounded-full bg-[#2C2D32] flex items-center justify-center mx-auto mb-3">
-                <mat-icon class="!w-6 !h-6 !text-[24px] text-[#8A8F98]">group</mat-icon>
-            </div>
+          <div class="p-8 text-center text-[#8A8F98]">
+            <mat-icon class="!w-12 !h-12 !text-[48px] mb-4 opacity-20">group</mat-icon>
             <h3 class="text-white font-medium mb-1">Team Members</h3>
-            <p class="text-[#8A8F98] text-sm mb-4">View and manage the team assigned to this project.</p>
+            <p class="text-sm mb-4">View and manage the team assigned to this project.</p>
             <button mat-stroked-button class="!border-[#3A3C42] !text-white !rounded-md" disabled>
                 Manage Members (Coming Soon)
             </button>
+          </div>
+        </mat-tab>
+
+        <!-- Tab 3: Audit Logs -->
+        <mat-tab label="Audit Logs" *ngIf="isManager()">
+          <div class="p-0 max-h-[400px] overflow-y-auto custom-scrollbar">
+            <div *ngIf="loadingLogs" class="p-8 text-center">
+              <span class="text-sm text-[#8A8F98] animate-pulse">Loading logs...</span>
+            </div>
+            
+            <div *ngIf="!loadingLogs && auditLogs.length === 0" class="p-8 text-center text-[#8A8F98]">
+              <mat-icon class="!w-12 !h-12 !text-[48px] mb-4 opacity-20">history</mat-icon>
+              <p class="text-sm">No activities recorded for this project yet.</p>
+            </div>
+
+            <div class="flex flex-col">
+              <div *ngFor="let log of auditLogs" class="p-4 border-b border-[#2E3035] hover:bg-[#2C2D32]/30 transition-colors">
+                <div class="flex items-start gap-3">
+                  <div class="mt-1 w-2 h-2 rounded-full" [ngClass]="getLogActionColor(log.action)"></div>
+                  <div class="flex-1">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-[11px] font-bold text-brand uppercase tracking-wider">{{log.action}}</span>
+                      <span class="text-[10px] text-[#8A8F98]">{{log.createdAt | date:'medium'}}</span>
+                    </div>
+                    <p class="text-sm text-[#D1D5DB] leading-snug mb-1">{{log.details}}</p>
+                    <div class="flex items-center gap-2">
+                       <span class="text-[10px] text-[#8A8F98]">Par : {{log.userEmail}}</span>
+                       <span class="text-[10px] text-[#8A8F98] opacity-50">•</span>
+                       <span class="text-[10px] text-[#8A8F98]">{{log.entityType}} #{{log.entityId}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="hasMore" class="p-4 flex justify-center border-t border-[#2E3035]">
+                <button mat-button (click)="loadMore()" [disabled]="loadingLogs" class="!text-brand !text-xs font-bold">
+                  <span *ngIf="!loadingLogs">Load More</span>
+                  <div *ngIf="loadingLogs" class="w-4 h-4 border-2 border-brand border-t-transparent rounded-full animate-spin"></div>
+                </button>
+              </div>
+            </div>
           </div>
         </mat-tab>
       </mat-tab-group>
@@ -133,17 +174,57 @@ import { ProjectEditDialogComponent } from '../project-edit-dialog/project-edit-
 export class ProjectDetailsDialogComponent implements OnInit {
   project: Project;
   ownerEmail: string | null;
+  auditLogs: AuditLog[] = [];
+  loadingLogs = false;
+
+  pageIndex = 0;
+  pageSize = 10;
+  hasMore = true;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { project: Project },
     private dialogRef: MatDialogRef<ProjectDetailsDialogComponent>,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private auditLogService: AuditLogService,
+    private authService: AuthService
   ) {
     this.project = data.project;
     this.ownerEmail = this.project.ownerEmail || null;
   }
 
   ngOnInit(): void {
+    if (this.isManager()) {
+      this.loadAuditLogs();
+    }
+  }
+
+  loadAuditLogs(pageIndex: number = this.pageIndex): void {
+    this.loadingLogs = true;
+    this.auditLogService.getLogsByProject(this.project.id, pageIndex, this.pageSize).subscribe({
+      next: (response) => {
+        this.auditLogs = [...this.auditLogs, ...response.content];
+        this.hasMore = !response.last;
+        this.pageIndex = response.number;
+        this.loadingLogs = false;
+      },
+      error: () => {
+        this.loadingLogs = false;
+      }
+    });
+  }
+
+  loadMore(): void {
+    if (!this.loadingLogs && this.hasMore) {
+      this.loadAuditLogs(this.pageIndex + 1);
+    }
+  }
+
+  isManager(): boolean {
+    if (this.authService.isAdmin()) return true;
+    const currentUserId = this.authService.getCurrentUserId();
+    if (this.project.ownerId === currentUserId) return true;
+
+    return true;
   }
 
   openEditDialog(): void {
@@ -178,5 +259,26 @@ export class ProjectDetailsDialogComponent implements OnInit {
 
   getTypeColor(type: string | undefined): string {
     return 'border-[#3A3C42] text-[#8A8F98]';
+  }
+
+  getLogActionColor(action: string): string {
+    switch (action) {
+      case 'CREATE':
+      case 'ADD_MEMBER':
+      case 'UPLOAD_ATTACHMENT':
+      case 'CREATE_COMMENT':
+        return 'bg-emerald-500';
+      case 'UPDATE':
+      case 'UPDATE_ROLE':
+      case 'UPDATE_COMMENT':
+        return 'bg-amber-500';
+      case 'DELETE':
+      case 'REMOVE_MEMBER':
+      case 'DELETE_ATTACHMENT':
+      case 'DELETE_COMMENT':
+        return 'bg-red-500';
+      default:
+        return 'bg-brand';
+    }
   }
 }
