@@ -7,9 +7,10 @@ import java.time.LocalDateTime;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
-    Long countByChatRoomIdAndCreatedAtAfter(Long chatRoomId, LocalDateTime after);
+    Long countByChatRoomIdAndCreatedAtAfterAndDeletedAtIsNull(Long chatRoomId, LocalDateTime after);
 
-    Long countByChatRoomIdAndSenderIdNotAndCreatedAtAfter(Long chatRoomId, Long senderId, LocalDateTime after);
+    Long countByChatRoomIdAndSenderIdNotAndCreatedAtAfterAndDeletedAtIsNull(Long chatRoomId, Long senderId,
+            LocalDateTime after);
 
     java.util.List<Message> findByChatRoomIdAndDeletedAtIsNull(Long chatRoomId);
 }
