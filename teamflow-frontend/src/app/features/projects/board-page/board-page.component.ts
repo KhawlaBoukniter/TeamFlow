@@ -13,6 +13,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ProjectService } from '../../../core/services/project.service';
 import { ColumnService } from '../../../core/services/column.service';
 import { TaskService } from '../../../core/services/task.service';
+import { ChatService } from '../../../core/services/chat.service';
 import { Project, ProjectColumn, Task } from '../../../shared/models';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -60,6 +61,8 @@ export class BoardPageComponent implements OnInit {
   @ViewChild('chatWindow') chatWindow!: ChatWindowComponent;
   @ViewChild('auditSidebar') auditSidebar!: AuditSidebarComponent;
 
+  unreadCount: number = 0;
+
   // Filtering
   searchQuery: string = '';
   activeFilters = {
@@ -73,6 +76,7 @@ export class BoardPageComponent implements OnInit {
   private projectService = inject(ProjectService);
   private columnService = inject(ColumnService);
   private taskService = inject(TaskService);
+  private chatService = inject(ChatService);
   private snackBar = inject(MatSnackBar);
 
   constructor(public dialog: MatDialog) { }
@@ -109,6 +113,7 @@ export class BoardPageComponent implements OnInit {
       if (projectId) {
         this.loadProject(projectId);
         this.loadColumns(projectId);
+        this.loadUnreadCount(projectId);
       }
     });
 
@@ -119,6 +124,37 @@ export class BoardPageComponent implements OnInit {
         this.autoOpenTask(Number(taskId));
       }
     });
+
+    // Listen for new messages to update badge if chat is closed
+    this.chatService.messages$.subscribe(messages => {
+      if (!this.chatWindow?.isOpen && messages.length > 0) {
+        // This is a bit tricky because messages$ is a BehaviorSubject with history
+        // We only want to increment if a NEW message arrives while closed
+        // For now, let's just re-fetch count or assume the last one is new
+        // Better: let the backend handle the accurate count
+        if (this.project) {
+          this.loadUnreadCount(this.project.id);
+        }
+      }
+    });
+  }
+
+  loadUnreadCount(projectId: number): void {
+    if (this.project?.type !== 'TEAM') return;
+    this.chatService.getUnreadCount(projectId).subscribe({
+      next: (res) => this.unreadCount = res.unreadCount,
+      error: () => this.unreadCount = 0
+    });
+  }
+
+  toggleChat(): void {
+    if (!this.project) return;
+
+    this.chatWindow.toggle();
+    if (this.chatWindow.isOpen) {
+      this.unreadCount = 0;
+      this.chatService.markAsRead(this.project.id).subscribe();
+    }
   }
 
   private autoOpenTask(taskId: number): void {
