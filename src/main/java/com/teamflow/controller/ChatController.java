@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,11 +23,13 @@ public class ChatController {
     private final SimpMessagingTemplate messagingTemplate;
 
     @GetMapping("/projects/{projectId}/chat-room")
+    @PreAuthorize("@projectSecurity.isMember(#projectId)")
     public ChatRoomDTO getChatRoom(@PathVariable Long projectId) {
         return chatRoomService.getChatRoomByProject(projectId);
     }
 
     @GetMapping("/chat-rooms/{roomId}/messages")
+    @PreAuthorize("@projectSecurity.isMemberForRoom(#roomId)")
     public List<MessageDTO> getMessageHistory(@PathVariable Long roomId) {
         return messageService.getMessagesForRoom(roomId);
     }

@@ -25,9 +25,11 @@ public class AuditLog {
 
     private Long entityId;
 
+    private Long projectId;
+
     private String details;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "performed_by_id", nullable = false)
     private User performedBy;
 

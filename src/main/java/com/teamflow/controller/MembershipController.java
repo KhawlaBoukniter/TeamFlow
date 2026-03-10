@@ -7,6 +7,10 @@ import com.teamflow.dto.validation.Update;
 import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.service.interfaces.MembershipService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -46,7 +50,9 @@ public class MembershipController {
     }
 
     @GetMapping("/projects/{projectId}/members/history")
-    public ResponseEntity<List<AuditLogDTO>> getMembershipHistory(@PathVariable Long projectId) {
-        return ResponseEntity.ok(auditLogService.getLogsByEntity("Membership", projectId));
+    public ResponseEntity<Page<AuditLogDTO>> getMembershipHistory(
+            @PathVariable Long projectId,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(auditLogService.getLogsByEntity("Membership", projectId, pageable));
     }
 }

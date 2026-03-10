@@ -113,4 +113,34 @@ public class ProjectSecurity {
                 .map(m -> isManager(m.getProject().getId()))
                 .orElse(false);
     }
+
+    public boolean isAssignee(Long taskId) {
+        User currentUser = SecurityUtils.getCurrentUser();
+        return taskRepository.findById(taskId)
+                .map(task -> task.getAssignments().stream()
+                        .anyMatch(a -> a.getUser().getId().equals(currentUser.getId())))
+                .orElse(false);
+    }
+
+    public boolean canManageAttachments(Long taskId) {
+        User currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser.isAdmin())
+            return true;
+
+        return taskRepository.findById(taskId).map(task -> {
+            Long projectId = task.getColumn().getProject().getId();
+            if (isManager(projectId))
+                return true;
+
+            return task.getAssignments().stream()
+                    .anyMatch(a -> a.getUser().getId().equals(currentUser.getId()));
+        }).orElse(false);
+    }
+
+    public boolean isMemberForRoom(Long roomId) {
+        return SecurityUtils.getCurrentUser().isAdmin() ||
+                projectRepository.findByChatRoomId(roomId)
+                        .map(p -> isMember(p.getId()))
+                        .orElse(false);
+    }
 }
