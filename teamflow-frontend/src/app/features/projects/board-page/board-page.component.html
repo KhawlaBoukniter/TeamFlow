@@ -127,7 +127,7 @@
             <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">chat_bubble_outline</mat-icon>
             Chat
             <span *ngIf="unreadCount > 0"
-                class="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 flex items-center justify-center bg-red-500 text-white text-[9px] font-bold rounded-full border border-[#09090b] shadow-sm animate-pulse">
+                class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1.5 flex items-center justify-center bg-[#EF4444] text-white text-[10px] font-bold rounded-full border-2 border-[#09090b] shadow-lg z-20">
                 {{ unreadCount > 9 ? '9+' : unreadCount }}
             </span>
         </button>
