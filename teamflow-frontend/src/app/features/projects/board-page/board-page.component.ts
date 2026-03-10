@@ -126,22 +126,37 @@ export class BoardPageComponent implements OnInit {
 
     // Listen for new messages to update badge if chat is closed
     this.chatService.newMessages$.subscribe(msg => {
+      console.log('[DEBUG Chat] New message received:', msg);
       if (!msg || !this.project) return;
 
       if (!this.chatWindow?.isOpen) {
-        // Re-fetch count for accuracy when a new message arrives from someone else
-        this.loadUnreadCount(this.project.id);
+        // Only increment if message is from someone else
+        if (msg.senderId !== this.authService.getCurrentUserId()) {
+          console.log('[DEBUG Chat] Loading unread count for project:', this.project.id);
+          this.loadUnreadCount(this.project.id);
+        }
       } else {
         // If chat is open, mark as read immediately to keep backend sync
-        this.chatService.markAsRead(this.project.id).subscribe();
+        console.log('[DEBUG Chat] Chat is open, marking as read');
+        this.unreadCount = 0;
+        this.chatService.markAsRead(this.project.id).subscribe({
+          next: () => console.log('[DEBUG Chat] Mark as read success'),
+          error: (err) => console.error('[DEBUG Chat] Mark as read error:', err)
+        });
       }
     });
   }
 
   loadUnreadCount(projectId: number): void {
     this.chatService.getUnreadCount(projectId).subscribe({
-      next: (res) => this.unreadCount = res.unreadCount,
-      error: () => this.unreadCount = 0
+      next: (res) => {
+        console.log('[DEBUG Chat] Unread count loaded:', res.unreadCount);
+        this.unreadCount = res.unreadCount;
+      },
+      error: (err) => {
+        console.error('[DEBUG Chat] Failed to load unread count:', err);
+        this.unreadCount = 0;
+      }
     });
   }
 
