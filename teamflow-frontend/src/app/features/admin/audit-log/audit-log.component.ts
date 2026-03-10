@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { AuditLogService } from '../../../core/services/audit-log.service';
 import { AuditLog } from '../../../shared/models/audit-log.model';
 
@@ -17,16 +18,35 @@ import { AuditLog } from '../../../shared/models/audit-log.model';
         MatButtonModule,
         MatIconModule,
         MatProgressSpinnerModule,
-        MatTooltipModule
+        MatTooltipModule,
+        MatPaginatorModule
     ],
     templateUrl: './audit-log.component.html',
     styles: [`
         .audit-table {
             width: 100%;
             background: #1C1C1E !important;
-            border-radius: 12px;
+            border-radius: 12px 12px 0 0;
             overflow: hidden;
             border: 1px solid #2E3035;
+            border-bottom: none;
+        }
+        ::ng-deep .mat-mdc-paginator {
+            background: #1C1C1E !important;
+            color: #8A8F98 !important;
+            border: 1px solid #2E3035;
+            border-top: 1px solid #2E3035;
+            border-radius: 0 0 12px 12px;
+        }
+        ::ng-deep .mat-mdc-paginator .mat-mdc-select-value,
+        ::ng-deep .mat-mdc-paginator .mat-mdc-paginator-range-label {
+            color: #8A8F98 !important;
+        }
+        ::ng-deep .mat-mdc-icon-button[disabled] {
+            color: rgba(138, 143, 152, 0.3) !important;
+        }
+        ::ng-deep .mat-mdc-icon-button {
+            color: #8A8F98 !important;
         }
         ::ng-deep .audit-table .mat-mdc-header-cell {
             background: #25262B !important;
@@ -58,6 +78,10 @@ export class AuditLogComponent implements OnInit {
     error: string | null = null;
     displayedColumns: string[] = ['date', 'user', 'action', 'entity', 'details'];
 
+    totalElements = 0;
+    pageSize = 20;
+    pageIndex = 0;
+
     private auditLogService = inject(AuditLogService);
 
     get createCount(): number {
@@ -76,11 +100,14 @@ export class AuditLogComponent implements OnInit {
         this.loadLogs();
     }
 
-    loadLogs(): void {
+    loadLogs(page: number = this.pageIndex, size: number = this.pageSize): void {
         this.loading = true;
-        this.auditLogService.getAllLogs().subscribe({
-            next: (data) => {
-                this.logs.data = data;
+        this.auditLogService.getAllLogs(page, size).subscribe({
+            next: (response) => {
+                this.logs.data = response.content;
+                this.totalElements = response.totalElements;
+                this.pageIndex = response.number;
+                this.pageSize = response.size;
                 this.loading = false;
             },
             error: (err) => {
@@ -89,6 +116,12 @@ export class AuditLogComponent implements OnInit {
                 console.error('Error fetching logs', err);
             }
         });
+    }
+
+    onPageChange(event: PageEvent): void {
+        this.pageIndex = event.pageIndex;
+        this.pageSize = event.pageSize;
+        this.loadLogs(this.pageIndex, this.pageSize);
     }
 
     getActionClass(action: string): string {
