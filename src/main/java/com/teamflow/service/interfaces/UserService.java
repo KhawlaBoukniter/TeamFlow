@@ -1,12 +1,15 @@
 package com.teamflow.service.interfaces;
 
 import com.teamflow.dto.UserDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 public interface UserService {
-    List<UserDTO> searchUsers(String query);
+    Page<UserDTO> searchUsers(String query, Pageable pageable);
 
-    List<UserDTO> getAllUsers();
+    Page<UserDTO> getAllUsers(Pageable pageable);
 
     UserDTO getUserById(Long id);
 

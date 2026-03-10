@@ -10,9 +10,10 @@ import java.time.LocalDateTime;
 public class AuditLogDTO {
     private Long id;
     private String action;
-    private String entity;
+    private String entityType;
     private Long entityId;
+    private Long projectId;
     private String details;
-    private String performedByEmail;
+    private String userEmail;
     private LocalDateTime createdAt;
 }

@@ -3,11 +3,12 @@ package com.teamflow.controller;
 import com.teamflow.dto.UserDTO;
 import com.teamflow.service.interfaces.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -17,11 +18,13 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers(@RequestParam(required = false, defaultValue = "") String search) {
+    public ResponseEntity<Page<UserDTO>> getAllUsers(
+            @RequestParam(required = false, defaultValue = "") String search,
+            @PageableDefault(size = 20) Pageable pageable) {
         if (search.isBlank()) {
-            return ResponseEntity.ok(userService.getAllUsers());
+            return ResponseEntity.ok(userService.getAllUsers(pageable));
         }
-        return ResponseEntity.ok(userService.searchUsers(search));
+        return ResponseEntity.ok(userService.searchUsers(search, pageable));
     }
 
     @GetMapping("/{id}")

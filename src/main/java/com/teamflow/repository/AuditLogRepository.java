@@ -1,14 +1,16 @@
 package com.teamflow.repository;
 
 import com.teamflow.entity.AuditLog;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
-    List<AuditLog> findByEntityAndEntityIdOrderByCreatedAtDesc(String entity, Long entityId);
+    Page<AuditLog> findByEntityAndEntityIdOrderByCreatedAtDesc(String entity, Long entityId, Pageable pageable);
 
-    List<AuditLog> findAllByOrderByCreatedAtDesc();
+    Page<AuditLog> findByProjectIdOrderByCreatedAtDesc(Long projectId, Pageable pageable);
+
+    Page<AuditLog> findAllByOrderByCreatedAtDesc(Pageable pageable);
 }
