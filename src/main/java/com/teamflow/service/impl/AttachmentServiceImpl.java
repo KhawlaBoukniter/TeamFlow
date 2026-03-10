@@ -10,6 +10,7 @@ import com.teamflow.repository.TaskRepository;
 import com.teamflow.security.SecurityUtils;
 import com.teamflow.service.interfaces.AttachmentService;
 import com.teamflow.service.interfaces.NotificationService;
+import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.entity.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -35,6 +36,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     private final AttachmentRepository attachmentRepository;
     private final TaskRepository taskRepository;
     private final NotificationService notificationService;
+    private final AuditLogService auditLogService;
     private final Path root = Paths.get("uploads");
 
     @Override
@@ -75,16 +77,15 @@ public class AttachmentServiceImpl implements AttachmentService {
             try {
                 if (task.getCreatedBy() != null && !task.getCreatedBy().getId().equals(currentUser.getId())) {
                     notificationService.createNotification(
-                        task.getCreatedBy().getId(),
-                        currentUser.getFullName() + " a ajouté une pièce jointe à votre tâche : " + task.getTitle(),
-                        NotificationType.ATTACHMENT_ADDED,
-                        "TASK",
-                        task.getId(),
-                        projectId
-                    );
+                            task.getCreatedBy().getId(),
+                            currentUser.getFullName() + " a ajouté une pièce jointe à votre tâche : " + task.getTitle(),
+                            NotificationType.ATTACHMENT_ADDED,
+                            "TASK",
+                            task.getId(),
+                            projectId);
                 }
             } catch (Exception e) {
-                // Ignore notification errors
+                
             }
 
             // Notify task assignees about the new attachment
@@ -94,19 +95,22 @@ public class AttachmentServiceImpl implements AttachmentService {
                         // Don't notify the uploader
                         if (!assignment.getUser().getId().equals(currentUser.getId())) {
                             notificationService.createNotification(
-                                assignment.getUser().getId(),
-                                currentUser.getFullName() + " a ajouté une pièce jointe à la tâche : " + task.getTitle(),
-                                NotificationType.ATTACHMENT_ADDED,
-                                "TASK",
-                                task.getId(),
-                                projectId
-                            );
+                                    assignment.getUser().getId(),
+                                    currentUser.getFullName() + " a ajouté une pièce jointe à la tâche : "
+                                            + task.getTitle(),
+                                    NotificationType.ATTACHMENT_ADDED,
+                                    "TASK",
+                                    task.getId(),
+                                    projectId);
                         }
                     } catch (Exception e) {
-                        // Ignore notification errors
+                        
                     }
                 });
             }
+
+            auditLogService.logAction("UPLOAD_ATTACHMENT", "Attachment", saved.getId(), projectId,
+                    "Uploaded file: " + originalFileName);
 
             return toDTO(saved);
 
@@ -141,14 +145,12 @@ public class AttachmentServiceImpl implements AttachmentService {
         Attachment attachment = attachmentRepository.findById(attachmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Attachment not found"));
 
-        // Soft delete logic if preferred, or hard delete
-        // Given there's a deletedAt field in the entity, let's use soft delete
         attachment.setDeletedAt(java.time.LocalDateTime.now());
         attachmentRepository.save(attachment);
 
-        // Optional: delete physical file? Usually safer to keep it for audit or use a
-        // cleanup job.
-        // For now, let's just mark as deleted in DB.
+        Long projectId = attachment.getTask().getColumn().getProject().getId();
+        auditLogService.logAction("DELETE_ATTACHMENT", "Attachment", attachmentId, projectId,
+                "Deleted attachment: " + attachment.getFileName());
     }
 
     @Override

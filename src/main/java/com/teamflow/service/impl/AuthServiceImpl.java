@@ -1,21 +1,23 @@
 package com.teamflow.service.impl;
 
 import com.teamflow.dto.auth.AuthResponse;
+import com.teamflow.dto.auth.ChangePasswordRequest;
 import com.teamflow.dto.auth.LoginRequest;
 import com.teamflow.dto.auth.RegisterRequest;
 import com.teamflow.dto.auth.TokenRefreshRequest;
 import com.teamflow.service.interfaces.RefreshTokenService;
+import com.teamflow.entity.RefreshToken;
 import com.teamflow.entity.User;
 import com.teamflow.exception.InvalidCredentialsException;
 import com.teamflow.repository.UserRepository;
 import com.teamflow.security.CustomUserDetails;
 import com.teamflow.security.JwtService;
+import com.teamflow.security.SecurityUtils;
 import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.service.interfaces.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse refreshToken(TokenRefreshRequest request) {
         return refreshTokenService.findByToken(request.getRefreshToken())
                 .map(refreshTokenService::verifyExpiration)
-                .map(com.teamflow.entity.RefreshToken::getUser)
+                .map(RefreshToken::getUser)
                 .map(user -> {
                     CustomUserDetails userDetails = new CustomUserDetails(user);
                     String token = jwtService.generateToken(generateExtraClaims(user), userDetails);
@@ -97,14 +99,17 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void logout() {
-        Long userId = com.teamflow.security.SecurityUtils.getCurrentUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
         refreshTokenService.deleteByUserId(userId);
     }
 
     @Override
     @Transactional
-    public void changePassword(com.teamflow.dto.auth.ChangePasswordRequest request) {
-        Long userId = com.teamflow.security.SecurityUtils.getCurrentUserId();
+    public void changePassword(ChangePasswordRequest request) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        if (userId == null) {
+            throw new InvalidCredentialsException("User not authenticated");
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new InvalidCredentialsException("User not found"));
 

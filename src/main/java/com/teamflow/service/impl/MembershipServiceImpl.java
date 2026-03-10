@@ -5,7 +5,6 @@ import com.teamflow.entity.Membership;
 import com.teamflow.entity.Project;
 import com.teamflow.entity.User;
 import com.teamflow.entity.enums.ProjectType;
-// Removed AccessDeniedException import
 import com.teamflow.exception.ResourceNotFoundException;
 import com.teamflow.repository.MembershipRepository;
 import com.teamflow.repository.ProjectRepository;
@@ -74,22 +73,21 @@ public class MembershipServiceImpl implements MembershipService {
 
                 Membership savedMembership = membershipRepository.save(membership);
 
-                auditLogService.logAction("ADD_MEMBER", "Membership", savedMembership.getId(),
+                auditLogService.logAction("ADD_MEMBER", "Membership", savedMembership.getId(), project.getId(),
                                 "Added user " + user.getEmail() + " as " + dto.getRoleInProject() + " to project "
                                                 + project.getName());
 
                 // Notify user of project invitation
                 try {
-                    notificationService.createNotification(
-                        user.getId(),
-                        "Vous avez été ajouté au projet : " + project.getName(),
-                        NotificationType.PROJECT_INVITE,
-                        "PROJECT",
-                        project.getId(),
-                        project.getId()
-                    );
+                        notificationService.createNotification(
+                                        user.getId(),
+                                        "Vous avez été ajouté au projet : " + project.getName(),
+                                        NotificationType.PROJECT_INVITE,
+                                        "PROJECT",
+                                        project.getId(),
+                                        project.getId());
                 } catch (Exception e) {
-                    // Ignore notification errors to avoid rolling back the main transaction
+                        
                 }
 
                 return toDTO(savedMembership);
@@ -109,7 +107,7 @@ public class MembershipServiceImpl implements MembershipService {
 
                 Membership updatedMembership = membershipRepository.save(membership);
 
-                auditLogService.logAction("UPDATE_ROLE", "Membership", id,
+                auditLogService.logAction("UPDATE_ROLE", "Membership", id, membership.getProject().getId(),
                                 "Changed role from " + oldRole + " to " + dto.getRoleInProject() + " for user "
                                                 + membership.getUser().getEmail());
 
@@ -125,7 +123,7 @@ public class MembershipServiceImpl implements MembershipService {
                                 .orElseThrow(() -> new ResourceNotFoundException(
                                                 "Membership not found with id: " + id));
 
-                auditLogService.logAction("REMOVE_MEMBER", "Membership", id,
+                auditLogService.logAction("REMOVE_MEMBER", "Membership", id, membership.getProject().getId(),
                                 "Removed user " + membership.getUser().getEmail() + " from project "
                                                 + membership.getProject().getName());
 

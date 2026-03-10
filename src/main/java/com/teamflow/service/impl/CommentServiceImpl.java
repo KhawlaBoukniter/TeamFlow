@@ -11,6 +11,7 @@ import com.teamflow.repository.TaskRepository;
 import com.teamflow.security.SecurityUtils;
 import com.teamflow.service.interfaces.CommentService;
 import com.teamflow.service.interfaces.NotificationService;
+import com.teamflow.service.interfaces.AuditLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
     private final NotificationService notificationService;
+    private final AuditLogService auditLogService;
 
     @Override
     @Transactional(readOnly = true)
@@ -62,16 +64,15 @@ public class CommentServiceImpl implements CommentService {
         try {
             if (task.getCreatedBy() != null && !task.getCreatedBy().getId().equals(currentUser.getId())) {
                 notificationService.createNotification(
-                    task.getCreatedBy().getId(),
-                    currentUser.getFullName() + " a commenté votre tâche : " + task.getTitle(),
-                    NotificationType.COMMENT_ADDED,
-                    "TASK",
-                    task.getId(),
-                    projectId
-                );
+                        task.getCreatedBy().getId(),
+                        currentUser.getFullName() + " a commenté votre tâche : " + task.getTitle(),
+                        NotificationType.COMMENT_ADDED,
+                        "TASK",
+                        task.getId(),
+                        projectId);
             }
         } catch (Exception e) {
-            // Ignore notification errors
+            
         }
 
         // Notify all assignees
@@ -81,19 +82,21 @@ public class CommentServiceImpl implements CommentService {
                 try {
                     if (assignment.getUser() != null && !assignment.getUser().getId().equals(currentUserId)) {
                         notificationService.createNotification(
-                            assignment.getUser().getId(),
-                            currentUser.getFullName() + " a commenté la tâche : " + task.getTitle(),
-                            NotificationType.COMMENT_ADDED,
-                            "TASK",
-                            task.getId(),
-                            projectId
-                        );
+                                assignment.getUser().getId(),
+                                currentUser.getFullName() + " a commenté la tâche : " + task.getTitle(),
+                                NotificationType.COMMENT_ADDED,
+                                "TASK",
+                                task.getId(),
+                                projectId);
                     }
                 } catch (Exception e) {
-                    // Ignore notification errors
+                    
                 }
             });
         }
+
+        auditLogService.logAction("CREATE_COMMENT", "Comment", savedComment.getId(), projectId,
+                "Added comment to task: " + task.getTitle());
 
         return toDTO(savedComment);
     }
@@ -108,6 +111,9 @@ public class CommentServiceImpl implements CommentService {
         comment.setContent(dto.getContent());
 
         Comment updatedComment = commentRepository.save(comment);
+        Long projectId = updatedComment.getTask().getColumn().getProject().getId();
+        auditLogService.logAction("UPDATE_COMMENT", "Comment", updatedComment.getId(), projectId,
+                "Updated comment content");
         return toDTO(updatedComment);
     }
 
@@ -120,6 +126,9 @@ public class CommentServiceImpl implements CommentService {
 
         comment.setDeletedAt(LocalDateTime.now());
         commentRepository.save(comment);
+
+        Long projectId = comment.getTask().getColumn().getProject().getId();
+        auditLogService.logAction("DELETE_COMMENT", "Comment", id, projectId, "Deleted/Archived comment");
     }
 
     private CommentDTO toDTO(Comment comment) {

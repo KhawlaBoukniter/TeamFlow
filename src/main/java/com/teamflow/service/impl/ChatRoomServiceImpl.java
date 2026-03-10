@@ -5,6 +5,7 @@ import com.teamflow.entity.ChatRoom;
 import com.teamflow.entity.Project;
 import com.teamflow.exception.ResourceNotFoundException;
 import com.teamflow.repository.ChatRoomRepository;
+import com.teamflow.repository.ProjectRepository;
 import com.teamflow.service.interfaces.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,16 +15,20 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ChatRoomServiceImpl implements ChatRoomService {
 
+    private final ProjectRepository projectRepository;
     private final ChatRoomRepository chatRoomRepository;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public ChatRoomDTO getChatRoomByProject(Long projectId) {
-        ChatRoom chatRoom = chatRoomRepository.findAll().stream()
-                .filter(cr -> cr.getProject().getId().equals(projectId) && cr.getDeletedAt() == null)
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Chat room not found for project: " + projectId));
-        return toDTO(chatRoom);
+        return chatRoomRepository.findByProjectIdAndDeletedAtIsNull(projectId)
+                .map(this::toDTO)
+                .orElseGet(() -> {
+                    Project project = projectRepository.findById(projectId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Project not found: " + projectId));
+                    ChatRoom newRoom = createChatRoom(project);
+                    return toDTO(newRoom);
+                });
     }
 
     @Override

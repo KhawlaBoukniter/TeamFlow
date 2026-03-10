@@ -9,6 +9,7 @@ import com.teamflow.repository.ChatRoomRepository;
 import com.teamflow.repository.MessageRepository;
 import com.teamflow.repository.UserRepository;
 import com.teamflow.service.interfaces.MessageService;
+import com.teamflow.service.interfaces.AuditLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +24,18 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
 
     @Override
     @Transactional
     public MessageDTO saveMessage(MessageDTO dto) {
+        if (dto.getChatRoomId() == null) {
+            throw new IllegalArgumentException("Chat room ID cannot be null");
+        }
+        if (dto.getSenderId() == null) {
+            throw new IllegalArgumentException("Sender ID cannot be null");
+        }
+
         ChatRoom chatRoom = chatRoomRepository.findById(dto.getChatRoomId())
                 .orElseThrow(() -> new ResourceNotFoundException("Chat room not found"));
         User sender = userRepository.findById(dto.getSenderId())
@@ -38,6 +47,11 @@ public class MessageServiceImpl implements MessageService {
         message.setSender(sender);
 
         Message savedMessage = messageRepository.save(message);
+
+        Long projectId = chatRoom.getProject().getId();
+        auditLogService.logAction("SEND_MESSAGE", "Message", savedMessage.getId(), projectId,
+                "Message sent to " + chatRoom.getName());
+
         return toDTO(savedMessage);
     }
 

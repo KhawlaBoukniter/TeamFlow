@@ -1,24 +1,40 @@
 package com.teamflow.service.impl;
 
+import com.teamflow.dto.AttachmentDTO;
+import com.teamflow.dto.TaskAssignmentDTO;
 import com.teamflow.dto.TaskDTO;
+import com.teamflow.dto.TaskSummaryDTO;
+import com.teamflow.entity.Attachment;
 import com.teamflow.entity.ProjectColumn;
 import com.teamflow.entity.Task;
+import com.teamflow.entity.TaskAssignment;
+import com.teamflow.entity.TaskDependency;
 import com.teamflow.entity.User;
 import com.teamflow.exception.ResourceNotFoundException;
+import com.teamflow.repository.AttachmentRepository;
 import com.teamflow.repository.ColumnRepository;
+import com.teamflow.repository.TaskAssignmentRepository;
+import com.teamflow.repository.TaskDependencyRepository;
 import com.teamflow.repository.TaskRepository;
+import com.teamflow.repository.UserRepository;
 import com.teamflow.service.interfaces.AuditLogService;
 import com.teamflow.service.interfaces.TaskService;
 import com.teamflow.security.SecurityUtils;
 import com.teamflow.service.interfaces.NotificationService;
+import com.teamflow.entity.enums.DependencyType;
 import com.teamflow.entity.enums.NotificationType;
+import com.teamflow.entity.enums.RoleInTask;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,10 +43,10 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final ColumnRepository columnRepository;
-    private final com.teamflow.repository.UserRepository userRepository;
-    private final com.teamflow.repository.TaskAssignmentRepository taskAssignmentRepository;
-    private final com.teamflow.repository.TaskDependencyRepository taskDependencyRepository;
-    private final com.teamflow.repository.AttachmentRepository attachmentRepository;
+    private final UserRepository userRepository;
+    private final TaskAssignmentRepository taskAssignmentRepository;
+    private final TaskDependencyRepository taskDependencyRepository;
+    private final AttachmentRepository attachmentRepository;
     private final NotificationService notificationService;
     private final AuditLogService auditLogService;
 
@@ -38,6 +54,9 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = true)
     @PreAuthorize("@projectSecurity.isMemberForColumn(#columnId)")
     public List<TaskDTO> getTasksByColumnId(Long columnId) {
+        if (columnId == null) {
+            throw new IllegalArgumentException("Column ID cannot be null");
+        }
         if (!columnRepository.existsById(columnId)) {
             throw new ResourceNotFoundException("Column not found with id: " + columnId);
         }
@@ -52,6 +71,9 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = true)
     @PreAuthorize("@projectSecurity.isMemberForTask(#id)")
     public TaskDTO getTaskById(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Task ID cannot be null");
+        }
         Task task = taskRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
@@ -118,8 +140,8 @@ public class TaskServiceImpl implements TaskService {
         task.setColumn(targetColumn);
         Task updatedTask = taskRepository.save(task);
 
-        List<com.teamflow.entity.TaskDependency> dependents = taskDependencyRepository.findByPrerequisiteId(id);
-        for (com.teamflow.entity.TaskDependency dep : dependents) {
+        List<TaskDependency> dependents = taskDependencyRepository.findByPrerequisiteId(id);
+        for (TaskDependency dep : dependents) {
             updateBlockedStatus(dep.getDependent().getId());
         }
 
@@ -133,13 +155,13 @@ public class TaskServiceImpl implements TaskService {
                 updatedTask.getAssignments().forEach(assignment -> {
                     if (assignment.getUser() != null && !assignment.getUser().getId().equals(currentUser.getId())) {
                         notificationService.createNotification(
-                            assignment.getUser().getId(),
-                            "La tâche '" + updatedTask.getTitle() + "' a été déplacée vers '" + targetColumn.getName() + "'",
-                            NotificationType.TASK_MOVED,
-                            "TASK",
-                            updatedTask.getId(),
-                            targetColumn.getProject().getId()
-                        );
+                                assignment.getUser().getId(),
+                                "La tâche '" + updatedTask.getTitle() + "' a été déplacée vers '"
+                                        + targetColumn.getName() + "'",
+                                NotificationType.TASK_MOVED,
+                                "TASK",
+                                updatedTask.getId(),
+                                targetColumn.getProject().getId());
                     }
                 });
             }
@@ -175,37 +197,36 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     @PreAuthorize("@projectSecurity.isManagerForTask(#taskId)")
-    public com.teamflow.dto.TaskAssignmentDTO assignUserToTask(Long taskId, Long userId, String role) {
+    public TaskAssignmentDTO assignUserToTask(Long taskId, Long userId, String role) {
         Task task = taskRepository.findById(taskId)
                 .filter(t -> t.getDeletedAt() == null)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
 
-        com.teamflow.entity.User user = userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         if (taskAssignmentRepository.findByTask_IdAndUser_Id(taskId, userId).isPresent()) {
             throw new IllegalArgumentException("User is already assigned to this task");
         }
 
-        com.teamflow.entity.TaskAssignment assignment = new com.teamflow.entity.TaskAssignment();
+        TaskAssignment assignment = new TaskAssignment();
         assignment.setTask(task);
         assignment.setUser(user);
-        assignment.setRoleInTask(com.teamflow.entity.enums.RoleInTask.valueOf(role));
+        assignment.setRoleInTask(RoleInTask.valueOf(role));
 
-        com.teamflow.entity.TaskAssignment savedAssignment = taskAssignmentRepository.save(assignment);
+        TaskAssignment savedAssignment = taskAssignmentRepository.save(assignment);
 
         // Notify user of assignment
         try {
             notificationService.createNotification(
-                userId,
-                "Vous avez été assigné à la tâche : " + task.getTitle(),
-                NotificationType.TASK_ASSIGNED,
-                "TASK",
-                task.getId(),
-                task.getColumn().getProject().getId()
-            );
+                    userId,
+                    "Vous avez été assigné à la tâche : " + task.getTitle(),
+                    NotificationType.TASK_ASSIGNED,
+                    "TASK",
+                    task.getId(),
+                    task.getColumn().getProject().getId());
         } catch (Exception e) {
-            // Ignore notification errors
+
         }
 
         auditLogService.logAction("ASSIGN", "Task", task.getId(),
@@ -250,15 +271,15 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalArgumentException("Circular dependency detected");
         }
 
-        com.teamflow.entity.TaskDependency taskDependency = new com.teamflow.entity.TaskDependency();
+        TaskDependency taskDependency = new TaskDependency();
         taskDependency.setDependent(task);
         taskDependency.setPrerequisite(dependency);
-        taskDependency.setType(com.teamflow.entity.enums.DependencyType.BLOCKING);
+        taskDependency.setType(DependencyType.BLOCKING);
 
         taskDependencyRepository.save(taskDependency);
 
         updateBlockedStatus(taskId);
-        
+
         // Notify assignees of new dependency
         if (task.getAssignments() != null) {
             final Long projectId = task.getColumn().getProject().getId();
@@ -267,16 +288,15 @@ public class TaskServiceImpl implements TaskService {
                 try {
                     if (assignment.getUser() != null && !assignment.getUser().getId().equals(currentUser.getId())) {
                         notificationService.createNotification(
-                            assignment.getUser().getId(),
-                            currentUser.getFullName() + " a ajouté une dépendance à la tâche : " + task.getTitle(),
-                            NotificationType.TASK_BLOCKED,
-                            "TASK",
-                            task.getId(),
-                            projectId
-                        );
+                                assignment.getUser().getId(),
+                                currentUser.getFullName() + " a ajouté une dépendance à la tâche : " + task.getTitle(),
+                                NotificationType.TASK_BLOCKED,
+                                "TASK",
+                                task.getId(),
+                                projectId);
                     }
                 } catch (Exception e) {
-                    // Ignore notification errors
+
                 }
             });
         }
@@ -288,7 +308,7 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     @PreAuthorize("@projectSecurity.isMemberForTask(#taskId)")
     public void removeDependency(Long taskId, Long dependencyId) {
-        com.teamflow.entity.TaskDependency dependency = taskDependencyRepository
+        TaskDependency dependency = taskDependencyRepository
                 .findByDependentIdAndPrerequisiteId(taskId, dependencyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Dependency not found"));
 
@@ -299,8 +319,8 @@ public class TaskServiceImpl implements TaskService {
 
     private boolean createsCycle(Long taskId, Long newDependencyId) {
         // DFS to check if taskId is reachable from newDependencyId
-        java.util.Set<Long> visited = new java.util.HashSet<>();
-        java.util.Stack<Long> stack = new java.util.Stack<>();
+        Set<Long> visited = new HashSet<>();
+        Stack<Long> stack = new Stack<>();
         stack.push(newDependencyId);
 
         while (!stack.isEmpty()) {
@@ -311,9 +331,9 @@ public class TaskServiceImpl implements TaskService {
 
             if (!visited.contains(currentId)) {
                 visited.add(currentId);
-                List<com.teamflow.entity.TaskDependency> dependencies = taskDependencyRepository
+                List<TaskDependency> dependencies = taskDependencyRepository
                         .findByDependentId(currentId);
-                for (com.teamflow.entity.TaskDependency dep : dependencies) {
+                for (TaskDependency dep : dependencies) {
                     stack.push(dep.getPrerequisite().getId());
                 }
             }
@@ -325,7 +345,7 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-        List<com.teamflow.entity.TaskDependency> dependencies = taskDependencyRepository.findByDependentId(taskId);
+        List<TaskDependency> dependencies = taskDependencyRepository.findByDependentId(taskId);
 
         boolean shouldBeBlocked = dependencies.stream()
                 .anyMatch(dep -> !dep.getPrerequisite().getColumn().isFinal());
@@ -337,22 +357,21 @@ public class TaskServiceImpl implements TaskService {
             // Notify assignees about blocking status change
             try {
                 if (task.getAssignments() != null && !task.getAssignments().isEmpty()) {
-                    String message = shouldBeBlocked ? 
-                        "Task is now BLOCKED: " + task.getTitle() : 
-                        "Task is now UNBLOCKED: " + task.getTitle();
-                    NotificationType type = shouldBeBlocked ? NotificationType.TASK_BLOCKED : NotificationType.TASK_UNBLOCKED;
-                    
+                    String message = shouldBeBlocked ? "Task is now BLOCKED: " + task.getTitle()
+                            : "Task is now UNBLOCKED: " + task.getTitle();
+                    NotificationType type = shouldBeBlocked ? NotificationType.TASK_BLOCKED
+                            : NotificationType.TASK_UNBLOCKED;
+
                     final Long projectId = task.getColumn().getProject().getId();
                     task.getAssignments().forEach(assignment -> {
                         if (assignment.getUser() != null) {
                             notificationService.createNotification(
-                                assignment.getUser().getId(),
-                                message,
-                                type,
-                                "TASK",
-                                task.getId(),
-                                projectId
-                            );
+                                    assignment.getUser().getId(),
+                                    message,
+                                    type,
+                                    "TASK",
+                                    task.getId(),
+                                    projectId);
                         }
                     });
                 }
@@ -361,8 +380,8 @@ public class TaskServiceImpl implements TaskService {
             }
 
             // Recursively update tasks that depend on this one
-            List<com.teamflow.entity.TaskDependency> dependents = taskDependencyRepository.findByPrerequisiteId(taskId);
-            for (com.teamflow.entity.TaskDependency dep : dependents) {
+            List<TaskDependency> dependents = taskDependencyRepository.findByPrerequisiteId(taskId);
+            for (TaskDependency dep : dependents) {
                 updateBlockedStatus(dep.getDependent().getId());
             }
         }
@@ -392,12 +411,12 @@ public class TaskServiceImpl implements TaskService {
         }
 
         // Map Dependencies
-        List<com.teamflow.entity.TaskDependency> blocking = taskDependencyRepository.findByDependentId(task.getId());
+        List<TaskDependency> blocking = taskDependencyRepository.findByDependentId(task.getId());
         dto.setBlockingTasks(blocking.stream()
                 .map(dep -> toSummaryDTO(dep.getPrerequisite()))
                 .collect(Collectors.toList()));
 
-        List<com.teamflow.entity.TaskDependency> blocked = taskDependencyRepository.findByPrerequisiteId(task.getId());
+        List<TaskDependency> blocked = taskDependencyRepository.findByPrerequisiteId(task.getId());
         dto.setBlockedTasks(blocked.stream()
                 .map(dep -> toSummaryDTO(dep.getDependent()))
                 .collect(Collectors.toList()));
@@ -409,8 +428,8 @@ public class TaskServiceImpl implements TaskService {
         return dto;
     }
 
-    private com.teamflow.dto.TaskSummaryDTO toSummaryDTO(Task task) {
-        com.teamflow.dto.TaskSummaryDTO dto = new com.teamflow.dto.TaskSummaryDTO();
+    private TaskSummaryDTO toSummaryDTO(Task task) {
+        TaskSummaryDTO dto = new TaskSummaryDTO();
         dto.setId(task.getId());
         dto.setTitle(task.getTitle());
         dto.setPriority(task.getPriority());
@@ -421,8 +440,8 @@ public class TaskServiceImpl implements TaskService {
         return dto;
     }
 
-    private com.teamflow.dto.TaskAssignmentDTO toAssignmentDTO(com.teamflow.entity.TaskAssignment assignment) {
-        com.teamflow.dto.TaskAssignmentDTO dto = new com.teamflow.dto.TaskAssignmentDTO();
+    private TaskAssignmentDTO toAssignmentDTO(TaskAssignment assignment) {
+        TaskAssignmentDTO dto = new TaskAssignmentDTO();
         dto.setId(assignment.getId());
         dto.setTaskId(assignment.getTask().getId());
         dto.setUserId(assignment.getUser().getId());
@@ -433,8 +452,8 @@ public class TaskServiceImpl implements TaskService {
         return dto;
     }
 
-    private com.teamflow.dto.AttachmentDTO toAttachmentDTO(com.teamflow.entity.Attachment attachment) {
-        return com.teamflow.dto.AttachmentDTO.builder()
+    private AttachmentDTO toAttachmentDTO(Attachment attachment) {
+        return AttachmentDTO.builder()
                 .id(attachment.getId())
                 .fileName(attachment.getFileName())
                 .fileUrl(attachment.getFileUrl())

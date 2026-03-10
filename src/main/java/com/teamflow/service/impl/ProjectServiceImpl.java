@@ -88,7 +88,8 @@ public class ProjectServiceImpl implements ProjectService {
 
         chatRoomService.createChatRoom(savedProject);
 
-        auditLogService.logAction("CREATE", "Project", savedProject.getId(), "Created project: " + dto.getName());
+        auditLogService.logAction("CREATE", "Project", savedProject.getId(), savedProject.getId(),
+                "Created project: " + dto.getName());
 
         return toDTO(savedProject);
     }
@@ -108,7 +109,8 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         Project updatedProject = projectRepository.save(project);
-        auditLogService.logAction("UPDATE", "Project", updatedProject.getId(), "Updated project details");
+        auditLogService.logAction("UPDATE", "Project", updatedProject.getId(), updatedProject.getId(),
+                "Updated project details");
         return toDTO(updatedProject);
     }
 
@@ -120,7 +122,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         project.setDeletedAt(LocalDateTime.now());
         projectRepository.save(project);
-        auditLogService.logAction("DELETE", "Project", project.getId(), "Project archived/deleted");
+        auditLogService.logAction("DELETE", "Project", project.getId(), project.getId(), "Project archived/deleted");
     }
 
     private Project findProjectOrThrow(Long id) {
