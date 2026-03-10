@@ -99,9 +99,6 @@ import { Notification } from '../../shared/models';
                      class="px-4 py-1.5 bg-[#5E6AD2] hover:bg-[#4E58B2] text-white rounded-lg text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-[#5E6AD2]/20">
                Archive
              </button>
-             <button class="p-2 text-[#8A8F98] hover:text-white rounded-lg hover:bg-[#1C1C1E] transition-colors border border-transparent hover:border-[#1C1C1E]">
-                <mat-icon class="!w-4 !h-4 !text-[18px]">more_horiz</mat-icon>
-             </button>
           </div>
         </div>
 
@@ -147,12 +144,6 @@ import { Notification } from '../../shared/models';
                  </div>
                </div>
                
-               <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1C1C1E] border border-[#2E3035]">
-                  <span class="w-1.5 h-1.5 rounded-full" [class.bg-[#5E6AD2]]="!selectedNotification.isRead" [class.bg-[#3A3C42]]="selectedNotification.isRead"></span>
-                  <span class="text-[10px] font-bold uppercase tracking-wider text-[#8A8F98]">
-                    {{ selectedNotification.isRead ? 'Archived' : 'New' }}
-                  </span>
-               </div>
             </div>
 
             <div class="bg-gradient-to-b from-[#111113] to-[#09090b] border border-[#1C1C1E] rounded-2xl p-8 mb-10 shadow-2xl relative overflow-hidden group/card">
@@ -185,16 +176,6 @@ import { Notification } from '../../shared/models';
                </div>
             </div>
             
-            <div class="mt-16 pt-8 border-t border-[#1C1C1E] flex items-center justify-center gap-8 opacity-40">
-               <div class="flex flex-col items-center gap-1">
-                 <span class="text-[10px] uppercase font-black tracking-tighter">Esc</span>
-                 <span class="text-[9px] text-[#8A8F98]">Dismiss</span>
-               </div>
-               <div class="flex flex-col items-center gap-1">
-                 <span class="text-[10px] uppercase font-black tracking-tighter">E</span>
-                 <span class="text-[9px] text-[#8A8F98]">Archive</span>
-               </div>
-            </div>
           </div>
 
         </div>
@@ -249,11 +230,9 @@ export class InboxComponent implements OnInit {
   loadNotifications(): void {
     this.notificationService.getRecent(30).subscribe(data => {
       this.notifications = data;
-      // Auto-select first notification if none selected
       if (this.notifications.length > 0 && !this.selectedNotification) {
-         const firstUnread = this.notifications.find(n => !n.isRead);
-         this.selectedNotification = firstUnread || this.notifications[0];
-         // Don't mark as read automatically on auto-selection to avoid startling the user
+        const firstUnread = this.notifications.find(n => !n.isRead);
+        this.selectedNotification = firstUnread || this.notifications[0];
       }
     });
     this.notificationService.refreshUnreadCount();

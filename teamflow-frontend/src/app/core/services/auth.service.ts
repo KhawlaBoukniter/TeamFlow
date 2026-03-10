@@ -80,6 +80,7 @@ export class AuthService {
     isAuthenticated(): boolean {
         if (!this.hasToken()) return false;
         if (this.isTokenExpired()) {
+            this.clearSession();
             return false;
         }
         return true;

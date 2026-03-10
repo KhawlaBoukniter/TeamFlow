@@ -123,9 +123,19 @@
         <!-- Chat Toggle -->
         <button *ngIf="project?.type === 'TEAM'" (click)="chatWindow.toggle()"
             class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[12px] text-[#8A8F98] hover:bg-[#1C1C1E] hover:text-white rounded-md transition-colors"
-            [class.text-white]="chatWindow.isOpen" [class.bg-[#1C1C1E]]="chatWindow.isOpen">
+            [class.text-white]="chatWindow?.isOpen" [class.bg-[#1C1C1E]]="chatWindow?.isOpen">
             <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">chat_bubble_outline</mat-icon>
             Chat
+        </button>
+
+        <div class="w-px h-4 bg-[#2E3035] shrink-0" *ngIf="canManageProject()"></div>
+
+        <!-- Audit Toggle -->
+        <button *ngIf="canManageProject()" (click)="auditSidebar.toggle()"
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[12px] text-[#8A8F98] hover:bg-[#1C1C1E] hover:text-white rounded-md transition-colors"
+            [class.text-white]="auditSidebar?.isOpen" [class.bg-[#1C1C1E]]="auditSidebar?.isOpen">
+            <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">history</mat-icon>
+            Activity
         </button>
     </div>
 
@@ -304,4 +314,7 @@
 
     <!-- Chat Window (Slide-in Panel) -->
     <app-chat-window #chatWindow [projectId]="project?.id || 0"></app-chat-window>
+
+    <!-- Audit Sidebar (Slide-in Panel) -->
+    <app-audit-sidebar #auditSidebar [projectId]="project?.id || 0"></app-audit-sidebar>
 </div>

@@ -16,7 +16,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Task, TaskPriority, TaskSummary, Attachment } from '../../../../shared/models';
 import { TaskService as TaskItemsService } from '../../../../core/services/task.service';
 import { AttachmentService } from '../../../../core/services/attachment.service';
+import { SubTaskService } from '../../../../core/services/subtask.service';
 import { HttpEventType } from '@angular/common/http';
+import { SubTask } from '../../../../shared/models';
 
 @Component({
     selector: 'app-edit-task-dialog',
@@ -45,13 +47,16 @@ export class EditTaskDialogComponent {
     allAvailableTasks: any[] = [];
     currentDependencies: any[] = [];
     currentAttachments: Attachment[] = [];
+    currentSubTasks: SubTask[] = [];
     uploadProgress: number | null = null;
+    newSubTaskTitle = '';
     hasChanges = false;
 
     constructor(
         private fb: FormBuilder,
         private taskService: TaskItemsService,
         private attachmentService: AttachmentService,
+        private subTaskService: SubTaskService,
         private snackBar: MatSnackBar,
         private dialogRef: MatDialogRef<EditTaskDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: { task: Task, allTasks: Task[] }
@@ -65,6 +70,7 @@ export class EditTaskDialogComponent {
 
         this.currentDependencies = data.task.blockingTasks || [];
         this.currentAttachments = data.task.attachments || [];
+        this.currentSubTasks = data.task.subTasks || [];
         this.updateAvailableTasks();
     }
 
@@ -152,6 +158,56 @@ export class EditTaskDialogComponent {
             },
             error: () => {
                 this.snackBar.open('Delete failed', 'Close', { duration: 3000 });
+            }
+        });
+    }
+
+    addSubTask(): void {
+        if (!this.newSubTaskTitle.trim()) return;
+
+        const subTask: Partial<SubTask> = {
+            title: this.newSubTaskTitle,
+            isDone: false
+        };
+
+        this.subTaskService.createSubTask(this.data.task.id, subTask).subscribe({
+            next: (saved) => {
+                this.currentSubTasks.push(saved);
+                this.newSubTaskTitle = '';
+                this.hasChanges = true;
+                this.snackBar.open('Sub-task added', 'Close', { duration: 2000 });
+            },
+            error: () => {
+                this.snackBar.open('Failed to add sub-task', 'Close', { duration: 3000 });
+            }
+        });
+    }
+
+    toggleSubTask(subTask: SubTask): void {
+        const updated = { ...subTask, isDone: !subTask.isDone };
+        this.subTaskService.updateSubTask(subTask.id, updated).subscribe({
+            next: (saved) => {
+                const index = this.currentSubTasks.findIndex(st => st.id === saved.id);
+                if (index !== -1) {
+                    this.currentSubTasks[index] = saved;
+                }
+                this.hasChanges = true;
+            },
+            error: () => {
+                this.snackBar.open('Failed to update sub-task', 'Close', { duration: 3000 });
+            }
+        });
+    }
+
+    deleteSubTask(subTaskId: number): void {
+        this.subTaskService.deleteSubTask(subTaskId).subscribe({
+            next: () => {
+                this.currentSubTasks = this.currentSubTasks.filter(st => st.id !== subTaskId);
+                this.hasChanges = true;
+                this.snackBar.open('Sub-task deleted', 'Close', { duration: 2000 });
+            },
+            error: () => {
+                this.snackBar.open('Failed to delete sub-task', 'Close', { duration: 3000 });
             }
         });
     }

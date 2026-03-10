@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
@@ -24,6 +24,7 @@ import { CreateTaskDialogComponent } from '../components/create-task-dialog/crea
 import { EditTaskDialogComponent } from '../components/edit-task-dialog/edit-task-dialog.component';
 import { MembersDialogComponent } from '../components/members-dialog/members-dialog.component';
 import { ChatWindowComponent } from '../components/chat-window/chat-window.component';
+import { AuditSidebarComponent } from '../components/audit-sidebar/audit-sidebar.component';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -40,13 +41,11 @@ import { FormsModule } from '@angular/forms';
     MatMenuModule,
     MatChipsModule,
     MatDialogModule,
-    MembersDialogComponent,
-    CreateColumnDialogComponent,
-    CreateTaskDialogComponent,
     MatTooltipModule,
     MatDividerModule,
     FormsModule,
-    ChatWindowComponent
+    ChatWindowComponent,
+    AuditSidebarComponent
   ],
   templateUrl: './board-page.component.html',
   styleUrl: './board-page.component.css'
@@ -57,6 +56,9 @@ export class BoardPageComponent implements OnInit {
   tasksByColumn: { [key: number]: Task[] } = {};
   connectedTo: string[] = [];
   isLoading: boolean = true;
+
+  @ViewChild('chatWindow') chatWindow!: ChatWindowComponent;
+  @ViewChild('auditSidebar') auditSidebar!: AuditSidebarComponent;
 
   // Filtering
   searchQuery: string = '';
