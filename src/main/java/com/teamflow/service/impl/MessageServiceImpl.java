@@ -29,16 +29,19 @@ public class MessageServiceImpl implements MessageService {
     @Override
     @Transactional
     public MessageDTO saveMessage(MessageDTO dto) {
-        if (dto.getChatRoomId() == null) {
+        Long chatRoomId = dto.getChatRoomId();
+        Long senderId = dto.getSenderId();
+
+        if (chatRoomId == null) {
             throw new IllegalArgumentException("Chat room ID cannot be null");
         }
-        if (dto.getSenderId() == null) {
+        if (senderId == null) {
             throw new IllegalArgumentException("Sender ID cannot be null");
         }
 
-        ChatRoom chatRoom = chatRoomRepository.findById(dto.getChatRoomId())
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Chat room not found"));
-        User sender = userRepository.findById(dto.getSenderId())
+        User sender = userRepository.findById(senderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Sender not found"));
 
         Message message = new Message();
@@ -58,8 +61,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     @Transactional(readOnly = true)
     public List<MessageDTO> getMessagesForRoom(Long roomId) {
-        return messageRepository.findAll().stream()
-                .filter(m -> m.getChatRoom().getId().equals(roomId) && m.getDeletedAt() == null)
+        return messageRepository.findByChatRoomIdAndDeletedAtIsNull(roomId).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
