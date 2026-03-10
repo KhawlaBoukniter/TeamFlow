@@ -113,7 +113,6 @@ export class BoardPageComponent implements OnInit {
       if (projectId) {
         this.loadProject(projectId);
         this.loadColumns(projectId);
-        this.loadUnreadCount(projectId);
       }
     });
 
@@ -126,24 +125,30 @@ export class BoardPageComponent implements OnInit {
     });
 
     // Listen for new messages to update badge if chat is closed
-    this.chatService.messages$.subscribe(messages => {
-      if (!this.chatWindow?.isOpen && messages.length > 0) {
-        // This is a bit tricky because messages$ is a BehaviorSubject with history
-        // We only want to increment if a NEW message arrives while closed
-        // For now, let's just re-fetch count or assume the last one is new
-        // Better: let the backend handle the accurate count
-        if (this.project) {
-          this.loadUnreadCount(this.project.id);
-        }
+    this.chatService.newMessages$.subscribe(msg => {
+      if (!msg || !this.project) return;
+
+      if (!this.chatWindow?.isOpen) {
+        // Re-fetch count for accuracy when a new message arrives from someone else
+        this.loadUnreadCount(this.project.id);
+      } else {
+        // If chat is open, mark as read immediately to keep backend sync
+        this.chatService.markAsRead(this.project.id).subscribe();
       }
     });
   }
 
   loadUnreadCount(projectId: number): void {
-    if (this.project?.type !== 'TEAM') return;
     this.chatService.getUnreadCount(projectId).subscribe({
       next: (res) => this.unreadCount = res.unreadCount,
       error: () => this.unreadCount = 0
+    });
+  }
+
+  private connectChat(projectId: number): void {
+    this.chatService.getChatRoom(projectId).subscribe({
+      next: (room) => this.chatService.connect(room.id),
+      error: (err) => console.error('Failed to connect chat in background', err)
     });
   }
 
@@ -173,7 +178,13 @@ export class BoardPageComponent implements OnInit {
   }
 
   loadProject(id: number): void {
-    this.projectService.getProjectById(id).subscribe(p => this.project = p);
+    this.projectService.getProjectById(id).subscribe(p => {
+      this.project = p;
+      if (p.type === 'TEAM') {
+        this.loadUnreadCount(p.id);
+        this.connectChat(p.id);
+      }
+    });
   }
 
   loadColumns(projectId: number): void {

@@ -21,9 +21,11 @@ export class ChatService {
     private stompClient: Client | null = null;
     private messagesSubject = new BehaviorSubject<ChatMessage[]>([]);
     private connectedSubject = new BehaviorSubject<boolean>(false);
+    private newMessagesSubject = new BehaviorSubject<ChatMessage | null>(null);
 
     public messages$ = this.messagesSubject.asObservable();
     public connected$ = this.connectedSubject.asObservable();
+    public newMessages$ = this.newMessagesSubject.asObservable();
 
     private currentRoomId: number | null = null;
 
@@ -36,6 +38,10 @@ export class ChatService {
     }
 
     connect(roomId: number): void {
+        if (this.currentRoomId === roomId && this.stompClient?.active) {
+            return;
+        }
+
         if (this.stompClient?.active) {
             this.disconnect();
         }
@@ -60,7 +66,10 @@ export class ChatService {
                 this.stompClient?.subscribe(`/topic/chat/${roomId}`, (message: IMessage) => {
                     const chatMessage: ChatMessage = JSON.parse(message.body);
                     const currentMessages = this.messagesSubject.value;
-                    this.ngZone.run(() => this.messagesSubject.next([...currentMessages, chatMessage]));
+                    this.ngZone.run(() => {
+                        this.messagesSubject.next([...currentMessages, chatMessage]);
+                        this.newMessagesSubject.next(chatMessage);
+                    });
                 });
             },
             onDisconnect: () => {

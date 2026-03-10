@@ -63,8 +63,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     if (lastReadAt == null) {
                         lastReadAt = membership.getJoinedAt().minusSeconds(1);
                     }
-                    long unreadCount = messageRepository.countByChatRoomIdAndCreatedAtAfter(chatRoom.getId(),
-                            lastReadAt);
+                    long unreadCount = messageRepository.countByChatRoomIdAndSenderIdNotAndCreatedAtAfter(
+                            chatRoom.getId(),
+                            userId, lastReadAt);
                     return new ChatNotificationDTO(chatRoom.getId(), projectId, unreadCount);
                 })
                 .orElseGet(() -> new ChatNotificationDTO(chatRoom.getId(), projectId, 0L));

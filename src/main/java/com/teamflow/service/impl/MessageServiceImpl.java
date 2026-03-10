@@ -8,12 +8,14 @@ import com.teamflow.exception.ResourceNotFoundException;
 import com.teamflow.repository.ChatRoomRepository;
 import com.teamflow.repository.MessageRepository;
 import com.teamflow.repository.UserRepository;
+import com.teamflow.repository.MembershipRepository;
 import com.teamflow.service.interfaces.MessageService;
 import com.teamflow.service.interfaces.AuditLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,7 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
+    private final MembershipRepository membershipRepository;
     private final AuditLogService auditLogService;
 
     @Override
@@ -51,7 +54,14 @@ public class MessageServiceImpl implements MessageService {
 
         Message savedMessage = messageRepository.save(message);
 
+        // Update sender's lastReadAt in their membership
         Long projectId = chatRoom.getProject().getId();
+        membershipRepository.findByProjectIdAndUserIdAndDeletedAtIsNull(projectId, senderId)
+                .ifPresent(membership -> {
+                    membership.setLastReadAt(LocalDateTime.now());
+                    membershipRepository.save(membership);
+                });
+
         auditLogService.logAction("SEND_MESSAGE", "Message", savedMessage.getId(), projectId,
                 "Message sent to " + chatRoom.getName());
 
