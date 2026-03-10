@@ -505,8 +505,6 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.isOpen = !this.isOpen;
     if (this.isOpen && this.projectId) {
       this.connectToRoom();
-    } else {
-      this.chatService.disconnect();
     }
   }
 
