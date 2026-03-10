@@ -9,6 +9,9 @@ import com.teamflow.repository.ChatRoomRepository;
 import com.teamflow.repository.MessageRepository;
 import com.teamflow.repository.UserRepository;
 import com.teamflow.repository.MembershipRepository;
+import com.teamflow.entity.Project;
+import com.teamflow.entity.Membership;
+import com.teamflow.entity.enums.RoleInProject;
 import com.teamflow.service.interfaces.MessageService;
 import com.teamflow.service.interfaces.AuditLogService;
 import lombok.RequiredArgsConstructor;
@@ -57,10 +60,31 @@ public class MessageServiceImpl implements MessageService {
         // Update sender's lastReadAt in their membership
         Long projectId = chatRoom.getProject().getId();
         membershipRepository.findByProjectIdAndUserIdAndDeletedAtIsNull(projectId, senderId)
-                .ifPresent(membership -> {
-                    membership.setLastReadAt(LocalDateTime.now());
-                    membershipRepository.save(membership);
-                });
+                .ifPresentOrElse(
+                        membership -> {
+                            membership.setLastReadAt(LocalDateTime.now());
+                            membershipRepository.save(membership);
+                        },
+                        () -> {
+                            // If no membership, check if user has access (Admin or Owner) and create one to
+                            // track status
+                            User user = sender; // already fetched above
+                            Project project = chatRoom.getProject(); // already have chatRoom
+
+                            if (user != null && project != null && (user.isAdmin() ||
+                                    (project.getOwner() != null && project.getOwner().getId().equals(senderId)))) {
+                                Membership membership = new Membership();
+                                membership.setProject(project);
+                                membership.setUser(user);
+                                membership.setRoleInProject(
+                                        project.getOwner() != null && project.getOwner().getId().equals(senderId)
+                                                ? RoleInProject.MANAGER
+                                                : RoleInProject.MEMBER);
+                                membership.setJoinedAt(LocalDateTime.now().minusSeconds(1));
+                                membership.setLastReadAt(LocalDateTime.now());
+                                membershipRepository.save(membership);
+                            }
+                        });
 
         auditLogService.logAction("SEND_MESSAGE", "Message", savedMessage.getId(), projectId,
                 "Message sent to " + chatRoom.getName());

@@ -9,8 +9,14 @@ import com.teamflow.repository.ChatRoomRepository;
 import com.teamflow.repository.MembershipRepository;
 import com.teamflow.repository.MessageRepository;
 import com.teamflow.repository.ProjectRepository;
+import com.teamflow.repository.UserRepository;
+import com.teamflow.entity.Membership;
+import com.teamflow.entity.User;
+import com.teamflow.entity.enums.RoleInProject;
 import com.teamflow.service.interfaces.ChatRoomService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,10 +26,13 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class ChatRoomServiceImpl implements ChatRoomService {
 
+    private static final Logger log = LoggerFactory.getLogger(ChatRoomServiceImpl.class);
+
     private final ProjectRepository projectRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final MembershipRepository membershipRepository;
     private final MessageRepository messageRepository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
@@ -63,22 +72,65 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     if (lastReadAt == null) {
                         lastReadAt = membership.getJoinedAt().minusSeconds(1);
                     }
-                    long unreadCount = messageRepository.countByChatRoomIdAndSenderIdNotAndCreatedAtAfter(
-                            chatRoom.getId(),
-                            userId, lastReadAt);
+                    long unreadCount = messageRepository
+                            .countByChatRoomIdAndSenderIdNotAndCreatedAtAfterAndDeletedAtIsNull(
+                                    chatRoom.getId(), userId, lastReadAt);
+                    log.debug("[Chat] User {} unread count for project {}: {} (lastReadAt: {})",
+                            userId, projectId, unreadCount, lastReadAt);
                     return new ChatNotificationDTO(chatRoom.getId(), projectId, unreadCount);
                 })
-                .orElseGet(() -> new ChatNotificationDTO(chatRoom.getId(), projectId, 0L));
+                .orElseGet(() -> {
+                    // If no membership, check if user is owner or admin to still show count from
+                    // project creation
+                    Project project = chatRoom.getProject();
+                    LocalDateTime startTime = project.getCreatedAt();
+                    long unreadCount = messageRepository
+                            .countByChatRoomIdAndSenderIdNotAndCreatedAtAfterAndDeletedAtIsNull(
+                                    chatRoom.getId(), userId, startTime);
+                    log.debug("[Chat] User {} (no membership) unread count for project {}: {} (startTime: {})",
+                            userId, projectId, unreadCount, startTime);
+                    return new ChatNotificationDTO(chatRoom.getId(), projectId, unreadCount);
+                });
     }
 
     @Override
     @Transactional
     public void markAsRead(Long projectId, Long userId) {
+        log.debug("[Chat] Mark as read: project={}, user={}", projectId, userId);
         membershipRepository.findByProjectIdAndUserIdAndDeletedAtIsNull(projectId, userId)
-                .ifPresent(membership -> {
-                    membership.setLastReadAt(LocalDateTime.now());
-                    membershipRepository.save(membership);
-                });
+                .ifPresentOrElse(
+                        membership -> {
+                            membership.setLastReadAt(LocalDateTime.now());
+                            membershipRepository.save(membership);
+                            log.debug("[Chat] Updated lastReadAt for user {} in project {}", userId, projectId);
+                        },
+                        () -> {
+                            // If no membership, check if user has access (Admin or Owner) and create one to
+                            // track status
+                            User user = userRepository.findById(userId).orElse(null);
+                            Project project = projectRepository.findById(projectId).orElse(null);
+
+                            if (user != null && project != null && (user.isAdmin() ||
+                                    (project.getOwner() != null && project.getOwner().getId().equals(userId)))) {
+                                Membership membership = new Membership();
+                                membership.setProject(project);
+                                membership.setUser(user);
+                                membership.setRoleInProject(
+                                        project.getOwner() != null && project.getOwner().getId().equals(userId)
+                                                ? RoleInProject.MANAGER
+                                                : RoleInProject.MEMBER);
+                                membership.setJoinedAt(LocalDateTime.now().minusSeconds(1));
+                                membership.setLastReadAt(LocalDateTime.now());
+                                membershipRepository.save(membership);
+                                log.debug(
+                                        "[Chat] Created background membership for user {} in project {} to track read status",
+                                        userId, projectId);
+                            } else {
+                                log.warn(
+                                        "[Chat] Could not mark as read: user {} has no membership and is not admin/owner for project {}",
+                                        userId, projectId);
+                            }
+                        });
     }
 
     private ChatRoomDTO toDTO(ChatRoom chatRoom) {
