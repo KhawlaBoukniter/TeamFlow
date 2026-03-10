@@ -42,6 +42,8 @@ public class Membership {
 
     private LocalDateTime deletedAt;
 
+    private LocalDateTime lastReadAt;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
