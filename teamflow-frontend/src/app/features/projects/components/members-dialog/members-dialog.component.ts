@@ -12,7 +12,7 @@ import { FormControl, ReactiveFormsModule, Validators, FormsModule } from '@angu
 import { MembershipService } from '../../../../core/services/membership.service';
 import { UserService } from '../../../../core/services/user.service';
 import { Membership, User } from '../../../../shared/models';
-import { debounceTime, distinctUntilChanged, switchMap, catchError, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } from 'rxjs';
 
 @Component({
     selector: 'app-members-dialog',
@@ -60,11 +60,12 @@ export class MembersDialogComponent implements OnInit {
             debounceTime(300),
             distinctUntilChanged(),
             switchMap(query => {
-                if (!query || query.length < 2) return of([]);
+                if (!query || query.length < 2) return of({ content: [] as User[], last: true, totalElements: 0, size: 0, number: 0, totalPages: 0, first: true, numberOfElements: 0, empty: true, sort: { empty: true, sorted: false, unsorted: true }, pageable: { sort: { empty: true, sorted: false, unsorted: true }, offset: 0, pageNumber: 0, pageSize: 0, paged: true, unpaged: false } });
                 return this.userService.searchUsers(query).pipe(
-                    catchError(() => of([]))
+                    catchError(() => of({ content: [] as User[], last: true, totalElements: 0, size: 0, number: 0, totalPages: 0, first: true, numberOfElements: 0, empty: true, sort: { empty: true, sorted: false, unsorted: true }, pageable: { sort: { empty: true, sorted: false, unsorted: true }, offset: 0, pageNumber: 0, pageSize: 0, paged: true, unpaged: false } }))
                 );
-            })
+            }),
+            map(response => response.content)
         ).subscribe(users => {
             // Filter out users who are already members
             const memberIds = this.members.map(m => m.userId);

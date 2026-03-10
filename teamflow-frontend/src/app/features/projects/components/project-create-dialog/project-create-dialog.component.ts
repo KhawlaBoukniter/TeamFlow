@@ -15,7 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { UserService } from '../../../../core/services/user.service';
 import { MembershipService } from '../../../../core/services/membership.service';
-import { debounceTime, distinctUntilChanged, switchMap, catchError, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } from 'rxjs';
 
 @Component({
   selector: 'app-project-create-dialog',
@@ -261,15 +261,17 @@ export class ProjectCreateDialogComponent implements OnInit {
       debounceTime(300),
       distinctUntilChanged(),
       switchMap(query => {
-        if (!query || query.length < 2) return of([]);
+        const empty = { content: [] as User[], last: true, totalElements: 0, size: 0, number: 0, totalPages: 0, first: true, numberOfElements: 0, empty: true, sort: { empty: true, sorted: false, unsorted: true }, pageable: { sort: { empty: true, sorted: false, unsorted: true }, offset: 0, pageNumber: 0, pageSize: 0, paged: true, unpaged: false } };
+        if (!query || query.length < 2) return of(empty);
         return this.userService.searchUsers(query).pipe(
-          catchError(() => of([]))
+          catchError(() => of(empty))
         );
-      })
+      }),
+      map(response => response.content)
     ).subscribe(users => {
       // Filter out existing members
       const memberIds = this.members.map(m => m.userId);
-      this.searchResults = users.filter(u => !memberIds.includes(u.id));
+      this.searchResults = users.filter((u: User) => !memberIds.includes(u.id));
     });
   }
 
