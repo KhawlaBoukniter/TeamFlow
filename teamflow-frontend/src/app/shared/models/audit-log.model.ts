@@ -1,9 +1,10 @@
 export interface AuditLog {
     id: number;
     action: string;
-    entity: string;
+    entityType: string;
     entityId: number;
     details: string;
-    performedByEmail: string;
+    userEmail: string;
+    projectId?: number;
     createdAt: string;
 }

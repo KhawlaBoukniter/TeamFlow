@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { User } from '../../shared/models';
+import { PaginatedResponse } from '../../shared/models/pagination.model';
 
 @Injectable({
     providedIn: 'root'
@@ -11,16 +12,21 @@ export class UserService {
     private apiUrl = `${environment.apiUrl}/users`;
     private http = inject(HttpClient);
 
-    searchUsers(query: string): Observable<User[]> {
-        let params = new HttpParams();
+    searchUsers(query: string, page: number = 0, size: number = 20): Observable<PaginatedResponse<User>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
         if (query) {
             params = params.set('search', query);
         }
-        return this.http.get<User[]>(this.apiUrl, { params });
+        return this.http.get<PaginatedResponse<User>>(this.apiUrl, { params });
     }
 
-    getAllUsers(): Observable<User[]> {
-        return this.http.get<User[]>(this.apiUrl);
+    getAllUsers(page: number = 0, size: number = 20): Observable<PaginatedResponse<User>> {
+        const params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+        return this.http.get<PaginatedResponse<User>>(this.apiUrl, { params });
     }
 
     updateUser(id: number, data: Partial<User>): Observable<User> {
