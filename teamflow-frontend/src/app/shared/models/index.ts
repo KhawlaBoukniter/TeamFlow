@@ -67,6 +67,8 @@ export interface Task {
     projectId?: number;
     blocked: boolean;
     position: number;
+    createdAt?: string;
+    updatedAt?: string;
     assignments?: TaskAssignment[];
     assignees?: User[];
     subTasks?: SubTask[];

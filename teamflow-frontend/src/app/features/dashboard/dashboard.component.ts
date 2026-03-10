@@ -79,9 +79,27 @@ export class DashboardComponent implements OnInit {
     }
 
     get topProjects(): Project[] {
+        const now = new Date();
         return [...this.activeProjects]
-            .sort((a, b) => (b.progress || 0) - (a.progress || 0))
-            .slice(0, 6);
+            .filter(p => !p.endDate || new Date(p.endDate) >= now)
+            .sort((a, b) => {
+                const dateA = new Date(a.createdAt || 0).getTime();
+                const dateB = new Date(b.createdAt || 0).getTime();
+                return dateB - dateA;
+            })
+            .slice(0, 3);
+    }
+
+    get recentTasks(): Task[] {
+        const now = new Date();
+        return [...this.myTasks]
+            .filter(t => !t.dueDate || new Date(t.dueDate) >= now)
+            .sort((a, b) => {
+                const dateA = new Date(a.createdAt || 0).getTime();
+                const dateB = new Date(b.createdAt || 0).getTime();
+                return dateB - dateA;
+            })
+            .slice(0, 3);
     }
 
     ngOnInit(): void {
