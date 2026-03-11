@@ -1,168 +1,194 @@
-<!-- Register - Professional & Elegant -->
-<div class="min-h-screen flex">
+<!-- Register - Ultra Modern Split-Screen Experience -->
+<div
+    class="min-h-screen w-full flex flex-col md:flex-row bg-[#020203] font-['Inter'] selection:bg-[#818CF8]/30 overflow-y-auto">
 
-    <!-- Left Panel - Brand & Context (Light Background) -->
-    <div class="hidden lg:flex lg:w-1/2 bg-primary-100 relative overflow-hidden">
-        <!-- Subtle background pattern suggesting workflow (Darker opacity for visibility) -->
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute top-20 left-20 w-64 h-px bg-brand-dark"></div>
-            <div class="absolute top-20 left-20 w-px h-64 bg-brand-dark"></div>
-            <div class="absolute top-40 left-40 w-48 h-px bg-brand-dark"></div>
-            <div class="absolute top-60 left-60 w-32 h-px bg-brand-dark"></div>
+    <!-- Left Panel: Immersive Visuals (Hidden on Mobile) -->
+    <div
+        class="flex flex-col w-full md:w-1/2 lg:w-3/5 bg-[#030304] relative items-center justify-center p-12 md:p-20 overflow-hidden border-b md:border-b-0 md:border-r border-white/5 min-h-[70vh] md:min-h-screen">
+        <!-- Visual Content -->
+        <div class="relative z-10 max-w-xl animate-fade-in">
+            <div class="mb-14">
+                <img src="assets/images/logo.png" alt="TeamFlow"
+                    class="h-10 w-auto grayscale brightness-200 opacity-95 transition-transform hover:scale-105 duration-700">
+            </div>
+
+            <h1 class="text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.05] mb-8">
+                Build the <span
+                    class="bg-clip-text text-transparent bg-gradient-to-r from-[#818CF8] via-purple-400 to-[#5E6AD2]">future
+                    of work</span> with us.
+            </h1>
+
+            <p class="text-xl text-[#8A8F98] font-light leading-relaxed mb-12 max-w-md">
+                Join thousands of high-performance teams already using TeamFlow to manage their most complex workflows.
+            </p>
+
+            <!-- Feature Badges -->
+            <div class="grid grid-cols-2 gap-4 mt-12">
+                <div
+                    class="p-6 rounded-[24px] bg-white/[0.03] border border-white/10 backdrop-blur-md group hover:bg-white/[0.05] transition-all duration-500">
+                    <mat-icon class="!text-[#818CF8] mb-4 !w-8 !h-8 !text-[32px]">rocket_launch</mat-icon>
+                    <h4 class="text-white font-bold text-lg mb-2">Fast Onboarding</h4>
+                    <p class="text-[14px] text-[#8A8F98]">Get started in less than 2 minutes.</p>
+                </div>
+                <div
+                    class="p-6 rounded-[24px] bg-white/[0.03] border border-white/10 backdrop-blur-md group hover:bg-white/[0.05] transition-all duration-500">
+                    <mat-icon class="!text-[#5E6AD2] mb-4 !w-8 !h-8 !text-[32px]">security</mat-icon>
+                    <h4 class="text-white font-bold text-lg mb-2">Secure by Design</h4>
+                    <p class="text-[14px] text-[#8A8F98]">Your data is protected 24/7.</p>
+                </div>
+            </div>
         </div>
 
-        <div class="relative z-10 flex flex-col justify-between p-12 text-brand-dark w-full">
-            <!-- Logo & Brand -->
-            <div class="animate-slide-up delay-100">
-                <div class="flex items-center gap-4 mb-8 relative left-28 bottom-5">
-                    <!-- Logo Image -->
-                    <img src="assets/images/logo.png" alt="TeamFlow Logo" class="w-48 h-auto object-contain">
-                </div>
-
-                <h1 class="text-4xl font-light leading-tight mb-6 animate-slide-up delay-200 text-brand-dark">
-                    Join teams that<br>
-                    <span class="font-medium text-brand-blue">move forward together.</span>
-                </h1>
-
-                <p class="text-slate-600 text-lg font-light max-w-md animate-slide-up delay-300 leading-relaxed">
-                    Structure your projects with kanban boards, manage tasks efficiently, and collaborate with clarity.
-                </p>
+        <!-- Ambient Background for Left Panel -->
+        <div class="absolute inset-0 z-0">
+            <div
+                class="absolute bottom-[-10%] left-[-10%] w-[80%] h-[80%] bg-[#818CF8] opacity-[0.08] blur-[150px] rounded-full animate-pulse">
             </div>
-
-            <!-- Footer info -->
-            <div class="text-slate-500 text-sm font-light animate-subtle-fade delay-300">
-                © 2026 TeamFlow • Projet Fil Rouge
+            <div
+                class="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#5E6AD2] opacity-[0.05] blur-[150px] rounded-full delay-1000 animate-pulse">
             </div>
+            <div class="absolute inset-0 opacity-[0.03]"
+                style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 50px 50px;">
+            </div>
+        </div>
+        <!-- Scroll Indicator (Visible on Mobile) -->
+        <div
+            class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 md:hidden animate-bounce opacity-40">
+            <span class="text-[9px] text-white uppercase tracking-[0.2em] font-bold">Scroll Down</span>
+            <mat-icon class="!text-white !w-4 !h-4 !text-[18px]">expand_more</mat-icon>
         </div>
     </div>
 
-    <!-- Right Panel - Register Form (White Background) -->
-    <div class="flex-1 flex items-center justify-center p-8 bg-white animate-slide-up">
-        <div class="w-full max-w-md">
+    <!-- Right Panel: Register Form -->
+    <div class="flex-1 flex items-center justify-center p-6 md:p-12 lg:p-20 relative bg-[#020203]">
 
-            <!-- Mobile Logo -->
-            <div class="lg:hidden flex items-center justify-center mb-10">
-                <img src="assets/images/logo.png" alt="TeamFlow Logo" class="w-40 h-auto object-contain">
-            </div>
+        <!-- Mobile Logo -->
+        <div class="absolute top-8 left-8 md:hidden">
+            <img src="assets/images/logo.png" alt="TeamFlow" class="h-16 w-auto grayscale brightness-200 opacity-80">
+        </div>
 
+        <div class="w-full max-w-[480px] animate-slide-up">
             <!-- Form Header -->
             <div class="mb-10">
-                <h2 class="text-3xl font-light text-slate-900 mb-2">Create account</h2>
-                <p class="text-slate-500 font-light">Start organizing your team's workflow</p>
+                <h2 class="text-4xl font-bold text-white tracking-tight mb-4">Create account</h2>
+                <p class="text-[#8A8F98] text-[16px] font-light">Join the future of team collaboration today.</p>
             </div>
 
             <!-- Register Form -->
             <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
 
-                <!-- Full Name Field -->
-                <div class="space-y-2">
-                    <label for="fullName" class="block text-sm font-medium text-slate-700">Full name</label>
-                    <input id="fullName" type="text" formControlName="fullName" placeholder="John Doe"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent transition-all duration-200">
-                    @if (registerForm.get('fullName')?.hasError('required') && registerForm.get('fullName')?.touched) {
-                    <p class="text-sm text-red-600 mt-1">Full name is required</p>
-                    }
-                    @if (registerForm.get('fullName')?.hasError('minlength') && registerForm.get('fullName')?.touched) {
-                    <p class="text-sm text-red-600 mt-1">Name must be at least 3 characters</p>
-                    }
-                </div>
-
-                <!-- Email Field -->
-                <div class="space-y-2">
-                    <label for="email" class="block text-sm font-medium text-slate-700">Email address</label>
-                    <input id="email" type="email" formControlName="email" placeholder="name@company.com"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent transition-all duration-200">
-                    @if (registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched) {
-                    <p class="text-sm text-red-600 mt-1">Email is required</p>
-                    }
-                    @if (registerForm.get('email')?.hasError('email') && registerForm.get('email')?.touched) {
-                    <p class="text-sm text-red-600 mt-1">Please enter a valid email</p>
-                    }
-                </div>
-
-                <!-- Password Field -->
-                <div class="space-y-2">
-                    <label for="password" class="block text-sm font-medium text-slate-700">Password</label>
-                    <div class="relative">
-                        <input id="password" [type]="hidePassword ? 'password' : 'text'" formControlName="password"
-                            placeholder="At least 6 characters"
-                            class="w-full px-4 py-3 pr-12 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent transition-all duration-200">
-                        <button type="button" (click)="togglePasswordVisibility()"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-blue transition-colors">
-                            <mat-icon class="text-xl">{{hidePassword ? 'visibility' : 'visibility_off'}}</mat-icon>
-                        </button>
+                <div class="space-y-2.5">
+                    <label for="fullName"
+                        class="block text-[13px] font-semibold text-[#8A8F98] uppercase tracking-wider ml-1">Full
+                        Name</label>
+                    <div class="relative group/input">
+                        <div
+                            class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-[#4A4B4E] group-focus-within/input:text-[#818CF8] transition-colors">
+                            <mat-icon class="!w-5 !h-5 !text-[20px]">person_outline</mat-icon>
+                        </div>
+                        <input id="fullName" type="text" formControlName="fullName" placeholder="John Doe"
+                            class="w-full h-14 pl-12 pr-4 bg-white/[0.03] border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#818CF8]/30 focus:border-[#818CF8] transition-all duration-300 group-hover:bg-white/[0.06]">
                     </div>
-                    @if (registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched) {
-                    <p class="text-sm text-red-600 mt-1">Password is required</p>
-                    }
-                    @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
-                    <p class="text-sm text-red-600 mt-1">Password must be at least 6 characters</p>
-                    }
                 </div>
 
-                <!-- Confirm Password Field -->
-                <div class="space-y-2">
-                    <label for="confirmPassword" class="block text-sm font-medium text-slate-700">Confirm
-                        password</label>
-                    <div class="relative">
-                        <input id="confirmPassword" [type]="hideConfirmPassword ? 'password' : 'text'"
-                            formControlName="confirmPassword" placeholder="Re-enter yourpassword"
-                            class="w-full px-4 py-3 pr-12 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent transition-all duration-200">
-                        <button type="button" (click)="toggleConfirmPasswordVisibility()"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-blue transition-colors">
-                            <mat-icon class="text-xl">{{hideConfirmPassword ? 'visibility' :
-                                'visibility_off'}}</mat-icon>
-                        </button>
+                <div class="space-y-2.5">
+                    <label for="email"
+                        class="block text-[13px] font-semibold text-[#8A8F98] uppercase tracking-wider ml-1">Work
+                        Email</label>
+                    <div class="relative group/input">
+                        <div
+                            class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-[#4A4B4E] group-focus-within/input:text-[#818CF8] transition-colors">
+                            <mat-icon class="!w-5 !h-5 !text-[20px]">alternate_email</mat-icon>
+                        </div>
+                        <input id="email" type="email" formControlName="email" placeholder="name@company.com"
+                            class="w-full h-14 pl-12 pr-4 bg-white/[0.03] border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#818CF8]/30 focus:border-[#818CF8] transition-all duration-300 group-hover:bg-white/[0.06]">
                     </div>
-                    @if (registerForm.get('confirmPassword')?.hasError('required') &&
-                    registerForm.get('confirmPassword')?.touched) {
-                    <p class="text-sm text-red-600 mt-1">Please confirm your password</p>
-                    }
-                    @if (registerForm.get('confirmPassword')?.hasError('passwordMismatch') &&
-                    registerForm.get('confirmPassword')?.touched) {
-                    <p class="text-sm text-red-600 mt-1">Passwords do not match</p>
-                    }
                 </div>
 
-                <!-- Error Message -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="space-y-2.5">
+                        <label for="password"
+                            class="block text-[13px] font-semibold text-[#8A8F98] uppercase tracking-wider ml-1">Password</label>
+                        <div class="relative group/input">
+                            <input id="password" [type]="hidePassword ? 'password' : 'text'" formControlName="password"
+                                placeholder="••••••••"
+                                class="w-full h-14 px-4 pr-10 bg-white/[0.03] border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#818CF8]/30 focus:border-[#818CF8] transition-all duration-300 group-hover:bg-white/[0.06]">
+                            <button type="button" (click)="togglePasswordVisibility()"
+                                class="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors p-1.5 rounded-xl">
+                                <mat-icon class="!w-4 !h-4 !text-[18px]">{{hidePassword ? 'visibility_off' :
+                                    'visibility'}}</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="space-y-2.5">
+                        <label for="confirmPassword"
+                            class="block text-[13px] font-semibold text-[#8A8F98] uppercase tracking-wider ml-1">Confirm</label>
+                        <div class="relative group/input">
+                            <input id="confirmPassword" [type]="hideConfirmPassword ? 'password' : 'text'"
+                                formControlName="confirmPassword" placeholder="••••••••"
+                                class="w-full h-14 px-4 pr-10 bg-white/[0.03] border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#818CF8]/30 focus:border-[#818CF8] transition-all duration-300 group-hover:bg-white/[0.06]">
+                            <button type="button" (click)="toggleConfirmPasswordVisibility()"
+                                class="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors p-1.5 rounded-xl">
+                                <mat-icon class="!w-4 !h-4 !text-[18px]">{{hideConfirmPassword ? 'visibility_off' :
+                                    'visibility'}}</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                @if (registerForm.get('password')?.touched && registerForm.get('confirmPassword')?.touched &&
+                registerForm.get('confirmPassword')?.hasError('passwordMismatch')) {
+                <p class="text-[12px] text-red-500 font-bold mt-1 ml-1 animate-fade-in flex items-center gap-1">
+                    <mat-icon class="!w-3 !h-3 !text-[12px]">warning</mat-icon> Passwords don't match
+                </p>
+                }
+
                 @if (errorMessage) {
-                <div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
-                    {{ errorMessage }}
+                <div
+                    class="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-start gap-3 animate-slide-up">
+                    <mat-icon class="!w-5 !h-5 !text-[18px] text-red-400 mt-0.5">error_outline</mat-icon>
+                    <p class="text-[14px] text-red-300 font-medium leading-tight">{{ errorMessage }}</p>
                 </div>
                 }
 
-                <!-- Submit Button -->
-                <button mat-flat-button type="submit"
-                    class="w-full h-12 bg-brand-blue hover:bg-opacity-90 text-white font-medium transition-colors duration-200 shadow-lg shadow-brand-blue/20"
+                <button type="submit"
+                    class="w-full h-14 bg-gradient-to-r from-[#818CF8] to-[#5E6AD2] hover:from-[#939DFF] hover:to-[#6B78E8] text-white font-bold rounded-2xl transition-all duration-300 shadow-[0_15px_30px_-6px_rgba(129,140,248,0.3)] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed group mt-2 overflow-hidden relative"
                     [disabled]="loading || registerForm.invalid">
+                    <div
+                        class="absolute inset-0 w-1/2 h-full bg-white/10 skew-x-[-30deg] -translate-x-full group-hover:animate-shimmer">
+                    </div>
+
                     @if (loading) {
-                    <div class="flex items-center justify-center gap-2">
-                        <mat-spinner diameter="20" class="inline-block"></mat-spinner>
-                        <span class="font-light">Creating account...</span>
+                    <div class="flex items-center justify-center gap-3">
+                        <mat-spinner diameter="20" class="!text-white"></mat-spinner>
+                        <span class="text-[15px]">Creating Workspace...</span>
                     </div>
                     } @else {
-                    <span class="font-light">Create account</span>
+                    <div class="flex items-center justify-center gap-3 relative z-10">
+                        <span class="text-[16px]">Get Unlimited Access</span>
+                        <mat-icon
+                            class="!w-5 !h-5 !text-[20px] group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform">rocket_launch</mat-icon>
+                    </div>
                     }
                 </button>
 
-                <!-- Separator -->
-                <div class="relative my-8">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-slate-200"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-4 bg-white text-slate-500 font-light">Already have an account?</span>
-                    </div>
-                </div>
-
-                <!-- Login Link -->
-                <div class="text-center">
-                    <a routerLink="/login"
-                        class="text-slate-700 hover:text-slate-900 font-medium text-sm transition-colors duration-200 border-b border-slate-300 hover:border-slate-900 pb-px">
-                        Sign in instead
-                    </a>
+                <div class="pt-4 text-center">
+                    <p class="text-[15px] text-[#8A8F98] font-medium">
+                        Returning to TeamFlow?
+                        <a routerLink="/login"
+                            class="text-white hover:text-[#818CF8] transition-all ml-1 underline underline-offset-8 decoration-[#818CF8]/40 hover:decoration-[#818CF8] decoration-2">
+                            Sign in to Account
+                        </a>
+                    </p>
                 </div>
             </form>
+        </div>
+
+        <!-- Background Glows for Right Panel -->
+        <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+            <div
+                class="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#818CF8] opacity-[0.05] blur-[100px] rounded-full animate-pulse">
+            </div>
         </div>
     </div>
 </div>
