@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.FORBIDDEN.value());
         body.put("error", "Forbidden");
-        body.put("message", ex.getMessage());
+        body.put("message", "Access Denied: You do not have permission to perform this action.");
         return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
     }
 
