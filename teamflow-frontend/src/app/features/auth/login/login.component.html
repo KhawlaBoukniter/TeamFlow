@@ -1,131 +1,170 @@
-<!-- Login - Professional & Elegant -->
-<div class="min-h-screen flex">
+<!-- Login - Ultra Modern Split-Screen Experience -->
+<div
+    class="min-h-screen w-full flex flex-col md:flex-row bg-[#020203] font-['Inter'] selection:bg-[#5E6AD2]/30 overflow-y-auto">
 
-    <!-- Left Panel - Brand & Context (Light Background) -->
-    <div class="hidden lg:flex lg:w-1/2 bg-primary-100 relative overflow-hidden animate-subtle-fade">
-        <!-- Subtle background pattern suggesting workflow (Darker opacity for visibility) -->
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute top-20 left-20 w-64 h-px bg-brand-dark"></div>
-            <div class="absolute top-20 left-20 w-px h-64 bg-brand-dark"></div>
-            <div class="absolute top-40 left-40 w-48 h-px bg-brand-dark"></div>
-            <div class="absolute top-60 left-60 w-32 h-px bg-brand-dark"></div>
+    <!-- Left Panel: Immersive Visuals (Hidden on Mobile) -->
+    <div
+        class="flex flex-col w-full md:w-1/2 lg:w-3/5 bg-[#030304] relative items-center justify-center p-12 md:p-20 overflow-hidden border-b md:border-b-0 md:border-r border-white/5 min-h-[70vh] md:min-h-screen">
+        <!-- Visual Content -->
+        <div class="relative z-10 max-w-xl animate-fade-in">
+            <div class="mb-14">
+                <img src="assets/images/logo.png" alt="TeamFlow"
+                    class="h-10 w-auto grayscale brightness-200 opacity-95 transition-transform hover:scale-105 duration-700">
+            </div>
+
+            <h1 class="text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.05] mb-8">
+                The hub for <span
+                    class="bg-clip-text text-transparent bg-gradient-to-r from-[#5E6AD2] via-[#818CF8] to-purple-400">modern
+                    teams.</span>
+            </h1>
+
+            <p class="text-xl text-[#8A8F98] font-light leading-relaxed mb-12 max-w-md">
+                Experience the fastest way to organize, track, and collaborate on your most ambitious projects.
+            </p>
+
+            <!-- Feature Badges -->
+            <div class="grid grid-cols-2 gap-4 mt-12">
+                <div
+                    class="p-4 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm group hover:bg-white/[0.05] transition-all duration-500">
+                    <mat-icon class="!text-[#5E6AD2] mb-3 !w-6 !h-6 !text-[24px]">speed</mat-icon>
+                    <h4 class="text-white font-semibold text-sm">Light Speed</h4>
+                    <p class="text-[12px] text-[#8A8F98] mt-1">Built for performance.</p>
+                </div>
+                <div
+                    class="p-4 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm group hover:bg-white/[0.05] transition-all duration-500">
+                    <mat-icon class="!text-[#818CF8] mb-3 !w-6 !h-6 !text-[24px]">auto_awesome</mat-icon>
+                    <h4 class="text-white font-semibold text-sm">Automated</h4>
+                    <p class="text-[12px] text-[#8A8F98] mt-1">Focus on what matters.</p>
+                </div>
+            </div>
         </div>
 
-        <div class="relative z-10 flex flex-col justify-between p-12 text-brand-dark w-full">
-            <!-- Logo & Brand -->
-            <div class="animate-slide-up delay-100">
-                <div class="flex items-center gap-4 mb-8 relative left-28 bottom-5">
-                    <!-- Logo Image -->
-                    <img src="assets/images/logo.png" alt="TeamFlow Logo" class="w-48 h-auto object-contain">
-                </div>
-
-                <h1 class="text-5xl font-light leading-tight mb-8 animate-slide-up delay-200 text-brand-dark">
-                    Organize your work.<br>
-                    <span class="font-medium text-brand-blue">Collaborate seamlessly.</span>
-                </h1>
-
-                <p class="text-slate-600 text-lg font-light max-w-md animate-slide-up delay-300 leading-relaxed">
-                    A professional workspace for teams that value structure, clarity, and efficient workflows.
-                </p>
+        <!-- Ambient Background for Left Panel -->
+        <div class="absolute inset-0 z-0">
+            <div
+                class="absolute top-[-10%] left-[-10%] w-[80%] h-[80%] bg-[#5E6AD2] opacity-[0.08] blur-[150px] rounded-full animate-pulse">
             </div>
-
-            <!-- Footer info -->
-            <div class="text-slate-500 text-sm font-light animate-subtle-fade delay-300">
-                © 2026 TeamFlow • Projet Fil Rouge
+            <div
+                class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#818CF8] opacity-[0.05] blur-[150px] rounded-full delay-1000 animate-pulse">
             </div>
+            <div class="absolute inset-0 opacity-[0.03]"
+                style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 50px 50px;">
+            </div>
+        </div>
+        <!-- Scroll Indicator (Visible on Mobile) -->
+        <div
+            class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 md:hidden animate-bounce opacity-40">
+            <span class="text-[9px] text-white uppercase tracking-[0.2em] font-bold">Scroll Down</span>
+            <mat-icon class="!text-white !w-4 !h-4 !text-[18px]">expand_more</mat-icon>
         </div>
     </div>
 
-    <!-- Right Panel - Login Form (White Background) -->
-    <div class="flex-1 flex items-center justify-center p-8 bg-white animate-slide-up">
-        <div class="w-full max-w-md">
+    <!-- Right Panel: Login Form -->
+    <div class="flex-1 flex items-center justify-center p-6 md:p-12 lg:p-20 relative bg-[#020203]">
 
-            <!-- Mobile Logo -->
-            <div class="lg:hidden flex items-center justify-center mb-10">
-                <img src="assets/images/logo.png" alt="TeamFlow Logo" class="w-40 h-auto object-contain">
-            </div>
+        <!-- Mobile Logo -->
+        <div class="absolute top-8 left-8 md:hidden">
+            <img src="assets/images/logo.png" alt="TeamFlow" class="h-16 w-auto grayscale brightness-200 opacity-80">
+        </div>
 
+        <div class="w-full max-w-[440px] animate-slide-up">
             <!-- Form Header -->
             <div class="mb-10">
-                <h2 class="text-3xl font-light text-slate-900 mb-2">Welcome back</h2>
-                <p class="text-slate-500 font-light">Sign in to access your workspace</p>
+                <h2 class="text-4xl font-bold text-white tracking-tight mb-4">Welcome back</h2>
+                <p class="text-[#8A8F98] text-[16px] font-light">Sign in to your workspace to continue.</p>
             </div>
 
             <!-- Login Form -->
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-7">
 
-                <!-- Email Field -->
-                <div class="space-y-2">
-                    <label for="email" class="block text-sm font-medium text-slate-700">Email address</label>
-                    <input id="email" type="email" formControlName="email" placeholder="name@company.com"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent transition-all duration-200">
+                <div class="space-y-2.5">
+                    <label for="email"
+                        class="block text-[13px] font-semibold text-[#8A8F98] uppercase tracking-wider ml-1">Work
+                        Email</label>
+                    <div class="relative group/input">
+                        <div
+                            class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-[#4A4B4E] group-focus-within/input:text-[#5E6AD2] transition-colors">
+                            <mat-icon class="!w-5 !h-5 !text-[20px]">alternate_email</mat-icon>
+                        </div>
+                        <input id="email" type="email" formControlName="email" placeholder="name@company.com"
+                            class="w-full h-14 pl-12 pr-4 bg-white/[0.03] border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#5E6AD2]/30 focus:border-[#5E6AD2] transition-all duration-300 group-hover:bg-white/[0.06]">
+                    </div>
                     @if (loginForm.get('email')?.hasError('required') && loginForm.get('email')?.touched) {
-                    <p class="text-sm text-red-600 mt-1">Email is required</p>
-                    }
-                    @if (loginForm.get('email')?.hasError('email') && loginForm.get('email')?.touched) {
-                    <p class="text-sm text-red-600 mt-1">Please enter a valid email</p>
+                    <p class="text-[12px] text-red-400 font-medium mt-1 ml-1 animate-fade-in flex items-center gap-1">
+                        <mat-icon class="!w-3 !h-3 !text-[12px]">info</mat-icon> Email is required
+                    </p>
                     }
                 </div>
 
-                <!-- Password Field -->
-                <div class="space-y-2">
-                    <label for="password" class="block text-sm font-medium text-slate-700">Password</label>
-                    <div class="relative">
+                <div class="space-y-2.5">
+                    <div class="flex items-center justify-between px-1">
+                        <label for="password"
+                            class="block text-[13px] font-semibold text-[#8A8F98] uppercase tracking-wider">Password</label>
+                        <a href="#"
+                            class="text-[12px] font-bold text-[#5E6AD2] hover:text-[#818CF8] transition-colors">Forgot?</a>
+                    </div>
+                    <div class="relative group/input">
+                        <div
+                            class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-[#4A4B4E] group-focus-within/input:text-[#5E6AD2] transition-colors">
+                            <mat-icon class="!w-5 !h-5 !text-[20px]">lock_open</mat-icon>
+                        </div>
                         <input id="password" [type]="hidePassword ? 'password' : 'text'" formControlName="password"
-                            placeholder="Enter your password"
-                            class="w-full px-4 py-3 pr-12 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent transition-all duration-200">
+                            placeholder="••••••••"
+                            class="w-full h-14 pl-12 pr-12 bg-white/[0.03] border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#5E6AD2]/30 focus:border-[#5E6AD2] transition-all duration-300 group-hover:bg-white/[0.06]">
                         <button type="button" (click)="togglePasswordVisibility()"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-blue transition-colors">
-                            <mat-icon class="text-xl">{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors p-2 rounded-xl">
+                            <mat-icon class="!w-5 !h-5 !text-[22px]">{{hidePassword ? 'visibility_off' :
+                                'visibility'}}</mat-icon>
                         </button>
                     </div>
-                    @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
-                    <p class="text-sm text-red-600 mt-1">Password is required</p>
-                    }
-                    @if (loginForm.get('password')?.hasError('minlength') && loginForm.get('password')?.touched) {
-                    <p class="text-sm text-red-600 mt-1">Password must be at least 6 characters</p>
-                    }
                 </div>
 
-                <!-- Error Message -->
                 @if (errorMessage) {
-                <div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
-                    {{ errorMessage }}
+                <div
+                    class="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-start gap-3 animate-slide-up">
+                    <mat-icon class="!w-5 !h-5 !text-[18px] text-red-400 mt-0.5">error_outline</mat-icon>
+                    <p class="text-[14px] text-red-300 font-medium leading-tight">{{ errorMessage }}</p>
                 </div>
                 }
 
-                <!-- Submit Button -->
-                <button mat-flat-button type="submit"
-                    class="w-full h-12 bg-brand-blue hover:bg-opacity-90 text-white font-medium transition-colors duration-200 shadow-lg shadow-brand-blue/20"
+                <button type="submit"
+                    class="w-full h-14 bg-gradient-to-r from-[#5E6AD2] to-[#818CF8] hover:from-[#6B78E8] hover:to-[#939DFF] text-white font-bold rounded-2xl transition-all duration-300 shadow-[0_15px_30px_-6px_rgba(94,106,210,0.3)] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed group mt-2 overflow-hidden relative"
                     [disabled]="loading || loginForm.invalid">
+                    <div
+                        class="absolute inset-0 w-1/2 h-full bg-white/20 skew-x-[-30deg] -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000">
+                    </div>
+
                     @if (loading) {
-                    <div class="flex items-center justify-center gap-2">
-                        <mat-spinner diameter="20" class="inline-block"></mat-spinner>
-                        <span class="font-light">Signing in...</span>
+                    <div class="flex items-center justify-center gap-3">
+                        <mat-spinner diameter="20" class="!text-white"></mat-spinner>
+                        <span class="text-[15px]">Signing in...</span>
                     </div>
                     } @else {
-                    <span class="font-light">Sign in</span>
+                    <div class="flex items-center justify-center gap-3 relative z-10">
+                        <span class="text-[16px]">Sign in</span>
+                        <mat-icon
+                            class="!w-5 !h-5 !text-[20px] group-hover:translate-x-1 transition-transform">login</mat-icon>
+                    </div>
                     }
                 </button>
 
-                <!-- Separator -->
-                <div class="relative my-8">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-slate-200"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-4 bg-white text-slate-500 font-light">New to TeamFlow?</span>
-                    </div>
-                </div>
-
-                <!-- Register Link -->
-                <div class="text-center">
-                    <a routerLink="/register"
-                        class="text-slate-700 hover:text-slate-900 font-medium text-sm transition-colors duration-200 border-b border-slate-300 hover:border-slate-900 pb-px">
-                        Create an account
-                    </a>
+                <div class="pt-6 text-center">
+                    <p class="text-[15px] text-[#8A8F98] font-medium">
+                        Don't have an account?
+                        <a routerLink="/register"
+                            class="text-white hover:text-[#818CF8] transition-all ml-1 underline underline-offset-8 decoration-[#5E6AD2]/40 hover:decoration-[#818CF8] decoration-2">
+                            Join TeamFlow
+                        </a>
+                    </p>
                 </div>
             </form>
+        </div>
+
+        <!-- Background Glows for Right Panel -->
+        <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+            <div
+                class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#5E6AD2] opacity-[0.05] blur-[120px] rounded-full animate-pulse">
+            </div>
         </div>
     </div>
 </div>
