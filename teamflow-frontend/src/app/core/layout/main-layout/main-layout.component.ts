@@ -8,7 +8,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
     standalone: true,
     imports: [CommonModule, RouterOutlet, SidebarComponent],
     template: `
-    <div class="flex h-screen w-full bg-[#09090b] text-white font-sans overflow-hidden">
+    <div class="flex h-screen w-full bg-[#121214] text-white font-sans overflow-hidden">
       <!-- Sidebar (Fixed width) -->
       <app-sidebar class="w-[240px] shrink-0 h-full z-20"></app-sidebar>
 
