@@ -13,7 +13,12 @@ import { BRANDING } from '../../constants/branding';
   standalone: true,
   imports: [CommonModule, RouterModule, MatIconModule, MatButtonModule, MatTooltipModule],
   template: `
-    <div class="flex flex-col h-full bg-[#09090b] text-[#8A8F98] border-r border-[#1C1C1E] select-none">
+    <div class="flex flex-col h-full bg-[#121214] text-[#8A8F98] border-r border-[#1C1C1E] select-none">
+      
+      <!-- Logo Section -->
+      <div class="px-6 py-10 justify-items-center">
+        <img src="assets/images/logo.png" alt="TeamFlow" class="h-8 w-auto grayscale brightness-200 opacity-80">
+      </div>
 
       <!-- Top: Workspace Selector -->
       <div class="h-12 flex items-center px-4 hover:bg-[#1C1C1E] cursor-pointer transition-colors mx-2 mt-2 rounded-lg group">
