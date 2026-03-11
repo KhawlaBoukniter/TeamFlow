@@ -9,11 +9,14 @@ export class GlobalErrorHandler implements ErrorHandler {
         console.error('An error occurred:', error);
 
         let message = 'An unexpected error occurred.';
-        if (error?.message) {
-            message = error.message;
-        }
+
+        // Extract message from backend HttpErrorResponse
         if (error?.error?.message) {
-            message = error.error.message;
+            message = typeof error.error.message === 'object'
+                ? JSON.stringify(error.error.message)
+                : error.error.message;
+        } else if (error?.message) {
+            message = error.message;
         }
 
         this.zone.run(() => {
