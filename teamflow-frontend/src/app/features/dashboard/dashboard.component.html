@@ -249,7 +249,7 @@
                         <div class="w-full">
                             <div *ngFor="let t of recentTasks; let last = last; let i = index"
                                 class="group flex items-center gap-4 px-5 py-3.5 hover:bg-[#1A1A1D] transition-colors border-b border-[#1C1C1E] last:border-0 cursor-pointer"
-                                (click)="openProject(t.columnId!)">
+                                (click)="openProject(t.projectId!)">
 
                                 <div class="w-8 h-8 rounded-xl shrink-0 flex items-center justify-center shadow-sm"
                                     [ngClass]="{
