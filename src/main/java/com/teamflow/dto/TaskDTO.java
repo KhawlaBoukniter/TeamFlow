@@ -35,6 +35,9 @@ public class TaskDTO {
     private Long columnId;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String columnName;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String projectName;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
