@@ -242,6 +242,11 @@
                                 {{ myTasks.length }}
                             </span>
                         </h2>
+                        <a routerLink="/my-issues"
+                            class="text-[11px] text-[#5E6AD2] hover:text-[#A78BFA] transition-colors flex items-center gap-0.5 font-medium">
+                            View all
+                            <mat-icon class="!w-3 !h-3 !text-[12px]">chevron_right</mat-icon>
+                        </a>
                     </div>
 
                     <div *ngIf="recentTasks.length > 0"
