@@ -99,8 +99,10 @@ public class DashboardServiceImpl implements DashboardService {
                 dto.setBlocked(task.isBlocked());
                 if (task.getColumn() != null) {
                         dto.setColumnId(task.getColumn().getId());
+                        dto.setColumnName(task.getColumn().getName());
                         if (task.getColumn().getProject() != null) {
                                 dto.setProjectName(task.getColumn().getProject().getName());
+                                dto.setProjectId(task.getColumn().getProject().getId());
                         }
                 }
                 dto.setCreatedAt(task.getCreatedAt());
