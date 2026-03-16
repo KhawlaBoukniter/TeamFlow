@@ -4,6 +4,8 @@ import { RouterModule, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { CommandPaletteComponent } from '../../../shared/components/command-palette/command-palette.component';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { BRANDING } from '../../constants/branding';
@@ -11,7 +13,7 @@ import { BRANDING } from '../../constants/branding';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatIconModule, MatButtonModule, MatTooltipModule],
+  imports: [CommonModule, RouterModule, MatIconModule, MatButtonModule, MatTooltipModule, MatDialogModule],
   template: `
     <div class="flex flex-col h-full bg-[#121214] text-[#8A8F98] border-r border-[#1C1C1E] select-none">
       
@@ -30,6 +32,17 @@ import { BRANDING } from '../../constants/branding';
         </div>
         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <mat-icon class="!w-4 !h-4 !text-[16px]">unfold_more</mat-icon>
+        </div>
+      </div>
+
+      <!-- Search Trigger -->
+      <div (click)="openSearch()" 
+           class="mx-4 mt-4 h-9 flex items-center px-3 bg-[#1C1C1E] border border-[#2E3035] rounded-md cursor-pointer hover:border-[#3A3C42] transition-colors group">
+        <mat-icon class="!w-4 !h-4 !text-[14px] text-[#8A8F98] mr-2">search</mat-icon>
+        <span class="text-[12px] text-[#8A8F98] flex-1">Search...</span>
+        <div class="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-[#25262B] text-[10px] text-[#8A8F98] font-mono group-hover:text-white transition-colors">
+          <span>Ctrl</span>
+          <span>K</span>
         </div>
       </div>
 
@@ -150,6 +163,7 @@ export class SidebarComponent {
   authService = inject(AuthService);
   notificationService = inject(NotificationService);
   router = inject(Router);
+  private dialog = inject(MatDialog);
 
   unreadCount$ = this.notificationService.unreadCount$;
 
@@ -169,5 +183,14 @@ export class SidebarComponent {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  openSearch() {
+    this.dialog.open(CommandPaletteComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      panelClass: 'command-palette-dialog',
+      backdropClass: 'command-palette-backdrop'
+    });
   }
 }
