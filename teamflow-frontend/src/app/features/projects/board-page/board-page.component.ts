@@ -64,11 +64,22 @@ export class BoardPageComponent implements OnInit {
 
   unreadCount: number = 0;
 
+  get filteredAssignees() {
+    if (!this.menuSearchQuery) return this.availableAssignees;
+    const query = this.menuSearchQuery.toLowerCase();
+    return this.availableAssignees.filter(u =>
+      (u.name && u.name.toLowerCase().includes(query)) ||
+      u.email.toLowerCase().includes(query)
+    );
+  }
+
   // Filtering
   searchQuery: string = '';
+  menuSearchQuery: string = '';
   activeFilters = {
     priorities: [] as string[],
-    assigneeIds: [] as number[]
+    assigneeIds: [] as number[],
+    columnIds: [] as number[]
   };
   availableAssignees: any[] = [];
 
@@ -258,6 +269,13 @@ export class BoardPageComponent implements OnInit {
   getTasks(columnId: number): Task[] {
     let tasks = this.tasksByColumn[columnId] || [];
 
+    // Apply Column Filter (Global status filter)
+    if (this.activeFilters.columnIds.length > 0) {
+      if (!this.activeFilters.columnIds.includes(columnId)) {
+        return []; // If this column is not in active filters, return no tasks for it
+      }
+    }
+
     // Apply Search Filter
     if (this.searchQuery) {
       const query = this.searchQuery.toLowerCase().trim();
@@ -277,6 +295,26 @@ export class BoardPageComponent implements OnInit {
     }
 
     return tasks;
+  }
+
+  toggleColumnFilter(columnId: number): void {
+    const current = [...this.activeFilters.columnIds];
+    const index = current.indexOf(columnId);
+    if (index >= 0) {
+      this.activeFilters = {
+        ...this.activeFilters,
+        columnIds: current.filter(id => id !== columnId)
+      };
+    } else {
+      this.activeFilters = {
+        ...this.activeFilters,
+        columnIds: [...current, columnId]
+      };
+    }
+  }
+
+  isColumnSelected(columnId: number): boolean {
+    return this.activeFilters.columnIds.includes(columnId);
   }
 
   togglePriorityFilter(priority: string): void {
@@ -316,13 +354,17 @@ export class BoardPageComponent implements OnInit {
   clearFilters(): void {
     this.activeFilters = {
       priorities: [],
-      assigneeIds: []
+      assigneeIds: [],
+      columnIds: []
     };
     this.searchQuery = '';
   }
 
   get hasActiveFilters(): boolean {
-    return this.activeFilters.priorities.length > 0 || this.activeFilters.assigneeIds.length > 0 || !!this.searchQuery;
+    return this.activeFilters.priorities.length > 0 ||
+      this.activeFilters.assigneeIds.length > 0 ||
+      this.activeFilters.columnIds.length > 0 ||
+      !!this.searchQuery;
   }
 
   isAssigneeSelected(userId: any): boolean {
