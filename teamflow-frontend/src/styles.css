@@ -14,60 +14,27 @@
    ============================================================================= */
 
 :root {
-    /* App Background */
-    --bg-app: #f9fafb;
-    /* gray-50 */
-    --bg-surface: #ffffff;
-    /* white */
+    /* Linear Premium Palette */
+    --bg-app: #08090A;
+    --bg-surface: #0F0F11;
+    --bg-popup: #1F2023;
 
-    /* Text Hierarchy */
-    --text-primary: #111827;
-    /* gray-900 */
-    --text-secondary: #6b7280;
-    /* gray-500 */
-    --text-tertiary: #9ca3af;
-    /* gray-400 */
+    --text-primary: #EDEDED;
+    --text-secondary: #8A8F98;
+    --text-tertiary: #6B6F76;
 
-    /* Borders */
-    --border: #e5e7eb;
-    /* gray-200 */
-    --border-light: #f3f4f6;
-    /* gray-100 */
+    --border-linear: #2E3035;
+    --border-linear-light: #1C1C1E;
 
-    /* Brand */
-    --brand-primary: #4f46e5;
-    /* indigo-600 */
-    --brand-hover: #4338ca;
-    /* indigo-700 */
-    --brand-light: #eef2ff;
-    /* indigo-50 */
+    --brand-linear: #5E6AD2;
+    --brand-linear-glow: rgba(94, 106, 210, 0.4);
 
-    /* Accent */
-    --accent: #06b6d4;
-    /* cyan-500 */
-    --accent-hover: #0891b2;
-    /* cyan-600 */
+    --priority-urgent: #FF4D4D;
+    --priority-high: #F59E0B;
+    --priority-medium: #F59E0B;
+    --priority-low: #8A8F98;
 
-    /* Priority Colors (LOW | MEDIUM | HIGH) */
-    --priority-low: #10b981;
-    /* green-500 */
-    --priority-medium: #f59e0b;
-    /* amber-500 */
-    --priority-high: #f97316;
-    /* orange-500 */
-
-    --priority-low-bg: #ecfdf5;
-    --priority-medium-bg: #fffbeb;
-    --priority-high-bg: #fff7ed;
-
-    /* Shadows */
-    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
-    --shadow-card-hover: 0 4px 12px 0 rgba(0, 0, 0, 0.1);
-    --shadow-dropdown: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-
-    /* Sidebar (legacy) */
-    --bg-sidebar: #0f172a;
-    --text-inverse: #ffffff;
+    --radius-linear: 6px;
 }
 
 /* =============================================================================
@@ -261,24 +228,63 @@ main>*:not(router-outlet) {
    COMPONENT-SPECIFIC STYLES
    ============================================================================= */
 
-/* Scrollbars */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+/* Custom Scrollbars (Linear Style) */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
 }
 
-::-webkit-scrollbar-track {
-    background: var(--border-light);
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 4px;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #2E3035;
+    border-radius: 10px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #cbd5e1;
-    /* gray-300 */
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #3A3C42;
+}
+
+/* Global scrollbar for dark areas */
+[class*="bg-#08090A"],
+[class*="bg-#121214"],
+[class*="bg-[#1C1C1E]"],
+.mat-mdc-dialog-container {
+    scrollbar-width: thin;
+    scrollbar-color: #2E3035 transparent;
+}
+
+/* Linear Checkbox Styling */
+.linear-checkbox .mdc-checkbox__background {
+    border-radius: 4px !important;
+    border: 1px solid #3A3C42 !important;
+    background-color: transparent !important;
+    transition: all 0.1s ease !important;
+}
+
+.linear-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background {
+    background-color: #5E6AD2 !important;
+    border-color: #5E6AD2 !important;
+}
+
+.linear-checkbox .mdc-checkbox__native-control:focus~.mdc-checkbox__background {
+    box-shadow: 0 0 0 2px rgba(94, 106, 210, 0.2) !important;
+}
+
+/* Linear-style dense form fields */
+.dense-form-field .mat-mdc-text-field-wrapper {
+    height: 40px !important;
+    padding: 0 12px !important;
+}
+
+.dense-form-field .mat-mdc-form-field-flex {
+    height: 40px !important;
+}
+
+.dense-form-field .mdc-notched-outline__notch {
+    border-left: none !important;
 }
 
 /* =============================================================================
@@ -599,6 +605,51 @@ main>*:not(router-outlet) {
     text-transform: uppercase !important;
     letter-spacing: 0.04em !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Linear Search Input in Menu */
+.linear-menu-search {
+    padding: 8px 12px !important;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #1F2023 !important;
+}
+
+.linear-filter-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 0 8px;
+    height: 32px;
+}
+
+.linear-filter-input {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    color: #EDEDED !important;
+    font-size: 13px !important;
+    width: 100%;
+    padding: 4px 6px !important;
+}
+
+.linear-filter-input::placeholder {
+    color: #6B6F76 !important;
+}
+
+.linear-menu-kbd {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+    color: #8A8F98;
 }
 
 /* Submenu trigger arrow — match Linear's ▶ */
