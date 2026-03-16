@@ -66,12 +66,6 @@ import { BRANDING } from '../../constants/branding';
             {{ unreadCount$ | async }}
           </span>
         </a>
-        <a routerLink="/my-issues"
-           routerLinkActive="!bg-[#25262B] !text-white font-medium"
-           class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-[#1C1C1E] hover:text-white transition-colors cursor-pointer text-[#8A8F98]">
-          <mat-icon class="!w-4 !h-4 !text-[16px]">adjust</mat-icon>
-          <span class="text-[13px]">My issues</span>
-        </a>
         <a routerLink="/profile"
            routerLinkActive="!bg-[#25262B] !text-white font-medium"
            class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-[#1C1C1E] hover:text-white transition-colors cursor-pointer text-[#8A8F98]">
@@ -83,6 +77,13 @@ import { BRANDING } from '../../constants/branding';
         <div class="pt-4 pb-1.5 px-2">
           <span class="text-[10px] font-semibold uppercase tracking-widest text-[#8A8F98]/50">Workspace</span>
         </div>
+
+        <a routerLink="/my-issues"
+           routerLinkActive="!bg-[#25262B] !text-white font-medium"
+           class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-[#1C1C1E] hover:text-white transition-colors cursor-pointer text-[#8A8F98]">
+          <mat-icon class="!w-4 !h-4 !text-[16px]">adjust</mat-icon>
+          <span class="text-[13px]">My issues</span>
+        </a>
 
         <a routerLink="/projects"
            routerLinkActive="!bg-[#25262B] !text-white font-medium"
@@ -110,37 +111,10 @@ import { BRANDING } from '../../constants/branding';
             <span class="text-[13px]">Audit Log</span>
           </a>
         </ng-container>
-        <div class="flex items-center gap-3 px-2 py-1.5 rounded-md opacity-thirty cursor-not-allowed pointer-events-none select-none"
-          matTooltip="Coming soon" matTooltipPosition="right">
-          <mat-icon class="!w-4 !h-4 !text-[16px]">layers</mat-icon>
-          <span class="text-[13px]">Views</span>
-        </div>
-
-        <!-- Teams Section -->
-        <div class="pt-4 pb-1.5 px-2">
-          <span class="text-[10px] font-semibold uppercase tracking-widest text-[#8A8F98]/50">Your teams</span>
-        </div>
-        <div class="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-[#1C1C1E] hover:text-white transition-colors cursor-pointer">
-          <div class="w-4 h-4 rounded bg-green-700 flex items-center justify-center text-[9px] text-white font-bold shrink-0">
-            {{ userEmail.charAt(0).toUpperCase() }}
-          </div>
-          <span class="text-[13px] truncate">{{ userEmail.split('@')[0] }}</span>
-          <mat-icon class="!w-3 !h-3 !text-[12px] ml-auto opacity-50">arrow_drop_down</mat-icon>
-        </div>
       </nav>
 
       <!-- Bottom Actions -->
       <div class="p-3 mt-auto space-y-0.5 border-t border-[#1C1C1E]">
-        <div class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-[#1C1C1E] hover:text-white transition-colors cursor-pointer opacity-thirty pointer-events-none"
-          matTooltip="Coming soon" matTooltipPosition="right">
-          <mat-icon class="!w-4 !h-4 !text-[16px]">cloud_upload</mat-icon>
-          <span class="text-[13px]">Import issues</span>
-        </div>
-        <div class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-[#1C1C1E] hover:text-white transition-colors cursor-pointer opacity-thirty pointer-events-none"
-          matTooltip="Coming soon" matTooltipPosition="right">
-          <mat-icon class="!w-4 !h-4 !text-[16px]">person_add</mat-icon>
-          <span class="text-[13px]">Invite people</span>
-        </div>
 
         <!-- User / Logout -->
         <div class="flex items-center justify-between mt-2 pt-2 border-t border-[#1C1C1E] px-2">
