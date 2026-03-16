@@ -3,7 +3,6 @@ package com.teamflow.service.impl;
 import com.teamflow.dto.SearchResultDTO;
 import com.teamflow.entity.Project;
 import com.teamflow.entity.Task;
-import com.teamflow.entity.User;
 import com.teamflow.repository.ProjectRepository;
 import com.teamflow.repository.TaskRepository;
 import com.teamflow.repository.UserRepository;
