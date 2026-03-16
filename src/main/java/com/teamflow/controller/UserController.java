@@ -1,5 +1,6 @@
 package com.teamflow.controller;
 
+import com.teamflow.dto.PasswordChangeDTO;
 import com.teamflow.dto.UserDTO;
 import com.teamflow.service.interfaces.UserService;
 import lombok.RequiredArgsConstructor;
@@ -49,5 +50,21 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDTO> toggleActive(@PathVariable Long id) {
         return ResponseEntity.ok(userService.toggleActive(id));
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserDTO> getProfile() {
+        return ResponseEntity.ok(userService.getProfile());
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<UserDTO> updateProfile(@RequestBody UserDTO dto) {
+        return ResponseEntity.ok(userService.updateProfile(dto));
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@RequestBody PasswordChangeDTO dto) {
+        userService.changePassword(dto);
+        return ResponseEntity.ok().build();
     }
 }
