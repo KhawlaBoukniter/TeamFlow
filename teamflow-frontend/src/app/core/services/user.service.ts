@@ -40,4 +40,16 @@ export class UserService {
     toggleActive(id: number): Observable<User> {
         return this.http.put<User>(`${this.apiUrl}/${id}/toggle-active`, {});
     }
+
+    getProfile(): Observable<User> {
+        return this.http.get<User>(`${this.apiUrl}/profile`);
+    }
+
+    updateProfile(data: Partial<User>): Observable<User> {
+        return this.http.put<User>(`${this.apiUrl}/profile`, data);
+    }
+
+    changePassword(data: any): Observable<void> {
+        return this.http.put<void>(`${this.apiUrl}/change-password`, data);
+    }
 }
