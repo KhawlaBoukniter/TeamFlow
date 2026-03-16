@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -96,12 +96,6 @@ import { Project } from '../../../../shared/models';
                     </div>
                  </div>
 
-                 <!-- Priority (Visual Mock) -->
-                 <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
-                    <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">signal_cellular_alt</mat-icon>
-                    <span class="text-[13px] font-medium text-[#8A8F98]">No priority</span>
-                 </div>
-
                  <!-- Lead (Owner) -->
                  <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
                     <div class="w-4 h-4 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-[9px] font-bold">ME</div>
@@ -115,27 +109,44 @@ import { Project } from '../../../../shared/models';
                  </div>
 
                  <!-- Date Badges -->
-                 <div class="relative flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer"
-                      (click)="startPicker.open()">
-                    <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">calendar_today</mat-icon>
-                    <span class="text-[13px] font-medium" [ngClass]="{'text-[#EDEDED]': projectForm.get('startDate')?.value, 'text-[#8A8F98]': !projectForm.get('startDate')?.value}">
-                        {{ (projectForm.get('startDate')?.value | date:'MMM d') || 'Start' }}
-                    </span>
-                    <!-- Invisible input for anchor positioning -->
-                    <input matInput [matDatepicker]="startPicker" formControlName="startDate" class="absolute opacity-0 w-0 h-0 bottom-0 left-0 pointer-events-none">
-                    <mat-datepicker #startPicker panelClass="linear-datepicker"></mat-datepicker>
+                 <div class="flex flex-col gap-1">
+                    <div class="relative flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent transition-colors cursor-pointer"
+                         [ngClass]="(projectForm.get('startDate')?.invalid && projectForm.get('startDate')?.touched) ? 'border-red-500/50' : 'hover:border-[#3A3C42]'"
+                         (click)="startPicker.open()">
+                        <mat-icon class="!w-4 !h-4 !text-[16px]" [ngClass]="(projectForm.get('startDate')?.invalid && projectForm.get('startDate')?.touched) ? 'text-red-400' : 'text-[#8A8F98]'">calendar_today</mat-icon>
+                        <span class="text-[13px] font-medium" [ngClass]="{'text-[#EDEDED]': projectForm.get('startDate')?.value, 'text-[#8A8F98]': !projectForm.get('startDate')?.value, 'text-red-400': (projectForm.get('startDate')?.invalid && projectForm.get('startDate')?.touched)}">
+                            {{ (projectForm.get('startDate')?.value | date:'MMM d') || 'Start' }}
+                        </span>
+                        <input matInput [matDatepicker]="startPicker" formControlName="startDate" class="absolute opacity-0 w-0 h-0 bottom-0 left-0 pointer-events-none">
+                        <mat-datepicker #startPicker panelClass="linear-datepicker"></mat-datepicker>
+                    </div>
                  </div>
 
-                 <div class="relative flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer"
-                      (click)="endPicker.open()">
-                    <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">event</mat-icon>
-                    <span class="text-[13px] font-medium" [ngClass]="{'text-[#EDEDED]': projectForm.get('endDate')?.value, 'text-[#8A8F98]': !projectForm.get('endDate')?.value}">
-                        {{ (projectForm.get('endDate')?.value | date:'MMM d') || 'Target' }}
-                    </span>
-                    <!-- Invisible input for anchor positioning -->
-                    <input matInput [matDatepicker]="endPicker" formControlName="endDate" class="absolute opacity-0 w-0 h-0 bottom-0 left-0 pointer-events-none">
-                    <mat-datepicker #endPicker panelClass="linear-datepicker"></mat-datepicker>
+                 <div class="flex flex-col gap-1">
+                    <div class="relative flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent transition-colors cursor-pointer"
+                         [ngClass]="(projectForm.get('endDate')?.invalid && projectForm.get('endDate')?.touched) ? 'border-red-500/50' : 'hover:border-[#3A3C42]'"
+                         (click)="endPicker.open()">
+                        <mat-icon class="!w-4 !h-4 !text-[16px]" [ngClass]="(projectForm.get('endDate')?.invalid && projectForm.get('endDate')?.touched) ? 'text-red-400' : 'text-[#8A8F98]'">event</mat-icon>
+                        <span class="text-[13px] font-medium" [ngClass]="{'text-[#EDEDED]': projectForm.get('endDate')?.value, 'text-[#8A8F98]': !projectForm.get('endDate')?.value, 'text-red-400': (projectForm.get('endDate')?.invalid && projectForm.get('endDate')?.touched)}">
+                            {{ (projectForm.get('endDate')?.value | date:'MMM d') || 'Target' }}
+                        </span>
+                        <input matInput [matDatepicker]="endPicker" formControlName="endDate" class="absolute opacity-0 w-0 h-0 bottom-0 left-0 pointer-events-none">
+                        <mat-datepicker #endPicker panelClass="linear-datepicker"></mat-datepicker>
+                    </div>
                  </div>
+            </div>
+
+            <!-- Error Messages Container -->
+            <div class="px-1 space-y-1" *ngIf="projectForm.touched">
+                <p *ngIf="projectForm.get('startDate')?.hasError('futureDate')" class="text-red-400 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                    <mat-icon class="!text-[12px] !w-3 !h-3">warning</mat-icon> Start date must be in the future
+                </p>
+                <p *ngIf="projectForm.get('endDate')?.hasError('futureDate')" class="text-red-400 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                    <mat-icon class="!text-[12px] !w-3 !h-3">warning</mat-icon> Target date must be in the future
+                </p>
+                <p *ngIf="projectForm.hasError('dateRange')" class="text-red-400 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                    <mat-icon class="!text-[12px] !w-3 !h-3">priority_high</mat-icon> Target date cannot be before start date
+                </p>
             </div>
 
             <div class="h-px bg-[#2E3035] w-full"></div>
@@ -179,9 +190,20 @@ export class ProjectEditDialogComponent {
             description: [this.project.description || ''],
             type: [this.project.type || 'PERSONAL'],
             status: [this.project.status || 'ACTIVE'],
-            startDate: [this.project.startDate ? new Date(this.project.startDate) : null],
-            endDate: [this.project.endDate ? new Date(this.project.endDate) : null]
+            startDate: [this.project.startDate ? new Date(this.project.startDate) : null, [this.futureDateValidator]],
+            endDate: [this.project.endDate ? new Date(this.project.endDate) : null, [this.futureDateValidator]]
         }, { validators: this.dateRangeValidator });
+    }
+
+    futureDateValidator(control: FormControl): { [key: string]: boolean } | null {
+        if (control.value) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (new Date(control.value) < today) {
+                return { futureDate: true };
+            }
+        }
+        return null;
     }
 
     dateRangeValidator(group: FormGroup): { [key: string]: boolean } | null {
