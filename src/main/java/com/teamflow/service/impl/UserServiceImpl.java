@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
             user.setFullName(dto.getFullName());
         }
         if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
-            user.setEmail(dto.getEmail());
+            user.setEmail(dto.getEmail().toLowerCase().trim());
         }
         if (dto.isAdmin() != user.isAdmin()) {
             user.setAdmin(dto.isAdmin());

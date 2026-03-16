@@ -40,13 +40,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
+        String normalizedEmail = request.getEmail().toLowerCase().trim();
+        if (userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
             throw new IllegalArgumentException("Email already in use");
         }
 
         User user = new User();
         user.setFullName(request.getFullName());
-        user.setEmail(request.getEmail());
+        user.setEmail(normalizedEmail);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
@@ -63,15 +64,16 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
+        String normalizedEmail = request.getEmail().toLowerCase().trim();
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+                    new UsernamePasswordAuthenticationToken(normalizedEmail, request.getPassword()));
         } catch (Exception e) {
-            System.err.println("Authentication failed for user: " + request.getEmail() + " - " + e.getMessage());
+            System.err.println("Authentication failed for user: " + normalizedEmail + " - " + e.getMessage());
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmailIgnoreCase(normalizedEmail)
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
         user.setLastLogin(LocalDateTime.now());
