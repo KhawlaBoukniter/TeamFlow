@@ -31,11 +31,13 @@ export class AuthService {
     }
 
     register(request: RegisterRequest): Observable<AuthResponse> {
-        return this.http.post<AuthResponse>(`${this.API_URL}/register`, request);
+        const normalizedRequest = { ...request, email: request.email.toLowerCase().trim() };
+        return this.http.post<AuthResponse>(`${this.API_URL}/register`, normalizedRequest);
     }
 
     login(request: LoginRequest): Observable<AuthResponse> {
-        return this.http.post<AuthResponse>(`${this.API_URL}/login`, request).pipe(
+        const normalizedRequest = { ...request, email: request.email.toLowerCase().trim() };
+        return this.http.post<AuthResponse>(`${this.API_URL}/login`, normalizedRequest).pipe(
             tap(response => this.handleAuthSuccess(response))
         );
     }
