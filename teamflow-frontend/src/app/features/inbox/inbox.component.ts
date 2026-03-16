@@ -94,11 +94,6 @@ import { Notification } from '../../shared/models';
             </span>
           </div>
           <div class="flex items-center gap-2" *ngIf="selectedNotification">
-             <button *ngIf="!selectedNotification.isRead" 
-                     (click)="markAsRead(selectedNotification)"
-                     class="px-4 py-1.5 bg-[#5E6AD2] hover:bg-[#4E58B2] text-white rounded-lg text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-[#5E6AD2]/20">
-               Archive
-             </button>
           </div>
         </div>
 
