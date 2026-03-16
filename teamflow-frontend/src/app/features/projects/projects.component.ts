@@ -47,6 +47,7 @@ export class ProjectsComponent implements OnInit {
     viewMode: 'grid' | 'list' = 'grid';
     searchTerm = '';
     showArchived = false;
+    typeFilter: 'ALL' | 'PERSONAL' | 'TEAM' = 'ALL';
 
     constructor() {
         this.userEmail = this.authService.getUserEmail();
@@ -85,6 +86,11 @@ export class ProjectsComponent implements OnInit {
         // Archive Filter
         if (!this.showArchived) {
             filtered = filtered.filter(p => p.status === 'ACTIVE');
+        }
+
+        // Type Filter
+        if (this.typeFilter !== 'ALL') {
+            filtered = filtered.filter(p => p.type === this.typeFilter);
         }
 
         // Search Filter

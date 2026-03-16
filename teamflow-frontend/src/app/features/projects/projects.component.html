@@ -32,50 +32,73 @@
             </div>
 
             <!-- Controls -->
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
                 <!-- Search Bar -->
                 <div class="relative flex items-center">
                     <mat-icon
-                        class="absolute left-3 !w-4 !h-4 !text-[16px] text-[#8A8F98] pointer-events-none">search</mat-icon>
+                        class="absolute left-3 !w-3.5 !h-3.5 !text-[14px] text-[#6B6F76] pointer-events-none">search</mat-icon>
                     <input type="text" [(ngModel)]="searchTerm" placeholder="Search projects..."
-                        class="pl-9 pr-4 py-2 text-sm bg-[#1C1C1E] border border-[#2E3035] text-white placeholder:text-[#8A8F98] rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand/20 transition-all w-52">
+                        class="pl-9 pr-3 h-8 text-[13px] bg-[#1C1C1E] border border-[#2E3035] text-white placeholder:text-[#6B6F76] rounded-md outline-none focus:border-[#5E6AD2] transition-all w-48">
                 </div>
 
+                <!-- Filters (Linear Style) -->
+                <button [matMenuTriggerFor]="filterMenu" [class.text-brand]="typeFilter !== 'ALL' || showArchived"
+                    class="h-8 px-2.5 flex items-center gap-1.5 rounded-md border border-[#2E3035] text-[#8A8F98] hover:bg-[#1C1C1E] hover:text-white transition-all text-[12px] relative">
+                    <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">filter_list</mat-icon>
+                    Filters
+                    <span *ngIf="typeFilter !== 'ALL' || showArchived"
+                        class="absolute -top-1 -right-1 w-2 h-2 bg-brand rounded-full border border-[#09090b]"></span>
+                </button>
+
+                <mat-menu #filterMenu="matMenu" panelClass="linear-menu">
+                    <button mat-menu-item (click)="showArchived = !showArchived">
+                        <mat-icon>{{ showArchived ? 'check' : '' }}</mat-icon>
+                        <span [class.text-white]="showArchived">Show Archived</span>
+                    </button>
+                    <button mat-menu-item [matMenuTriggerFor]="typeMenu">
+                        <mat-icon>category</mat-icon>
+                        <span>Project Type</span>
+                        <span *ngIf="typeFilter !== 'ALL'" class="linear-filter-count">1</span>
+                    </button>
+                </mat-menu>
+
+                <mat-menu #typeMenu="matMenu" panelClass="linear-menu">
+                    <button mat-menu-item (click)="typeFilter = 'ALL'">
+                        <mat-icon>{{ typeFilter === 'ALL' ? 'check' : '' }}</mat-icon>
+                        <span [class.text-white]="typeFilter === 'ALL'">All Projects</span>
+                    </button>
+                    <button mat-menu-item (click)="typeFilter = 'PERSONAL'">
+                        <mat-icon>{{ typeFilter === 'PERSONAL' ? 'check' : '' }}</mat-icon>
+                        <span [class.text-white]="typeFilter === 'PERSONAL'">Personal</span>
+                    </button>
+                    <button mat-menu-item (click)="typeFilter = 'TEAM'">
+                        <mat-icon>{{ typeFilter === 'TEAM' ? 'check' : '' }}</mat-icon>
+                        <span [class.text-white]="typeFilter === 'TEAM'">Team</span>
+                    </button>
+                </mat-menu>
+
+                <div class="w-px h-4 bg-[#2E3035] mx-1"></div>
+
                 <!-- View Toggles -->
-                <div class="flex items-center bg-[#1C1C1E] rounded-lg p-1 border border-[#2E3035]">
+                <div class="flex items-center bg-[#1C1C1E] rounded-md p-0.5 border border-[#2E3035]">
                     <button (click)="setViewMode('list')" [class.bg-[#2C2D32]]="viewMode === 'list'"
                         [class.text-white]="viewMode === 'list'"
-                        class="p-2 rounded-md hover:bg-[#2C2D32] text-[#8A8F98] transition-all">
-                        <mat-icon class="!w-5 !h-5 !text-[20px]">format_list_bulleted</mat-icon>
+                        class="p-1.5 rounded hover:bg-[#2C2D32] text-[#8A8F98] transition-all">
+                        <mat-icon class="!w-4 !h-4 !text-[16px]">format_list_bulleted</mat-icon>
                     </button>
                     <button (click)="setViewMode('grid')" [class.bg-[#2C2D32]]="viewMode === 'grid'"
                         [class.text-white]="viewMode === 'grid'"
-                        class="p-2 rounded-md hover:bg-[#2C2D32] text-[#8A8F98] transition-all">
-                        <mat-icon class="!w-5 !h-5 !text-[20px]">grid_view</mat-icon>
+                        class="p-1.5 rounded hover:bg-[#2C2D32] text-[#8A8F98] transition-all">
+                        <mat-icon class="!w-4 !h-4 !text-[16px]">grid_view</mat-icon>
                     </button>
                 </div>
 
-                <!-- Archive Toggle -->
-                <button (click)="toggleArchivedVisibility()" [class.bg-[#2C2D32]]="showArchived"
-                    [class.text-white]="showArchived"
-                    class="h-10 px-3 flex items-center gap-2 rounded-lg border border-[#2E3035] text-[#8A8F98] hover:bg-[#2C2D32] transition-all"
-                    [matTooltip]="showArchived ? 'Hide Archived Projects' : 'Show Archived Projects'">
-                    <mat-icon class="!w-4 !h-4 !text-[16px]">{{ showArchived ? 'visibility' : 'visibility_off'
-                        }}</mat-icon>
-                    <span class="text-xs font-medium">Archived</span>
-                </button>
-
-                <!-- Export CSV -->
-                <button (click)="exportToCsv()"
-                    class="h-10 px-3 flex items-center gap-2 rounded-lg border border-[#2E3035] text-[#8A8F98] hover:bg-[#2C2D32] transition-all"
-                    matTooltip="Export all projects to CSV">
-                    <mat-icon class="!w-4 !h-4 !text-[16px]">download</mat-icon>
-                    <span class="text-xs font-medium">Export</span>
-                </button>
+                <div class="w-px h-4 bg-[#2E3035] mx-1"></div>
 
                 <button *ngIf="!authService.isAdmin()" (click)="openCreateDialog()"
-                    class="h-10 w-10 flex items-center justify-center bg-brand text-white rounded-full hover:bg-brand-hover transition-all btn-press shadow-lg shadow-brand/20">
-                    <mat-icon class="!w-6 !h-6 !text-[24px]">add</mat-icon>
+                    class="h-8 px-3 flex items-center gap-1.5 bg-[#5E6AD2] text-white rounded-md hover:bg-[#4E58B2] transition-all text-[12px] font-medium shadow-lg shadow-[#5E6AD2]/20">
+                    <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">add</mat-icon>
+                    New Project
                 </button>
             </div>
         </div>
@@ -120,7 +143,7 @@
             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-slide-up">
 
             <div *ngFor="let project of filteredProjects"
-                class="bg-[#1C1C1E] border border-[#2E3035] rounded-[24px] p-5 hover:border-[#3A3C42] hover:bg-[#25262B] transition-all duration-200 cursor-pointer group relative flex flex-col h-[220px]"
+                class="bg-[#1C1C1E] border border-[#2E3035] rounded-xl p-5 hover:border-[#3A3C42] hover:bg-[#25262B] transition-all duration-200 cursor-pointer group relative flex flex-col h-[220px]"
                 (click)="openProject(project.id)">
 
                 <!-- 1. Top Row: Date & Menu -->
