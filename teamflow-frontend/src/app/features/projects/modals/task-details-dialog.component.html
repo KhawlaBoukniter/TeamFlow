@@ -4,12 +4,20 @@
         <div>
             <h2 class="text-base font-semibold text-white m-0 mb-0.5">{{ task.title }}</h2>
             <div class="flex items-center gap-2 mt-1">
-                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wide border"
-                    [ngClass]="getPriorityColor(task.priority)">
-                    {{ task.priority }}
-                </span>
+                <!-- Linear Style Priority -->
+                <div class="flex items-center gap-1.5 px-2 py-0.5 rounded border border-[#2E3035] bg-[#1C1C1E]">
+                    <mat-icon *ngIf="task.priority === 'URGENT'"
+                        class="!w-3 !h-3 !text-[12px] !text-[#FF4D4D]">report_problem</mat-icon>
+                    <mat-icon *ngIf="task.priority === 'HIGH' || task.priority === 'MEDIUM' || task.priority === 'LOW'"
+                        class="!w-3 !h-3 !text-[12px]" [ngClass]="{
+                        'text-[#F59E0B]': task.priority === 'HIGH',
+                        'text-[#F59E0B]/80': task.priority === 'MEDIUM',
+                        'text-[#8A8F98]': task.priority === 'LOW'
+                      }">signal_cellular_alt</mat-icon>
+                    <span class="text-[10px] text-[#8A8F98] font-medium leading-none">{{ task.priority }}</span>
+                </div>
                 <span
-                    class="px-2 py-0.5 rounded-md text-[10px] font-bold border bg-red-900/20 text-red-400 border-red-900/30 flex items-center gap-1"
+                    class="px-2 py-0.5 rounded border bg-red-900/10 text-red-500 border-red-900/20 flex items-center gap-1.5 text-[10px] font-medium"
                     *ngIf="task.blocked">
                     <mat-icon class="!w-3 !h-3 !text-[12px]">block</mat-icon>
                     Blocked
@@ -41,10 +49,19 @@
                     <!-- Priority -->
                     <div class="bg-[#25262B] border border-[#2E3035] rounded-lg p-3">
                         <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-2">Priority</h3>
-                        <span class="px-2 py-1 rounded-md text-xs font-bold border"
-                            [ngClass]="getPriorityColor(task.priority)">
-                            {{ task.priority }}
-                        </span>
+                        <div
+                            class="flex items-center gap-1.5 px-2 py-1 rounded border border-[#2E3035] bg-[#1C1C1E] w-fit">
+                            <mat-icon *ngIf="task.priority === 'URGENT'"
+                                class="!w-3.5 !h-3.5 !text-[14px] !text-[#FF4D4D]">report_problem</mat-icon>
+                            <mat-icon
+                                *ngIf="task.priority === 'HIGH' || task.priority === 'MEDIUM' || task.priority === 'LOW'"
+                                class="!w-3.5 !h-3.5 !text-[14px]" [ngClass]="{
+                                'text-[#F59E0B]': task.priority === 'HIGH',
+                                'text-[#F59E0B]/80': task.priority === 'MEDIUM',
+                                'text-[#8A8F98]': task.priority === 'LOW'
+                              }">signal_cellular_alt</mat-icon>
+                            <span class="text-[12px] text-[#EDEDED] font-medium leading-none">{{ task.priority }}</span>
+                        </div>
                     </div>
 
                     <!-- Due Date -->
@@ -59,11 +76,13 @@
                     <!-- Status -->
                     <div class="bg-[#25262B] border border-[#2E3035] rounded-lg p-3">
                         <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-2">Status</h3>
-                        <span class="px-2 py-1 rounded-md text-xs font-bold border" [ngClass]="task.blocked
-                                ? 'bg-red-900/20 text-red-400 border-red-900/30'
-                                : 'bg-emerald-900/20 text-emerald-400 border-emerald-900/30'">
-                            {{ task.blocked ? 'Blocked' : 'Active' }}
-                        </span>
+                        <div class="flex items-center gap-1.5 px-2 py-1 rounded border"
+                            [ngClass]="task.blocked ? 'bg-red-900/10 text-red-500 border-red-900/20' : 'bg-emerald-900/10 text-emerald-500 border-emerald-900/20'">
+                            <mat-icon class="!w-3 !h-3 !text-[12px]">{{ task.blocked ? 'block' : 'radio_button_checked'
+                                }}</mat-icon>
+                            <span class="text-[12px] font-medium leading-none">{{ task.blocked ? 'Blocked' : 'Active'
+                                }}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -93,23 +112,22 @@
                 </form>
 
                 <!-- Subtask List -->
-                <div class="space-y-1.5">
+                <div class="space-y-1">
                     <div *ngFor="let st of subTasks"
-                        class="flex items-center gap-3 p-2.5 hover:bg-[#25262B] rounded-lg group transition-colors border border-transparent hover:border-[#2E3035]">
+                        class="flex items-center gap-3 p-2 hover:bg-[#1C1C1E] rounded-md group transition-all border border-transparent hover:border-[#2E3035]">
                         <mat-checkbox [checked]="st.isDone" (change)="toggleSubTask(st)" color="primary"
-                            class="round-checkbox"></mat-checkbox>
-                        <span [class.line-through]="st.isDone" [class.!text-[#555]]="st.isDone"
-                            class="text-sm text-[#EDEDED] flex-1">{{ st.title }}</span>
-                        <button mat-icon-button color="warn"
-                            class="opacity-0 group-hover:opacity-100 transition-opacity !w-7 !h-7"
-                            (click)="deleteSubTask(st.id)">
+                            class="linear-checkbox"></mat-checkbox>
+                        <span [class.line-through]="st.isDone" class="text-[13px] text-[#EDEDED] flex-1"
+                            [ngClass]="{'text-[#8A8F98] opacity-60': st.isDone}">{{ st.title }}</span>
+                        <button mat-icon-button (click)="deleteSubTask(st.id)"
+                            class="opacity-0 group-hover:opacity-100 transition-opacity !w-7 !h-7 text-[#8A8F98] hover:text-red-400">
                             <mat-icon class="!text-[16px]">delete</mat-icon>
                         </button>
                     </div>
                     <div *ngIf="subTasks.length === 0"
-                        class="flex flex-col items-center justify-center py-8 text-[#8A8F98] bg-[#1C1C1E] rounded-xl border border-dashed border-[#2E3035]">
-                        <mat-icon class="!w-8 !h-8 !text-[32px] mb-2 text-[#3A3C42]">checklist</mat-icon>
-                        <p class="text-sm italic">No subtasks yet. Break it down!</p>
+                        class="flex flex-col items-center justify-center py-10 text-[#8A8F98] bg-[#0F0F11] rounded-xl border border-dashed border-[#2E3035]">
+                        <mat-icon class="!w-6 !h-6 !text-[24px] mb-2 opacity-20">checklist</mat-icon>
+                        <p class="text-[12px] font-medium opacity-40">No subtasks yet</p>
                     </div>
                 </div>
             </div>
@@ -127,25 +145,25 @@
                         </div>
                         <div class="flex-1">
                             <div class="bg-[#25262B] border border-[#2E3035] rounded-lg p-3 group/comment relative">
-                                <div class="flex justify-between items-baseline mb-1.5">
-                                    <span class="text-xs font-bold text-white">{{ comment.authorName || 'Unknown User'
-                                        }}</span>
-                                    <div class="flex items-center gap-1">
-                                        <span class="text-[10px] text-[#8A8F98]">{{ comment.createdAt | date:'short'
-                                            }}</span>
-                                        <!-- Edit/Delete (own comments only) -->
-                                        <ng-container *ngIf="isMyComment(comment) && editingCommentId !== comment.id">
-                                            <button (click)="startEditComment(comment)"
-                                                class="ml-1 p-0.5 opacity-0 group-hover/comment:opacity-100 hover:text-white text-[#8A8F98] transition-all rounded"
-                                                title="Edit">
-                                                <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">edit</mat-icon>
+                                <div class="flex justify-between items-baseline mb-1">
+                                    <span class="text-[12px] font-semibold text-[#EDEDED]">{{ comment.authorName ||
+                                        'Unknown User' }}</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-[10px] text-[#8A8F98]">{{ comment.createdAt | date:'MMM d,
+                                            h:mm a' }}</span>
+                                        <div
+                                            class="flex items-center opacity-0 group-hover/comment:opacity-100 transition-opacity">
+                                            <button *ngIf="isMyComment(comment) && editingCommentId !== comment.id"
+                                                (click)="startEditComment(comment)"
+                                                class="p-1 hover:text-[#EDEDED] text-[#8A8F98] transition-colors">
+                                                <mat-icon class="!w-3 !h-3 !text-[12px]">edit</mat-icon>
                                             </button>
-                                            <button (click)="deleteComment(comment.id)"
-                                                class="p-0.5 opacity-0 group-hover/comment:opacity-100 hover:text-red-400 text-[#8A8F98] transition-all rounded"
-                                                title="Delete">
-                                                <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">delete_outline</mat-icon>
+                                            <button *ngIf="isMyComment(comment) && editingCommentId !== comment.id"
+                                                (click)="deleteComment(comment.id)"
+                                                class="p-1 hover:text-red-400 text-[#8A8F98] transition-colors">
+                                                <mat-icon class="!w-3 !h-3 !text-[12px]">delete</mat-icon>
                                             </button>
-                                        </ng-container>
+                                        </div>
                                     </div>
                                 </div>
                                 <!-- View mode -->
@@ -307,19 +325,20 @@
                         <div *ngIf="showAssignmentDropdown"
                             class="absolute right-0 top-10 w-64 bg-[#25262B] shadow-2xl rounded-xl border border-[#2E3035] z-50 overflow-hidden">
                             <div
-                                class="p-2.5 border-b border-[#2E3035] text-[10px] font-bold text-[#8A8F98] uppercase tracking-wider">
-                                Select Member
+                                class="p-2 border-b border-[#2E3035] text-[10px] font-bold text-[#8A8F98] uppercase tracking-wider">
+                                Assign to
                             </div>
                             <div class="max-h-48 overflow-y-auto custom-scrollbar">
                                 <button *ngFor="let member of getUnassignedMembers()" (click)="assignMember(member)"
-                                    class="w-full text-left px-3 py-2.5 hover:bg-[#3A3C42] flex items-center gap-2 transition-colors">
+                                    class="w-full text-left px-3 py-2 hover:bg-[#1C1C1E] flex items-center gap-2.5 transition-colors">
                                     <div
-                                        class="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-bold text-[10px]">
+                                        class="w-6 h-6 rounded-full bg-[#2C2D32] border border-white/5 text-[#EDEDED] flex items-center justify-center font-bold text-[10px]">
                                         {{ member.userName.charAt(0) }}
                                     </div>
-                                    <div class="flex-1 overflow-hidden">
-                                        <div class="text-sm text-white truncate">{{ member.userName }}</div>
-                                        <div class="text-[10px] text-[#8A8F98] truncate">{{ member.userEmail }}</div>
+                                    <div class="flex-1 overflow-hidden py-1.5">
+                                        <div class="text-[13px] text-[#EDEDED] truncate font-medium">{{ member.userName
+                                            }}</div>
+                                        <div class="text-[11px] text-[#8A8F98] truncate">{{ member.userEmail }}</div>
                                     </div>
                                 </button>
                                 <div *ngIf="getUnassignedMembers().length === 0"

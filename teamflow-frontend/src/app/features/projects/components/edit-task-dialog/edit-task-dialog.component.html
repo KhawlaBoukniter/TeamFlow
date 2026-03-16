@@ -30,8 +30,32 @@
             <mat-form-field appearance="outline" class="linear-form-field">
                 <mat-label>Priority *</mat-label>
                 <mat-select formControlName="priority" required>
+                    <mat-select-trigger>
+                        <div class="flex items-center gap-2" *ngIf="taskForm.get('priority')?.value">
+                            <mat-icon *ngIf="taskForm.get('priority')?.value === 'URGENT'"
+                                class="!w-3.5 !h-3.5 !text-[14px] !text-[#FF4D4D]">report_problem</mat-icon>
+                            <mat-icon
+                                *ngIf="taskForm.get('priority')?.value === 'HIGH' || taskForm.get('priority')?.value === 'MEDIUM' || taskForm.get('priority')?.value === 'LOW'"
+                                class="!w-3.5 !h-3.5 !text-[14px]" [ngClass]="{
+                                'text-[#F59E0B]': taskForm.get('priority')?.value === 'HIGH',
+                                'text-[#F59E0B]/80': taskForm.get('priority')?.value === 'MEDIUM',
+                                'text-[#8A8F98]': taskForm.get('priority')?.value === 'LOW'
+                              }">signal_cellular_alt</mat-icon>
+                            <span class="text-sm">{{ taskForm.get('priority')?.value }}</span>
+                        </div>
+                    </mat-select-trigger>
                     <mat-option *ngFor="let priority of priorities" [value]="priority">
-                        {{ priority }}
+                        <div class="flex items-center gap-2">
+                            <mat-icon *ngIf="priority === 'URGENT'"
+                                class="!w-3.5 !h-3.5 !text-[14px] !text-[#FF4D4D]">report_problem</mat-icon>
+                            <mat-icon *ngIf="priority === 'HIGH' || priority === 'MEDIUM' || priority === 'LOW'"
+                                class="!w-3.5 !h-3.5 !text-[14px]" [ngClass]="{
+                                'text-[#F59E0B]': priority === 'HIGH',
+                                'text-[#F59E0B]/80': priority === 'MEDIUM',
+                                'text-[#8A8F98]': priority === 'LOW'
+                              }">signal_cellular_alt</mat-icon>
+                            <span>{{ priority }}</span>
+                        </div>
                     </mat-option>
                 </mat-select>
             </mat-form-field>
