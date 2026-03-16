@@ -1,5 +1,6 @@
 package com.teamflow.service.interfaces;
 
+import com.teamflow.dto.PasswordChangeDTO;
 import com.teamflow.dto.UserDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,4 +19,10 @@ public interface UserService {
     void deleteUser(Long id);
 
     UserDTO toggleActive(Long id);
+
+    UserDTO getProfile();
+
+    UserDTO updateProfile(UserDTO dto);
+
+    void changePassword(PasswordChangeDTO dto);
 }
