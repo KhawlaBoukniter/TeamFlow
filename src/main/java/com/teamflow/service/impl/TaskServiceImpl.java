@@ -174,6 +174,15 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("@projectSecurity.isMember(#projectId)")
+    public List<TaskDTO> getTasksByProjectId(Long projectId) {
+        return taskRepository.findByColumn_Project_IdAndDeletedAtIsNull(projectId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<TaskDTO> getMyActiveTasks() {
         Long userId = SecurityUtils.getCurrentUserId();
         return taskRepository.findActiveTasksByUserId(userId).stream()

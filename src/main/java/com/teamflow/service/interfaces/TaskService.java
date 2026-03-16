@@ -7,6 +7,8 @@ import java.util.List;
 public interface TaskService {
     List<TaskDTO> getTasksByColumnId(Long columnId);
 
+    List<TaskDTO> getTasksByProjectId(Long projectId);
+
     TaskDTO getTaskById(Long id);
 
     TaskDTO createTask(Long columnId, TaskDTO dto);

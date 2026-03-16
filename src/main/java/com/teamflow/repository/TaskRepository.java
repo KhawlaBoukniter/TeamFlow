@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository;
 public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByColumn_Id(Long columnId);
 
+    List<Task> findByColumn_Project_IdAndDeletedAtIsNull(Long projectId);
+
     Long countByColumn_Project_Id(Long projectId);
 
     Long countByColumn_Project_IdAndColumn_Name(Long projectId, String columnName);
