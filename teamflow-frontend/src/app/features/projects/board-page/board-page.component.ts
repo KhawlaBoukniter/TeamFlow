@@ -381,16 +381,18 @@ export class BoardPageComponent implements OnInit {
 
 
   moveTaskFallback(task: Task, targetColumnId: number): void {
-    if (task.columnId === targetColumnId) return;
+    if (task.columnId === targetColumnId || task.columnId === undefined) return;
 
     const previousList = this.tasksByColumn[task.columnId];
     const targetList = this.tasksByColumn[targetColumnId] || [];
 
-    const index = previousList.findIndex(t => t.id === task.id);
-    if (index !== -1) {
-      previousList.splice(index, 1);
-      targetList.push({ ...task, columnId: targetColumnId });
-      this.tasksByColumn[targetColumnId] = targetList;
+    if (previousList) {
+      const index = previousList.findIndex((t: Task) => t.id === task.id);
+      if (index !== -1) {
+        previousList.splice(index, 1);
+        targetList.push({ ...task, columnId: targetColumnId });
+        this.tasksByColumn[targetColumnId] = targetList;
+      }
     }
 
     this.taskService.moveTask(task.id, targetColumnId).subscribe({
@@ -510,7 +512,7 @@ export class BoardPageComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result?.refreshNeeded) {
+      if (result?.refreshNeeded && task.columnId !== undefined) {
         this.loadTasks(task.columnId);
       }
     });
@@ -522,9 +524,12 @@ export class BoardPageComponent implements OnInit {
 
     this.taskService.deleteTask(task.id).subscribe({
       next: () => {
-        const col = this.tasksByColumn[task.columnId];
-        if (col) {
-          this.tasksByColumn[task.columnId] = col.filter(t => t.id !== task.id);
+        const columnId = task.columnId;
+        if (columnId !== undefined) {
+          const col = this.tasksByColumn[columnId];
+          if (col) {
+            this.tasksByColumn[columnId] = col.filter((t: Task) => t.id !== task.id);
+          }
         }
         this.snackBar.open('Task deleted', 'Close', { duration: 2000 });
       },
