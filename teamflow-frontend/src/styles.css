@@ -220,8 +220,16 @@ main>*:not(router-outlet) {
 }
 
 /* Disabled / Coming Soon items */
-.opacity-thirty {
-    opacity: 0.35;
+/* Command Palette Custom Styles */
+.command-palette-dialog .mat-mdc-dialog-container {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.command-palette-backdrop {
+    background: rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(8px) saturate(180%) !important;
 }
 
 /* Text Truncation */
