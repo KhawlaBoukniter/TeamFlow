@@ -6,6 +6,7 @@ import com.teamflow.dto.validation.Create;
 import com.teamflow.dto.validation.Update;
 import com.teamflow.service.interfaces.ProjectService;
 import com.teamflow.service.interfaces.AuditLogService;
+import com.teamflow.service.interfaces.CsvExportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import java.util.List;
 
 @RestController
@@ -26,10 +28,22 @@ public class ProjectController {
 
     private final ProjectService projectService;
     private final AuditLogService auditLogService;
+    private final CsvExportService csvExportService;
 
     @GetMapping
     public ResponseEntity<List<ProjectDTO>> getAllProjects() {
         return ResponseEntity.ok(projectService.getAllProjects());
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportProjects() {
+        List<ProjectDTO> projects = projectService.getAllProjects();
+        byte[] csvData = csvExportService.exportProjectsToCsv(projects);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=projects.csv")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(csvData);
     }
 
     @GetMapping("/{id}")

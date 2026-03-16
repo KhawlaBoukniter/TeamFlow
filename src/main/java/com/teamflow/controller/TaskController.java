@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import com.teamflow.service.interfaces.CsvExportService;
 
 import java.util.List;
 
@@ -18,6 +21,18 @@ import java.util.List;
 public class TaskController {
 
     private final TaskService taskService;
+    private final CsvExportService csvExportService;
+
+    @GetMapping("/projects/{projectId}/tasks/export")
+    public ResponseEntity<byte[]> exportTasks(@PathVariable Long projectId) {
+        List<TaskDTO> tasks = taskService.getTasksByProjectId(projectId);
+        byte[] csvData = csvExportService.exportTasksToCsv(tasks);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=project_" + projectId + "_tasks.csv")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(csvData);
+    }
 
     @GetMapping("/columns/{columnId}/tasks")
     public ResponseEntity<List<TaskDTO>> getTasksByColumnId(@PathVariable Long columnId) {
