@@ -51,6 +51,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/my-issues/my-issues.component').then(m => m.MyIssuesComponent)
             },
             {
+                path: 'profile',
+                loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
+            },
+            {
                 path: 'admin/audit',
                 canActivate: [adminGuard],
                 loadComponent: () => import('./features/admin/audit-log/audit-log.component').then(m => m.AuditLogComponent)
