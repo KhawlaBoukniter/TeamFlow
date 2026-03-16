@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -65,13 +65,24 @@ export class EditTaskDialogComponent {
             title: [data.task.title, [Validators.required, Validators.minLength(3)]],
             description: [data.task.description || ''],
             priority: [data.task.priority, Validators.required],
-            dueDate: [data.task.dueDate ? new Date(data.task.dueDate) : null]
+            dueDate: [data.task.dueDate ? new Date(data.task.dueDate) : null, [this.futureDateValidator]]
         });
 
         this.currentDependencies = data.task.blockingTasks || [];
         this.currentAttachments = data.task.attachments || [];
         this.currentSubTasks = data.task.subTasks || [];
         this.updateAvailableTasks();
+    }
+
+    futureDateValidator(control: FormControl): { [key: string]: boolean } | null {
+        if (control.value) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (new Date(control.value) < today) {
+                return { futureDate: true };
+            }
+        }
+        return null;
     }
 
     updateAvailableTasks(): void {

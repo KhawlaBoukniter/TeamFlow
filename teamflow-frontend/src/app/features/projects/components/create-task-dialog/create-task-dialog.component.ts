@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -61,6 +61,7 @@ import { MatIconModule } from '@angular/material/icon';
             <input matInput [matDatepicker]="picker" formControlName="dueDate">
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
+            <mat-error *ngIf="form.get('dueDate')?.hasError('futureDate')">Due date must be in the future</mat-error>
           </mat-form-field>
         </div>
       </mat-dialog-content>
@@ -83,11 +84,22 @@ export class CreateTaskDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: { columnId: number }
   ) {
     this.form = this.fb.group({
-      title: ['', Validators.required],
+      title: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
       priority: ['MEDIUM', Validators.required],
-      dueDate: [null]
+      dueDate: [null, [this.futureDateValidator]]
     });
+  }
+
+  futureDateValidator(control: FormControl): { [key: string]: boolean } | null {
+    if (control.value) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (new Date(control.value) < today) {
+        return { futureDate: true };
+      }
+    }
+    return null;
   }
 
   onSubmit(): void {

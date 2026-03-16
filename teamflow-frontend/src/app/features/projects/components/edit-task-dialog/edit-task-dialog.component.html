@@ -42,6 +42,8 @@
                 <input matInput [matDatepicker]="picker" formControlName="dueDate" placeholder="Select due date">
                 <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
+                <mat-error *ngIf="taskForm.get('dueDate')?.hasError('futureDate')">Due date must be in the
+                    future</mat-error>
             </mat-form-field>
         </div>
 
