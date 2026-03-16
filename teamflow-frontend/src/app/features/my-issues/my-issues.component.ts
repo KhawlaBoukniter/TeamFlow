@@ -4,13 +4,25 @@ import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+import { FormsModule } from '@angular/forms';
 import { TaskService } from '../../core/services/task.service';
 import { Task } from '../../shared/models';
 
 @Component({
   selector: 'app-my-issues',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatIconModule, MatButtonModule, MatTooltipModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule,
+    MatMenuModule,
+    MatDividerModule,
+    FormsModule
+  ],
   template: `
     <div class="h-full flex flex-col bg-[#09090b] page-enter overflow-hidden">
       <!-- Header -->
@@ -21,14 +33,72 @@ import { Task } from '../../shared/models';
           </div>
           <h1 class="text-[15px] font-bold text-white tracking-tight">My Issues</h1>
           <span class="px-2 py-0.5 rounded-full bg-[#1C1C1E] border border-[#2E3035] text-[10px] font-bold text-[#8A8F98] ml-2">
-            {{ tasks.length }}
+            {{ filteredTasks.length }}
           </span>
         </div>
         
-        <div class="flex items-center gap-2">
-          <button mat-icon-button class="!text-[#8A8F98] hover:!text-white transition-colors">
+        <div class="flex items-center gap-3">
+          <!-- Search input -->
+          <div class="relative flex items-center group">
+            <mat-icon class="absolute left-2.5 !w-3.5 !h-3.5 !text-[14px] text-[#8A8F98] group-focus-within:text-white transition-colors">search</mat-icon>
+            <input type="text" [(ngModel)]="searchQuery" placeholder="Search issues..."
+                class="bg-[#1C1C1E] border border-[#2E3035] rounded-md pl-8 pr-3 py-1.5 text-[12px] text-white placeholder-[#8A8F98] focus:outline-none focus:border-[#4A4B50] focus:bg-[#25262B] transition-all w-[200px]">
+          </div>
+
+          <button mat-icon-button [matMenuTriggerFor]="filterMenu" 
+                  [class.text-brand]="hasActiveFilters"
+                  class="!text-[#8A8F98] hover:!text-white transition-colors relative">
             <mat-icon class="!text-[20px]">filter_list</mat-icon>
+            <span *ngIf="hasActiveFilters" class="absolute top-2 right-2 w-2 h-2 bg-brand rounded-full border border-[#09090b]"></span>
           </button>
+
+          <mat-menu #filterMenu="matMenu" panelClass="linear-menu">
+            <!-- Priority Submenu -->
+            <button mat-menu-item [matMenuTriggerFor]="priorityMenu">
+                <mat-icon>signal_cellular_alt</mat-icon>
+                <span>Priority</span>
+                <span *ngIf="activeFilters.priorities.length" class="linear-filter-count">
+                    {{ activeFilters.priorities.length }}
+                </span>
+            </button>
+
+            <!-- Projects Submenu -->
+            <button mat-menu-item [matMenuTriggerFor]="projectMenu">
+                <mat-icon>folder</mat-icon>
+                <span>Projects</span>
+                <span *ngIf="activeFilters.projects.length" class="linear-filter-count">
+                    {{ activeFilters.projects.length }}
+                </span>
+            </button>
+
+            <mat-divider *ngIf="hasActiveFilters"></mat-divider>
+            <button mat-menu-item (click)="clearFilters()" *ngIf="hasActiveFilters">
+                <mat-icon class="!text-red-400">block</mat-icon>
+                <span class="text-red-400">Clear all filters</span>
+            </button>
+          </mat-menu>
+
+          <mat-menu #priorityMenu="matMenu" panelClass="linear-menu">
+            <button mat-menu-item (click)="togglePriority('HIGH'); $event.stopPropagation()">
+                <mat-icon [style.color]="isPrioritySelected('HIGH') ? '#818CF8' : '#F59E0B'">signal_cellular_alt</mat-icon>
+                <span [class.text-white]="isPrioritySelected('HIGH')">High</span>
+            </button>
+            <button mat-menu-item (click)="togglePriority('MEDIUM'); $event.stopPropagation()">
+                <mat-icon [style.color]="isPrioritySelected('MEDIUM') ? '#818CF8' : '#F59E0B'">signal_cellular_alt</mat-icon>
+                <span [class.text-white]="isPrioritySelected('MEDIUM')">Medium</span>
+            </button>
+            <button mat-menu-item (click)="togglePriority('LOW'); $event.stopPropagation()">
+                <mat-icon [style.color]="isPrioritySelected('LOW') ? '#818CF8' : '#8A8F98'">signal_cellular_alt</mat-icon>
+                <span [class.text-white]="isPrioritySelected('LOW')">Low</span>
+            </button>
+          </mat-menu>
+
+          <mat-menu #projectMenu="matMenu" panelClass="linear-menu">
+            <button mat-menu-item *ngFor="let p of availableProjects" (click)="toggleProject(p); $event.stopPropagation()">
+                <mat-icon>{{ isProjectSelected(p) ? 'check' : '' }}</mat-icon>
+                <span [class.text-white]="isProjectSelected(p)">{{ p }}</span>
+            </button>
+          </mat-menu>
         </div>
       </div>
 
@@ -41,8 +111,8 @@ import { Task } from '../../shared/models';
         </div>
 
         <!-- Task List -->
-        <div *ngIf="!loading && tasks.length > 0" class="space-y-8">
-          <div *ngFor="let group of groupedTasks | keyvalue" class="space-y-3">
+        <div *ngIf="!loading && filteredTasks.length > 0" class="space-y-8">
+          <div *ngFor="let group of groupedFilteredTasks | keyvalue" class="space-y-3">
             <div class="flex items-center gap-2 px-1">
               <mat-icon class="!text-[14px] !w-3.5 !h-3.5 text-[#5E6AD2]">folder_special</mat-icon>
               <h2 class="text-[11px] font-bold text-[#5E6AD2] uppercase tracking-[0.1em]">{{ group.key }}</h2>
@@ -111,7 +181,17 @@ import { Task } from '../../shared/models';
           </div>
         </div>
 
-        <!-- Empty State -->
+        <!-- Empty State (No filtered results) -->
+        <div *ngIf="!loading && tasks.length > 0 && filteredTasks.length === 0" class="flex flex-col items-center justify-center text-center py-20">
+          <mat-icon class="!text-[48px] !w-12 !h-12 text-[#3A3C42] mb-4">search_off</mat-icon>
+          <h2 class="text-white font-bold mb-1">No matching issues</h2>
+          <p class="text-[#8A8F98] text-sm mb-6">Try adjusting your filters or search query.</p>
+          <button (click)="clearFilters()" class="px-4 py-2 bg-[#1C1C1E] text-white text-xs rounded-lg border border-[#2E3035] hover:bg-[#25262B]">
+            Clear Filters
+          </button>
+        </div>
+
+        <!-- Empty State (No tasks at all) -->
         <div *ngIf="!loading && tasks.length === 0" class="flex flex-col items-center justify-center text-center py-20">
           <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#1C1C1E] to-[#111113] border border-[#2E3035] flex items-center justify-center mb-6 shadow-xl relative overflow-hidden group">
             <div class="absolute inset-0 bg-[#5E6AD2]/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -132,7 +212,12 @@ import { Task } from '../../shared/models';
 export class MyIssuesComponent implements OnInit {
   tasks: Task[] = [];
   loading = true;
-  groupedTasks: { [key: string]: Task[] } = {};
+
+  searchQuery = '';
+  activeFilters = {
+    priorities: [] as string[],
+    projects: [] as string[]
+  };
 
   private taskService = inject(TaskService);
   private router = inject(Router);
@@ -146,7 +231,6 @@ export class MyIssuesComponent implements OnInit {
     this.taskService.getMyTasks().subscribe({
       next: (tasks) => {
         this.tasks = tasks;
-        this.groupTasks(tasks);
         this.loading = false;
       },
       error: () => {
@@ -155,13 +239,73 @@ export class MyIssuesComponent implements OnInit {
     });
   }
 
-  groupTasks(tasks: Task[]): void {
-    this.groupedTasks = tasks.reduce((groups, task) => {
+  get filteredTasks(): Task[] {
+    let filtered = this.tasks;
+
+    if (this.searchQuery) {
+      const q = this.searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(t => t.title.toLowerCase().includes(q) || (t.description && t.description.toLowerCase().includes(q)));
+    }
+
+    if (this.activeFilters.priorities.length > 0) {
+      filtered = filtered.filter(t => this.activeFilters.priorities.includes(t.priority));
+    }
+
+    if (this.activeFilters.projects.length > 0) {
+      filtered = filtered.filter(t => this.activeFilters.projects.includes(t.projectName || 'Unassigned'));
+    }
+
+    return filtered;
+  }
+
+  get groupedFilteredTasks(): { [key: string]: Task[] } {
+    return this.filteredTasks.reduce((groups, task) => {
       const projectName = task.projectName || 'Unassigned';
       if (!groups[projectName]) groups[projectName] = [];
       groups[projectName].push(task);
       return groups;
     }, {} as { [key: string]: Task[] });
+  }
+
+  get availableProjects(): string[] {
+    const projects = new Set<string>();
+    this.tasks.forEach(t => projects.add(t.projectName || 'Unassigned'));
+    return Array.from(projects).sort();
+  }
+
+  get hasActiveFilters(): boolean {
+    return this.activeFilters.priorities.length > 0 || this.activeFilters.projects.length > 0 || !!this.searchQuery;
+  }
+
+  togglePriority(p: string): void {
+    const idx = this.activeFilters.priorities.indexOf(p);
+    if (idx >= 0) {
+      this.activeFilters.priorities.splice(idx, 1);
+    } else {
+      this.activeFilters.priorities.push(p);
+    }
+  }
+
+  isPrioritySelected(p: string): boolean {
+    return this.activeFilters.priorities.includes(p);
+  }
+
+  toggleProject(p: string): void {
+    const idx = this.activeFilters.projects.indexOf(p);
+    if (idx >= 0) {
+      this.activeFilters.projects.splice(idx, 1);
+    } else {
+      this.activeFilters.projects.push(p);
+    }
+  }
+
+  isProjectSelected(p: string): boolean {
+    return this.activeFilters.projects.includes(p);
+  }
+
+  clearFilters(): void {
+    this.activeFilters = { priorities: [], projects: [] };
+    this.searchQuery = '';
   }
 
   getPriorityIcon(priority: string): string {
