@@ -65,6 +65,14 @@
                     <span class="text-xs font-medium">Archived</span>
                 </button>
 
+                <!-- Export CSV -->
+                <button (click)="exportToCsv()"
+                    class="h-10 px-3 flex items-center gap-2 rounded-lg border border-[#2E3035] text-[#8A8F98] hover:bg-[#2C2D32] transition-all"
+                    matTooltip="Export all projects to CSV">
+                    <mat-icon class="!w-4 !h-4 !text-[16px]">download</mat-icon>
+                    <span class="text-xs font-medium">Export</span>
+                </button>
+
                 <button *ngIf="!authService.isAdmin()" (click)="openCreateDialog()"
                     class="h-10 w-10 flex items-center justify-center bg-brand text-white rounded-full hover:bg-brand-hover transition-all btn-press shadow-lg shadow-brand/20">
                     <mat-icon class="!w-6 !h-6 !text-[24px]">add</mat-icon>

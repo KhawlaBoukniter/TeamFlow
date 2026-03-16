@@ -12,6 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../core/services/auth.service';
 import { ProjectService } from '../../core/services/project.service';
+import { ExportService } from '../../core/services/export.service';
 import { Project } from '../../shared/models';
 import { ProjectCreateDialogComponent } from './components/project-create-dialog/project-create-dialog.component';
 import { ProjectEditDialogComponent } from './components/project-edit-dialog/project-edit-dialog.component';
@@ -41,6 +42,7 @@ export class ProjectsComponent implements OnInit {
     private router = inject(Router);
     private dialog = inject(MatDialog);
     private snackBar = inject(MatSnackBar);
+    private exportService = inject(ExportService);
 
     viewMode: 'grid' | 'list' = 'grid';
     searchTerm = '';
@@ -169,6 +171,10 @@ export class ProjectsComponent implements OnInit {
     logout(): void {
         this.authService.logout();
         this.router.navigate(['/login']);
+    }
+
+    exportToCsv(): void {
+        this.exportService.exportProjects();
     }
 
     get activeProjectsCount(): number {
