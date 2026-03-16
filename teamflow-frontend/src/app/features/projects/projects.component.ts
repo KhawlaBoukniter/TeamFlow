@@ -44,6 +44,7 @@ export class ProjectsComponent implements OnInit {
 
     viewMode: 'grid' | 'list' = 'grid';
     searchTerm = '';
+    showArchived = false;
 
     constructor() {
         this.userEmail = this.authService.getUserEmail();
@@ -68,17 +69,32 @@ export class ProjectsComponent implements OnInit {
         });
     }
 
+    toggleArchivedVisibility(): void {
+        this.showArchived = !this.showArchived;
+    }
+
     setViewMode(mode: 'grid' | 'list'): void {
         this.viewMode = mode;
     }
 
     get filteredProjects(): Project[] {
-        if (!this.searchTerm.trim()) return this.projects;
-        const term = this.searchTerm.toLowerCase().trim();
-        return this.projects.filter(p =>
-            p.name?.toLowerCase().includes(term) ||
-            p.description?.toLowerCase().includes(term)
-        );
+        let filtered = this.projects;
+
+        // Archive Filter
+        if (!this.showArchived) {
+            filtered = filtered.filter(p => p.status === 'ACTIVE');
+        }
+
+        // Search Filter
+        if (this.searchTerm.trim()) {
+            const term = this.searchTerm.toLowerCase().trim();
+            filtered = filtered.filter(p =>
+                p.name?.toLowerCase().includes(term) ||
+                p.description?.toLowerCase().includes(term)
+            );
+        }
+
+        return filtered;
     }
 
     get upcomingProjectsCount(): number {

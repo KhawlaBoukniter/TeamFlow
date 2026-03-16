@@ -55,6 +55,16 @@
                     </button>
                 </div>
 
+                <!-- Archive Toggle -->
+                <button (click)="toggleArchivedVisibility()" [class.bg-[#2C2D32]]="showArchived"
+                    [class.text-white]="showArchived"
+                    class="h-10 px-3 flex items-center gap-2 rounded-lg border border-[#2E3035] text-[#8A8F98] hover:bg-[#2C2D32] transition-all"
+                    [matTooltip]="showArchived ? 'Hide Archived Projects' : 'Show Archived Projects'">
+                    <mat-icon class="!w-4 !h-4 !text-[16px]">{{ showArchived ? 'visibility' : 'visibility_off'
+                        }}</mat-icon>
+                    <span class="text-xs font-medium">Archived</span>
+                </button>
+
                 <button *ngIf="!authService.isAdmin()" (click)="openCreateDialog()"
                     class="h-10 w-10 flex items-center justify-center bg-brand text-white rounded-full hover:bg-brand-hover transition-all btn-press shadow-lg shadow-brand/20">
                     <mat-icon class="!w-6 !h-6 !text-[24px]">add</mat-icon>
@@ -107,7 +117,15 @@
 
                 <!-- 1. Top Row: Date & Menu -->
                 <div class="flex justify-between items-center mb-4">
-                    <span class="text-[#8A8F98] text-xs font-medium">{{ project.createdAt | date:'MMMM d, y' }}</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[#8A8F98] text-xs font-medium">{{ project.createdAt | date:'MMMM d, y'
+                            }}</span>
+                        <!-- Archived Badge -->
+                        <span *ngIf="project.status === 'ARCHIVED'"
+                            class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[9px] font-bold uppercase border border-amber-500/20">
+                            Archived
+                        </span>
+                    </div>
                     <button mat-icon-button class="!text-[#8A8F98] hover:!text-white" (click)="$event.stopPropagation()"
                         [matMenuTriggerFor]="menu">
                         <mat-icon>more_vert</mat-icon>
@@ -214,10 +232,17 @@
 
                     <!-- 1. Left: Info -->
                     <div class="flex flex-col min-w-[200px]">
-                        <h3
-                            class="text-white font-semibold text-base mb-1 group-hover:text-brand transition-colors line-clamp-1">
-                            {{ project.name }}
-                        </h3>
+                        <div class="flex items-center gap-2 mb-1">
+                            <h3
+                                class="text-white font-semibold text-base group-hover:text-brand transition-colors line-clamp-1">
+                                {{ project.name }}
+                            </h3>
+                            <!-- Archived Badge -->
+                            <span *ngIf="project.status === 'ARCHIVED'"
+                                class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[8px] font-bold uppercase border border-amber-500/20">
+                                Archived
+                            </span>
+                        </div>
                         <p class="text-[#8A8F98] text-xs font-medium mb-1">
                             {{ project.type === 'PERSONAL' ? 'Personal Project' : 'Team Project' }}
                         </p>

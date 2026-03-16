@@ -77,20 +77,10 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } fr
 
             <!-- Attributes Row (Badges) -->
             <div class="flex flex-wrap items-center gap-2">
-                <!-- Status Badge -->
-                 <div class="relative group">
-                    <mat-select formControlName="status" panelClass="linear-panel" class="opacity-0 absolute inset-0 cursor-pointer z-10 w-full h-full">
-                        <mat-option value="ACTIVE">Active</mat-option>
-                        <mat-option value="ARCHIVED">Archived</mat-option>
-                    </mat-select>
-                    <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
-                        <mat-icon class="!w-4 !h-4 !text-[16px]" 
-                            [ngClass]="{'text-emerald-500': form.get('status')?.value === 'ACTIVE', 'text-gray-500': form.get('status')?.value === 'ARCHIVED'}">
-                            {{ form.get('status')?.value === 'ACTIVE' ? 'radio_button_checked' : 'archive' }}
-                        </mat-icon>
-                        <span class="text-[13px] font-medium text-[#EDEDED]">{{ form.get('status')?.value | titlecase }}</span>
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-emerald-500/10 border border-emerald-500/20 transition-colors">
+                        <mat-icon class="!w-4 !h-4 !text-[16px] text-emerald-500">radio_button_checked</mat-icon>
+                        <span class="text-[13px] font-medium text-emerald-500">Active</span>
                     </div>
-                 </div>
 
                  <!-- Type Badge (RESTORED) -->
                  <div class="relative group">
@@ -106,12 +96,6 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } fr
                     </div>
                  </div>
 
-                 <!-- Priority (Visual Mock) -->
-                 <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
-                    <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">signal_cellular_alt</mat-icon>
-                    <span class="text-[13px] font-medium text-[#8A8F98]">No priority</span>
-                 </div>
-
                  <!-- Lead (Owner) -->
                  <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
                     <div class="w-4 h-4 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-[9px] font-bold">ME</div>
@@ -125,27 +109,44 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } fr
                  </div>
 
                  <!-- Date Badges -->
-                 <div class="relative flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer"
-                      (click)="startPicker.open()">
-                    <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">calendar_today</mat-icon>
-                    <span class="text-[13px] font-medium" [ngClass]="{'text-[#EDEDED]': form.get('startDate')?.value, 'text-[#8A8F98]': !form.get('startDate')?.value}">
-                        {{ (form.get('startDate')?.value | date:'MMM d') || 'Start' }}
-                    </span>
-                    <!-- Invisible input for anchor positioning -->
-                    <input matInput [matDatepicker]="startPicker" formControlName="startDate" class="absolute opacity-0 w-0 h-0 bottom-0 left-0 pointer-events-none">
-                    <mat-datepicker #startPicker panelClass="linear-datepicker"></mat-datepicker>
+                 <div class="flex flex-col gap-1">
+                    <div class="relative flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent transition-colors cursor-pointer"
+                         [ngClass]="(form.get('startDate')?.invalid && form.get('startDate')?.touched) ? 'border-red-500/50' : 'hover:border-[#3A3C42]'"
+                         (click)="startPicker.open()">
+                        <mat-icon class="!w-4 !h-4 !text-[16px]" [ngClass]="(form.get('startDate')?.invalid && form.get('startDate')?.touched) ? 'text-red-400' : 'text-[#8A8F98]'">calendar_today</mat-icon>
+                        <span class="text-[13px] font-medium" [ngClass]="{'text-[#EDEDED]': form.get('startDate')?.value, 'text-[#8A8F98]': !form.get('startDate')?.value, 'text-red-400': (form.get('startDate')?.invalid && form.get('startDate')?.touched)}">
+                            {{ (form.get('startDate')?.value | date:'MMM d') || 'Start' }}
+                        </span>
+                        <input matInput [matDatepicker]="startPicker" formControlName="startDate" class="absolute opacity-0 w-0 h-0 bottom-0 left-0 pointer-events-none">
+                        <mat-datepicker #startPicker panelClass="linear-datepicker"></mat-datepicker>
+                    </div>
                  </div>
 
-                 <div class="relative flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer"
-                      (click)="endPicker.open()">
-                    <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">event</mat-icon>
-                    <span class="text-[13px] font-medium" [ngClass]="{'text-[#EDEDED]': form.get('endDate')?.value, 'text-[#8A8F98]': !form.get('endDate')?.value}">
-                        {{ (form.get('endDate')?.value | date:'MMM d') || 'Target' }}
-                    </span>
-                    <!-- Invisible input for anchor positioning -->
-                    <input matInput [matDatepicker]="endPicker" formControlName="endDate" class="absolute opacity-0 w-0 h-0 bottom-0 left-0 pointer-events-none">
-                    <mat-datepicker #endPicker panelClass="linear-datepicker"></mat-datepicker>
+                 <div class="flex flex-col gap-1">
+                    <div class="relative flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent transition-colors cursor-pointer"
+                         [ngClass]="(form.get('endDate')?.invalid && form.get('endDate')?.touched) ? 'border-red-500/50' : 'hover:border-[#3A3C42]'"
+                         (click)="endPicker.open()">
+                        <mat-icon class="!w-4 !h-4 !text-[16px]" [ngClass]="(form.get('endDate')?.invalid && form.get('endDate')?.touched) ? 'text-red-400' : 'text-[#8A8F98]'">event</mat-icon>
+                        <span class="text-[13px] font-medium" [ngClass]="{'text-[#EDEDED]': form.get('endDate')?.value, 'text-[#8A8F98]': !form.get('endDate')?.value, 'text-red-400': (form.get('endDate')?.invalid && form.get('endDate')?.touched)}">
+                            {{ (form.get('endDate')?.value | date:'MMM d') || 'Target' }}
+                        </span>
+                        <input matInput [matDatepicker]="endPicker" formControlName="endDate" class="absolute opacity-0 w-0 h-0 bottom-0 left-0 pointer-events-none">
+                        <mat-datepicker #endPicker panelClass="linear-datepicker"></mat-datepicker>
+                    </div>
                  </div>
+            </div>
+
+            <!-- Error Messages Container -->
+            <div class="px-1 space-y-1" *ngIf="form.touched">
+                <p *ngIf="form.get('startDate')?.hasError('futureDate')" class="text-red-400 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                    <mat-icon class="!text-[12px] !w-3 !h-3">warning</mat-icon> Start date must be in the future
+                </p>
+                <p *ngIf="form.get('endDate')?.hasError('futureDate')" class="text-red-400 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                    <mat-icon class="!text-[12px] !w-3 !h-3">warning</mat-icon> Target date must be in the future
+                </p>
+                <p *ngIf="form.hasError('dateRange')" class="text-red-400 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                    <mat-icon class="!text-[12px] !w-3 !h-3">priority_high</mat-icon> Target date cannot be before start date
+                </p>
             </div>
 
             <div class="h-px bg-[#2E3035] w-full"></div>
@@ -248,11 +249,21 @@ export class ProjectCreateDialogComponent implements OnInit {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
-      startDate: [null],
-      endDate: [null],
-      status: ['ACTIVE', Validators.required],
+      startDate: [null, [this.futureDateValidator]],
+      endDate: [null, [this.futureDateValidator]],
       type: ['PERSONAL', Validators.required]
     }, { validators: this.dateRangeValidator });
+  }
+
+  futureDateValidator(control: FormControl): { [key: string]: boolean } | null {
+    if (control.value) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (new Date(control.value) < today) {
+        return { futureDate: true };
+      }
+    }
+    return null;
   }
 
   ngOnInit(): void {
@@ -288,7 +299,7 @@ export class ProjectCreateDialogComponent implements OnInit {
     if (this.form.invalid) return;
 
     this.loading = true;
-    const projectData = this.form.value;
+    const projectData = { ...this.form.value, status: 'ACTIVE' };
 
     this.projectService.createProject(projectData).subscribe({
       next: (project) => {
