@@ -87,7 +87,15 @@
                             <mat-icon class="!w-5 !h-5 !text-[20px]">person_outline</mat-icon>
                         </div>
                         <input id="fullName" type="text" formControlName="fullName" placeholder="John Doe"
-                            class="w-full h-14 pl-12 pr-4 bg-white/[0.03] border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#818CF8]/30 focus:border-[#818CF8] transition-all duration-300 group-hover:bg-white/[0.06]">
+                            class="w-full h-14 pl-12 pr-4 bg-white/[0.03] border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#818CF8]/30 focus:border-[#818CF8] transition-all duration-300 group-hover:bg-white/[0.06]"
+                            [class.border-red-500]="registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched">
+                    </div>
+                    <div *ngIf="registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched"
+                        class="px-1">
+                        <p *ngIf="registerForm.get('fullName')?.hasError('required')"
+                            class="text-red-500 text-[11px] font-bold mt-1">Full name is required</p>
+                        <p *ngIf="registerForm.get('fullName')?.hasError('minlength')"
+                            class="text-red-500 text-[11px] font-bold mt-1">At least 3 characters</p>
                     </div>
                 </div>
 
@@ -101,7 +109,14 @@
                             <mat-icon class="!w-5 !h-5 !text-[20px]">alternate_email</mat-icon>
                         </div>
                         <input id="email" type="email" formControlName="email" placeholder="name@company.com"
-                            class="w-full h-14 pl-12 pr-4 bg-white/[0.03] border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#818CF8]/30 focus:border-[#818CF8] transition-all duration-300 group-hover:bg-white/[0.06]">
+                            class="w-full h-14 pl-12 pr-4 bg-white/[0.03] border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#818CF8]/30 focus:border-[#818CF8] transition-all duration-300 group-hover:bg-white/[0.06]"
+                            [class.border-red-500]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+                    </div>
+                    <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="px-1">
+                        <p *ngIf="registerForm.get('email')?.hasError('required')"
+                            class="text-red-500 text-[11px] font-bold mt-1">Email is required</p>
+                        <p *ngIf="registerForm.get('email')?.hasError('email')"
+                            class="text-red-500 text-[11px] font-bold mt-1">Please enter a valid work email</p>
                     </div>
                 </div>
 
@@ -112,12 +127,20 @@
                         <div class="relative group/input">
                             <input id="password" [type]="hidePassword ? 'password' : 'text'" formControlName="password"
                                 placeholder="••••••••"
-                                class="w-full h-14 px-4 pr-10 bg-white/[0.03] border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#818CF8]/30 focus:border-[#818CF8] transition-all duration-300 group-hover:bg-white/[0.06]">
+                                class="w-full h-14 px-4 pr-10 bg-white/[0.03] border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#818CF8]/30 focus:border-[#818CF8] transition-all duration-300 group-hover:bg-white/[0.06]"
+                                [class.border-red-500]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
                             <button type="button" (click)="togglePasswordVisibility()"
                                 class="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors p-1.5 rounded-xl">
                                 <mat-icon class="!w-4 !h-4 !text-[18px]">{{hidePassword ? 'visibility_off' :
                                     'visibility'}}</mat-icon>
                             </button>
+                        </div>
+                        <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+                            class="px-1">
+                            <p *ngIf="registerForm.get('password')?.hasError('required')"
+                                class="text-red-500 text-[11px] font-bold mt-1">Password is required</p>
+                            <p *ngIf="registerForm.get('password')?.hasError('minlength')"
+                                class="text-red-500 text-[11px] font-bold mt-1">Minimum 6 characters</p>
                         </div>
                     </div>
                     <div class="space-y-2.5">
