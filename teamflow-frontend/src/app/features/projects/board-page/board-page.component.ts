@@ -14,6 +14,7 @@ import { ProjectService } from '../../../core/services/project.service';
 import { ColumnService } from '../../../core/services/column.service';
 import { TaskService } from '../../../core/services/task.service';
 import { ChatService } from '../../../core/services/chat.service';
+import { ExportService } from '../../../core/services/export.service';
 import { Project, ProjectColumn, Task } from '../../../shared/models';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -78,6 +79,7 @@ export class BoardPageComponent implements OnInit {
   private taskService = inject(TaskService);
   private chatService = inject(ChatService);
   private snackBar = inject(MatSnackBar);
+  private exportService = inject(ExportService);
 
   constructor(public dialog: MatDialog) { }
 
@@ -200,6 +202,12 @@ export class BoardPageComponent implements OnInit {
         this.connectChat(p.id);
       }
     });
+  }
+
+  exportTasks(): void {
+    if (this.project) {
+      this.exportService.exportTasks(this.project.id);
+    }
   }
 
   loadColumns(projectId: number): void {
