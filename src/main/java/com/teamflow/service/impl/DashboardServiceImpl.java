@@ -100,6 +100,7 @@ public class DashboardServiceImpl implements DashboardService {
                 if (task.getColumn() != null) {
                         dto.setColumnId(task.getColumn().getId());
                         dto.setColumnName(task.getColumn().getName());
+                        dto.setCompleted(task.getColumn().isFinal());
                         if (task.getColumn().getProject() != null) {
                                 dto.setProjectName(task.getColumn().getProject().getName());
                                 dto.setProjectId(task.getColumn().getProject().getId());

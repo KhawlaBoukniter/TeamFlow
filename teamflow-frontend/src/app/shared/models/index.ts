@@ -62,8 +62,9 @@ export interface Task {
     description: string;
     priority: TaskPriority;
     dueDate?: string;
-    columnId: number;
+    columnId?: number;
     columnName?: string;
+    isCompleted?: boolean;
     projectName?: string;
     projectId?: number;
     blocked: boolean;

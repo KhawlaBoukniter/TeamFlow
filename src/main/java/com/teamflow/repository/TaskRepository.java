@@ -16,7 +16,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     Long countByColumn_Project_IdAndColumn_Name(Long projectId, String columnName);
 
-    @Query("SELECT t FROM Task t JOIN t.assignments a WHERE a.user.id = :userId AND (t.column IS NULL OR t.column.isFinal = false) AND t.deletedAt IS NULL ORDER BY t.dueDate ASC")
+    @Query("SELECT t FROM Task t JOIN t.assignments a WHERE a.user.id = :userId AND t.deletedAt IS NULL ORDER BY t.dueDate ASC")
     List<Task> findActiveTasksByUserId(
             @org.springframework.data.repository.query.Param("userId") Long userId);
 }

@@ -38,6 +38,9 @@ public class TaskDTO {
     private String columnName;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private boolean isCompleted;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String projectName;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
