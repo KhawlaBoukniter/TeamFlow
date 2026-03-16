@@ -59,6 +59,12 @@ import { BRANDING } from '../../constants/branding';
           <mat-icon class="!w-4 !h-4 !text-[16px]">adjust</mat-icon>
           <span class="text-[13px]">My issues</span>
         </a>
+        <a routerLink="/profile"
+           routerLinkActive="!bg-[#25262B] !text-white font-medium"
+           class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-[#1C1C1E] hover:text-white transition-colors cursor-pointer text-[#8A8F98]">
+          <mat-icon class="!w-4 !h-4 !text-[16px]">settings</mat-icon>
+          <span class="text-[13px]">Profile Settings</span>
+        </a>
 
         <!-- Workspace Section -->
         <div class="pt-4 pb-1.5 px-2">
