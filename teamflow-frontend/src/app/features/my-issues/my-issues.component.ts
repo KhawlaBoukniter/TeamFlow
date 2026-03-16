@@ -51,41 +51,54 @@ import { Task } from '../../shared/models';
             <div class="bg-[#111113] border border-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm">
               <div *ngFor="let task of group.value; let last = last" 
                    (click)="openBoard(task)"
-                   class="group flex items-center gap-5 px-5 py-3.5 hover:bg-[#1A1A1D] transition-all cursor-pointer border-b border-[#1C1C1E] last:border-0">
+                   class="group flex items-center gap-5 px-5 py-3.5 hover:bg-[#1A1A1D] transition-all cursor-pointer border-b border-[#1C1C1E] last:border-0"
+                   [ngClass]="{'opacity-70': task.isCompleted}">
                 
                 <!-- Priority Icon -->
-                <div class="shrink-0 flex items-center justify-center" [ngClass]="getPriorityClass(task.priority)">
+                <div class="shrink-0 flex items-center justify-center transition-all duration-300" 
+                     [ngClass]="task.isCompleted ? 'opacity-30 grayscale scale-90' : getPriorityClass(task.priority)">
                   <mat-icon class="!text-[18px] !w-[18px] !h-[18px]">
-                    {{ getPriorityIcon(task.priority) }}
+                    {{ task.isCompleted ? 'verified' : getPriorityIcon(task.priority) }}
                   </mat-icon>
                 </div>
 
                 <!-- Task Info -->
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2 mb-0.5">
-                    <span class="text-[13px] font-semibold text-[#EDEDED] group-hover:text-white transition-colors truncate">
+                    <span class="text-[13px] font-semibold transition-colors truncate"
+                          [ngClass]="task.isCompleted ? 'text-[#4A4B4E] line-through decoration-[#3A3C42]' : 'text-[#EDEDED] group-hover:text-white'">
                       {{ task.title }}
                     </span>
-                    <span *ngIf="task.blocked" class="px-1.5 py-0.5 rounded bg-red-500/10 text-red-500 text-[9px] font-bold uppercase tracking-wider flex items-center gap-0.5">
+                    <span *ngIf="task.blocked && !task.isCompleted" class="px-1.5 py-0.5 rounded bg-red-500/10 text-red-500 text-[9px] font-bold uppercase tracking-wider flex items-center gap-0.5">
                       <mat-icon class="!text-[10px] !w-[10px] !h-[10px]">lock</mat-icon>
                       Blocked
                     </span>
                   </div>
                   <div class="flex items-center gap-3">
-                    <span class="text-[11px] text-[#5E6AD2] font-medium">{{ task.columnName || 'Active' }}</span>
+                    <span class="text-[11px] font-bold uppercase tracking-wider" 
+                          [ngClass]="task.isCompleted ? 'text-emerald-500/80 bg-emerald-500/5 px-2 py-0.5 rounded-md border border-emerald-500/10' : 'text-[#5E6AD2]'">
+                      {{ task.isCompleted ? 'Done' : (task.columnName || 'Active') }}
+                    </span>
                     <span class="w-1 h-1 rounded-full bg-[#2E3035]"></span>
-                    <span class="text-[11px] text-[#8A8F98]">{{ task.description | slice:0:60 }}{{ task.description.length > 60 ? '...' : '' }}</span>
+                    <span class="text-[11px] transition-colors" [ngClass]="task.isCompleted ? 'text-[#3A3C42] line-through decoration-[#3A3C42]' : 'text-[#8A8F98]'">
+                      {{ (task.description || '') | slice:0:60 }}{{ (task.description && task.description.length > 60) ? '...' : '' }}
+                    </span>
                   </div>
                 </div>
 
                 <!-- Metadata -->
                 <div class="shrink-0 flex items-center gap-6">
                   <!-- Due Date -->
-                  <div *ngIf="task.dueDate" class="flex flex-col items-end">
+                  <div *ngIf="task.dueDate && !task.isCompleted" class="flex flex-col items-end">
                     <span class="text-[10px] text-[#3A3C42] uppercase tracking-wider font-bold mb-0.5">Due</span>
                     <span class="text-[11px] font-medium" [ngClass]="isOverdue(task.dueDate) ? 'text-red-400' : 'text-[#8A8F98]'">
                       {{ task.dueDate | date:'MMM d' }}
                     </span>
+                  </div>
+
+                  <div *ngIf="task.isCompleted" class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                     <mat-icon class="!text-[12px] !w-3 !h-3 text-emerald-500">check</mat-icon>
+                     <span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Finished</span>
                   </div>
 
                   <!-- Navigation Arrow -->
