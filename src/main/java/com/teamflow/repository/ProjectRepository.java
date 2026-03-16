@@ -19,4 +19,10 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     @Query("SELECT p FROM Project p JOIN p.chatRooms cr WHERE cr.id = :chatRoomId")
     Optional<Project> findByChatRoomId(@Param("chatRoomId") Long chatRoomId);
+
+    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN p.memberships m " +
+            "WHERE p.deletedAt IS NULL AND " +
+            "(p.name LIKE %:query% OR p.description LIKE %:query%) AND " +
+            "(p.owner.id = :userId OR (m.user.id = :userId AND m.deletedAt IS NULL))")
+    List<Project> searchProjects(@Param("query") String query, @Param("userId") Long userId);
 }
