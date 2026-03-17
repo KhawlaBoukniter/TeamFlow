@@ -14,4 +14,8 @@ public class MessageDTO {
     private String senderName;
     private Long chatRoomId;
     private LocalDateTime createdAt;
+    private Long parentMessageId;
+    private String parentMessageContent;
+    private String parentMessageSenderName;
+    private java.util.List<AttachmentDTO> attachments;
 }

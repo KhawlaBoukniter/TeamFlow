@@ -28,6 +28,12 @@ public class AttachmentController {
         return new ResponseEntity<>(attachmentService.uploadAttachment(taskId, file), HttpStatus.CREATED);
     }
 
+    @PostMapping("/chat/messages/{messageId}/attachments")
+    public ResponseEntity<AttachmentDTO> uploadChatMessageAttachment(@PathVariable Long messageId,
+            @RequestParam("file") MultipartFile file) {
+        return new ResponseEntity<>(attachmentService.uploadChatMessageAttachment(messageId, file), HttpStatus.CREATED);
+    }
+
     @GetMapping("/attachments/{id}/download")
     public ResponseEntity<Resource> downloadAttachment(@PathVariable Long id) {
         Resource file = attachmentService.downloadAttachment(id);

@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import com.teamflow.entity.User;
 
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,8 +28,12 @@ public class Attachment {
     private Long fileSize;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "task_id", nullable = false)
+    @JoinColumn(name = "task_id")
     private Task task;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "message_id")
+    private Message message;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

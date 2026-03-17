@@ -8,6 +8,8 @@ import com.teamflow.exception.ResourceNotFoundException;
 import com.teamflow.repository.AttachmentRepository;
 import com.teamflow.repository.TaskRepository;
 import com.teamflow.security.SecurityUtils;
+import com.teamflow.entity.Message;
+import com.teamflow.repository.MessageRepository;
 import com.teamflow.service.interfaces.AttachmentService;
 import com.teamflow.service.interfaces.NotificationService;
 import com.teamflow.service.interfaces.AuditLogService;
@@ -35,12 +37,63 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     private final AttachmentRepository attachmentRepository;
     private final TaskRepository taskRepository;
+    private final MessageRepository messageRepository;
     private final NotificationService notificationService;
     private final AuditLogService auditLogService;
+    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
     private final Path root = Paths.get("uploads");
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
+    public AttachmentDTO uploadChatMessageAttachment(Long messageId, MultipartFile file) {
+        try {
+            if (!Files.exists(root)) {
+                Files.createDirectories(root);
+            }
+
+            Message message = messageRepository.findById(messageId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Message not found"));
+
+            User currentUser = SecurityUtils.getCurrentUser();
+
+            String originalFileName = file.getOriginalFilename();
+            String fileExtension = "";
+            if (originalFileName != null && originalFileName.contains(".")) {
+                fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+            }
+
+            String storedFileName = UUID.randomUUID().toString() + fileExtension;
+            Files.copy(file.getInputStream(), this.root.resolve(storedFileName), StandardCopyOption.REPLACE_EXISTING);
+
+            Attachment attachment = new Attachment();
+            attachment.setFileName(originalFileName);
+            attachment.setFileUrl(storedFileName);
+            attachment.setFileType(file.getContentType());
+            attachment.setFileSize(file.getSize());
+            attachment.setMessage(message);
+            attachment.setUploadedBy(currentUser);
+
+            Attachment saved = attachmentRepository.save(attachment);
+            AttachmentDTO savedDTO = toDTO(saved);
+
+            Long roomId = message.getChatRoom().getId();
+            messagingTemplate.convertAndSend("/topic/chat/" + roomId + "/attachments", savedDTO);
+
+            Long projectId = message.getChatRoom().getProject().getId();
+            auditLogService.logAction("UPLOAD_CHAT_ATTACHMENT", "Attachment", saved.getId(), projectId,
+                    "Uploaded chat file: " + originalFileName);
+
+            return savedDTO;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    @SuppressWarnings("null")
     public AttachmentDTO uploadAttachment(Long taskId, MultipartFile file) {
         try {
             if (!Files.exists(root)) {
@@ -85,7 +138,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                             projectId);
                 }
             } catch (Exception e) {
-                
+
             }
 
             // Notify task assignees about the new attachment
@@ -104,7 +157,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                                     projectId);
                         }
                     } catch (Exception e) {
-                        
+
                     }
                 });
             }
@@ -121,6 +174,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     @Transactional(readOnly = true)
+    @SuppressWarnings("null")
     public Resource downloadAttachment(Long attachmentId) {
         Attachment attachment = attachmentRepository.findById(attachmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Attachment not found"));
@@ -141,6 +195,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public void deleteAttachment(Long attachmentId) {
         Attachment attachment = attachmentRepository.findById(attachmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Attachment not found"));

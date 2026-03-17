@@ -34,6 +34,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public MessageDTO saveMessage(MessageDTO dto) {
         Long chatRoomId = dto.getChatRoomId();
         Long senderId = dto.getSenderId();
@@ -54,6 +55,11 @@ public class MessageServiceImpl implements MessageService {
         message.setContent(dto.getContent());
         message.setChatRoom(chatRoom);
         message.setSender(sender);
+
+        if (dto.getParentMessageId() != null) {
+            messageRepository.findById(dto.getParentMessageId())
+                    .ifPresent(parent -> message.setParentMessage(parent));
+        }
 
         Message savedMessage = messageRepository.save(message);
 
@@ -108,6 +114,27 @@ public class MessageServiceImpl implements MessageService {
         dto.setSenderName(message.getSender().getFullName());
         dto.setChatRoomId(message.getChatRoom().getId());
         dto.setCreatedAt(message.getCreatedAt());
+
+        if (message.getParentMessage() != null) {
+            dto.setParentMessageId(message.getParentMessage().getId());
+            dto.setParentMessageContent(message.getParentMessage().getContent());
+            dto.setParentMessageSenderName(message.getParentMessage().getSender().getFullName());
+        }
+
+        if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
+            dto.setAttachments(message.getAttachments().stream()
+                    .map(att -> com.teamflow.dto.AttachmentDTO.builder()
+                            .id(att.getId())
+                            .fileName(att.getFileName())
+                            .fileUrl(att.getFileUrl())
+                            .fileType(att.getFileType())
+                            .fileSize(att.getFileSize())
+                            .uploadedByUserName(
+                                    att.getUploadedBy() != null ? att.getUploadedBy().getFullName() : "Unknown")
+                            .createdAt(att.getCreatedAt())
+                            .build())
+                    .collect(Collectors.toList()));
+        }
         return dto;
     }
 }

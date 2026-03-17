@@ -9,6 +9,8 @@ import java.util.List;
 public interface AttachmentService {
     AttachmentDTO uploadAttachment(Long taskId, MultipartFile file);
 
+    AttachmentDTO uploadChatMessageAttachment(Long messageId, MultipartFile file);
+
     Resource downloadAttachment(Long attachmentId);
 
     void deleteAttachment(Long attachmentId);
