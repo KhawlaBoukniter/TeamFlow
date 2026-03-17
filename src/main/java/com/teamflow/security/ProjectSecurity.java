@@ -45,7 +45,7 @@ public class ProjectSecurity {
 
         boolean hasMembership = membershipRepository.existsByProjectIdAndUserIdAndDeletedAtIsNull(projectId,
                 currentUser.getId());
-        System.out.println("[DEBUG isMember] hasMembership=" + hasMembership);
+
         return hasMembership;
     }
 
