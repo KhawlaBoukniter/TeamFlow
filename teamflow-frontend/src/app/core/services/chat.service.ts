@@ -84,7 +84,7 @@ export class ChatService {
         this.stompClient.activate();
     }
 
-    sendMessage(content: string): void {
+    sendMessage(content: string, parentMessageId?: number): void {
         if (!this.stompClient?.active || !this.currentRoomId) return;
 
         const userId = this.authService.getCurrentUserId();
@@ -93,7 +93,8 @@ export class ChatService {
         const message: ChatMessage = {
             content: content,
             senderId: userId,
-            chatRoomId: this.currentRoomId
+            chatRoomId: this.currentRoomId,
+            parentMessageId: parentMessageId
         };
 
         this.stompClient.publish({

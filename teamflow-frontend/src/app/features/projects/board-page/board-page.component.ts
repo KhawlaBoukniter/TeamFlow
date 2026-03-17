@@ -149,13 +149,17 @@ export class BoardPageComponent implements OnInit {
           this.loadUnreadCount(this.project.id);
         }
       } else {
-        // If chat is open, mark as read immediately to keep backend sync
-        console.log('[DEBUG Chat] Chat is open, marking as read');
-        this.unreadCount = 0;
-        this.chatService.markAsRead(this.project.id).subscribe({
-          next: () => console.log('[DEBUG Chat] Mark as read success'),
-          error: (err) => console.error('[DEBUG Chat] Mark as read error:', err)
-        });
+        // If chat is open, only mark as read IF we are at the bottom
+        if (this.chatWindow.isNearBottom) {
+          console.log('[DEBUG Chat] Chat is open and at bottom, marking as read');
+          this.unreadCount = 0;
+          this.chatService.markAsRead(this.project.id).subscribe({
+            next: () => console.log('[DEBUG Chat] Mark as read success'),
+            error: (err) => console.error('[DEBUG Chat] Mark as read error:', err)
+          });
+        } else {
+          console.log('[DEBUG Chat] Chat is open but scrolled up. Keeping as unread locally.');
+        }
       }
     });
   }
