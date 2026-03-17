@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: teamflow-db
+    environment:
+      POSTGRES_DB: teamflow_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - teamflow-network
+
+  backend:
+    build: .
+    container_name: teamflow-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=jdbc:postgresql://db:5432/teamflow_db
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+    depends_on:
+      - db
+    networks:
+      - teamflow-network
+
+  frontend:
+    build: ./teamflow-frontend
+    container_name: teamflow-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - teamflow-network
+
+networks:
+  teamflow-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
