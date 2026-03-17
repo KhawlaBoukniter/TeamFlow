@@ -140,6 +140,10 @@ export interface ChatMessage {
     senderName?: string;
     chatRoomId: number;
     createdAt?: string;
+    parentMessageId?: number;
+    parentMessageContent?: string;
+    parentMessageSenderName?: string;
+    attachments?: Attachment[];
 }
 
 export * from './auth.model';

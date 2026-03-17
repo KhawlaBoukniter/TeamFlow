@@ -24,6 +24,18 @@ export class AttachmentService {
         return this.http.request(req);
     }
 
+    uploadChatMessageAttachment(messageId: number, file: File): Observable<HttpEvent<Attachment>> {
+        const formData: FormData = new FormData();
+        formData.append('file', file);
+
+        const req = new HttpRequest('POST', `${this.apiUrl}/chat/messages/${messageId}/attachments`, formData, {
+            reportProgress: true,
+            responseType: 'json'
+        });
+
+        return this.http.request(req);
+    }
+
     getAttachments(taskId: number): Observable<Attachment[]> {
         return this.http.get<Attachment[]>(`${this.apiUrl}/tasks/${taskId}/attachments`);
     }
