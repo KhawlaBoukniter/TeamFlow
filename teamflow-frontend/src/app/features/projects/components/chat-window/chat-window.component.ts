@@ -238,23 +238,6 @@ import { environment } from '../../../../../environments/environment';
         </button>
       </div>
 
-      <!-- Mention List -->
-      <div class="mention-list" *ngIf="showMentionList">
-        <div 
-          class="mention-item" 
-          *ngFor="let member of filteredMembers; let i = index" 
-          [class.active]="i === mentionSelectedIndex"
-          (mouseenter)="mentionSelectedIndex = i"
-          (click)="insertMention(member)">
-          <div class="mini-avatar" [style.background]="getAvatarGradient(member.userName)">
-            {{ getInitial(member.userName) }}
-          </div>
-          <span class="mention-name">{{ member.userName }}</span>
-          <span class="mention-role">{{ member.roleInProject }}</span>
-        </div>
-        <div *ngIf="filteredMembers.length === 0" class="mention-empty">No members found</div>
-      </div>
-
       <!-- File Previews -->
       <div class="file-previews" *ngIf="selectedFiles.length > 0">
         <div class="preview-card" *ngFor="let f of selectedFiles; let idx = index">
@@ -273,6 +256,22 @@ import { environment } from '../../../../../environments/environment';
 
       <!-- Input -->
       <div class="input-area">
+        <!-- Mention List (inside input-area for correct absolute positioning) -->
+        <div class="mention-list" *ngIf="showMentionList">
+          <div 
+            class="mention-item" 
+            *ngFor="let member of filteredMembers; let i = index" 
+            [class.active]="i === mentionSelectedIndex"
+            (mouseenter)="mentionSelectedIndex = i"
+            (click)="insertMention(member)">
+            <div class="mini-avatar" [style.background]="getAvatarGradient(member.userName)">
+              {{ getInitial(member.userName) }}
+            </div>
+            <span class="mention-name">{{ member.userName }}</span>
+            <span class="mention-role">{{ member.roleInProject }}</span>
+          </div>
+          <div *ngIf="filteredMembers.length === 0" class="mention-empty">No members found</div>
+        </div>
         <div class="input-box" [class.active]="inputFocused">
           <textarea
             rows="1"
@@ -929,9 +928,9 @@ import { environment } from '../../../../../environments/environment';
     /* Mention Dropdown */
     .mention-list {
       position: absolute;
-      bottom: calc(100% + 8px);
-      left: 12px;
-      right: 12px;
+      bottom: 100%;
+      left: 0;
+      right: 0;
       background: #1A1B1F;
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 12px;
@@ -941,6 +940,7 @@ import { environment } from '../../../../../environments/environment';
       animation: slideUp 0.15s ease-out;
       max-height: 200px;
       overflow-y: auto;
+      margin-bottom: 6px;
     }
     .mention-item {
       display: flex;
