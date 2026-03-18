@@ -219,6 +219,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     private AttachmentDTO toDTO(Attachment attachment) {
         return AttachmentDTO.builder()
                 .id(attachment.getId())
+                .messageId(attachment.getMessage() != null ? attachment.getMessage().getId() : null)
                 .fileName(attachment.getFileName())
                 .fileUrl(attachment.getFileUrl())
                 .fileType(attachment.getFileType())

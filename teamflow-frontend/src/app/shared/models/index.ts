@@ -106,6 +106,7 @@ export interface Comment {
 
 export interface Attachment {
     id: number;
+    messageId?: number;
     fileName: string;
     fileUrl: string;
     fileType: string;

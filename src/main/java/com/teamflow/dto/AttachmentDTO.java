@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class AttachmentDTO {
     private Long id;
+    private Long messageId;
     private String fileName;
     private String fileUrl;
     private String fileType;

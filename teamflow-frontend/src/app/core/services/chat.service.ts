@@ -71,6 +71,21 @@ export class ChatService {
                         this.newMessagesSubject.next(chatMessage);
                     });
                 });
+
+                // Subscribe to attachment updates
+                this.stompClient?.subscribe(`/topic/chat/${roomId}/attachments`, (message: IMessage) => {
+                    const attachment = JSON.parse(message.body);
+                    const currentMessages = this.messagesSubject.value;
+                    this.ngZone.run(() => {
+                        const updated = currentMessages.map(msg => {
+                            if (msg.id === attachment.messageId) {
+                                return { ...msg, attachments: [...(msg.attachments || []), attachment] };
+                            }
+                            return msg;
+                        });
+                        this.messagesSubject.next(updated);
+                    });
+                });
             },
             onDisconnect: () => {
                 this.ngZone.run(() => this.connectedSubject.next(false));
