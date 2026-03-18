@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, inject, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, inject, ViewChild, ElementRef, AfterViewChecked, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,7 +25,14 @@ import { environment } from '../../../../../environments/environment';
     TextFieldModule
   ],
   template: `
-    <div class="chat-panel" [class.open]="isOpen">
+    <div class="chat-panel" 
+         [class.open]="isOpen"
+         [class.resizing]="isResizing"
+         [style.width.px]="chatWidth"
+         [style.right.px]="isOpen ? 0 : -(chatWidth + 20)">
+
+      <!-- Resize Handle -->
+      <div class="resize-handle" (mousedown)="startResizing($event)"></div>
 
       <!-- Ambient glow -->
       <div class="ambient-glow"></div>
@@ -327,16 +334,28 @@ import { environment } from '../../../../../environments/environment';
       position: fixed;
       right: -460px;
       top: 0; bottom: 0;
-      width: 440px;
       background: #0A0A0C;
       border-left: 1px solid rgba(255,255,255,0.04);
       display: flex;
       flex-direction: column;
       z-index: 1000;
       transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      overflow: hidden;
+      overflow: visible; /* Allow handle to be visible or at least reachable */
     }
-    .chat-panel.open { right: 0; }
+    .chat-panel.resizing { transition: none; }
+    .chat-panel.open { /* right: 0;  -- handled by [style.right.px] now */ }
+
+    .resize-handle {
+      position: absolute;
+      left: -4px; top: 0; bottom: 0;
+      width: 8px;
+      cursor: ew-resize;
+      z-index: 100;
+      transition: background 0.2s;
+    }
+    .resize-handle:hover, .chat-panel.resizing .resize-handle {
+      background: rgba(94, 106, 210, 0.3);
+    }
 
     .ambient-glow {
       position: absolute;
@@ -993,6 +1012,12 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
   mentionSearchTerm = '';
   mentionStartIndex = -1;
 
+  // Resize
+  chatWidth = 440;
+  isResizing = false;
+  private readonly MIN_WIDTH = 320;
+  private readonly MAX_WIDTH = 800;
+
   // Emojis
   emojis = [
     '😀', '😂', '😍', '🥰', '😎', '🤔', '👍', '👎', '❤️', '🔥',
@@ -1032,6 +1057,13 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   ngOnInit(): void {
     this.currentUserId = this.authService.getCurrentUserId();
+
+    // Load saved width
+    const savedWidth = localStorage.getItem('teamflow_chat_width');
+    if (savedWidth) {
+      this.chatWidth = Math.min(Math.max(parseInt(savedWidth, 10), this.MIN_WIDTH), this.MAX_WIDTH);
+    }
+
     this.subs.push(
       this.chatService.messages$.pipe(
         tap((msgs) => {
@@ -1432,5 +1464,33 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
       a.click();
       window.URL.revokeObjectURL(url);
     });
+  }
+
+  // Resizing logic
+  startResizing(event: MouseEvent): void {
+    event.preventDefault();
+    this.isResizing = true;
+  }
+
+  @HostListener('window:mousemove', ['$event'])
+  onResize(event: MouseEvent): void {
+    if (!this.isResizing) return;
+
+    const newWidth = window.innerWidth - event.clientX;
+    if (newWidth >= this.MIN_WIDTH && newWidth <= this.MAX_WIDTH) {
+      this.chatWidth = newWidth;
+    } else if (newWidth < this.MIN_WIDTH) {
+      this.chatWidth = this.MIN_WIDTH;
+    } else if (newWidth > this.MAX_WIDTH) {
+      this.chatWidth = this.MAX_WIDTH;
+    }
+  }
+
+  @HostListener('window:mouseup')
+  stopResizing(): void {
+    if (this.isResizing) {
+      this.isResizing = false;
+      localStorage.setItem('teamflow_chat_width', this.chatWidth.toString());
+    }
   }
 }
