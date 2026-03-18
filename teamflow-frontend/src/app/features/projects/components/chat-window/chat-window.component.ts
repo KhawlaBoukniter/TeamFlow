@@ -9,8 +9,9 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { MembershipService } from '../../../../core/services/membership.service';
 import { AttachmentService } from '../../../../core/services/attachment.service';
 import { ChatMessage, Membership, Attachment } from '../../../../shared/models';
-import { Subscription, tap } from 'rxjs';
+import { Subscription, tap, skip } from 'rxjs';
 import { TextFieldModule } from '@angular/cdk/text-field';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-chat-window',
@@ -111,15 +112,29 @@ import { TextFieldModule } from '@angular/cdk/text-field';
 
                     <!-- Attachments in Message -->
                     <div class="msg-attachments" *ngIf="msg.attachments && msg.attachments.length > 0">
-                      <div class="msg-attachment" *ngFor="let att of msg.attachments" (click)="downloadAttachment(att)">
-                        <div class="att-icon">
-                          <mat-icon>{{ getFileIcon(att.fileType) }}</mat-icon>
+                      <div class="attachment-item" *ngFor="let att of msg.attachments">
+                        <!-- Image Preview -->
+                        <div class="image-preview" *ngIf="isImage(att.fileType)" (click)="openZoom(att)" [matTooltip]="'View ' + att.fileName">
+                          <img *ngIf="loadedImageUrls.get(att.id) as src" [src]="src" [alt]="att.fileName">
+                          <div class="image-loading" *ngIf="!loadedImageUrls.has(att.id)">
+                            <mat-icon class="spin">refresh</mat-icon>
+                          </div>
+                          <div class="image-overlay">
+                            <mat-icon>zoom_in</mat-icon>
+                          </div>
                         </div>
-                        <div class="att-info">
-                          <span class="att-name">{{ att.fileName }}</span>
-                          <span class="att-size">{{ formatSize(att.fileSize) }}</span>
+
+                        <!-- File Card (Non-Image) -->
+                        <div class="msg-attachment" *ngIf="!isImage(att.fileType)" (click)="downloadAttachment(att)">
+                          <div class="att-icon">
+                            <mat-icon>{{ getFileIcon(att.fileType) }}</mat-icon>
+                          </div>
+                          <div class="att-info">
+                            <span class="att-name">{{ att.fileName }}</span>
+                            <span class="att-size">{{ formatSize(att.fileSize) }}</span>
+                          </div>
+                          <mat-icon class="att-download">download</mat-icon>
                         </div>
-                        <mat-icon class="att-download">download</mat-icon>
                       </div>
                     </div>
 
@@ -139,6 +154,34 @@ import { TextFieldModule } from '@angular/cdk/text-field';
               <div class="msg-row-compact">
                 <span class="hover-ts">{{ formatTime(msg.createdAt) }}</span>
                 <p class="msg-text compact-text">{{ msg.content }}</p>
+                
+                <!-- Attachments in Compact Message -->
+                <div class="msg-attachments" *ngIf="msg.attachments && msg.attachments.length > 0">
+                  <div class="attachment-item" *ngFor="let att of msg.attachments">
+                    <!-- Image Preview -->
+                    <div class="image-preview" *ngIf="isImage(att.fileType)" (click)="openZoom(att)" [matTooltip]="'View ' + att.fileName">
+                      <img *ngIf="loadedImageUrls.get(att.id) as src" [src]="src" [alt]="att.fileName">
+                      <div class="image-loading" *ngIf="!loadedImageUrls.has(att.id)">
+                        <mat-icon class="spin">refresh</mat-icon>
+                      </div>
+                      <div class="image-overlay">
+                        <mat-icon>zoom_in</mat-icon>
+                      </div>
+                    </div>
+
+                    <!-- File Card (Non-Image) -->
+                    <div class="msg-attachment" *ngIf="!isImage(att.fileType)" (click)="downloadAttachment(att)">
+                      <div class="att-icon">
+                        <mat-icon>{{ getFileIcon(att.fileType) }}</mat-icon>
+                      </div>
+                      <div class="att-info">
+                        <span class="att-name">{{ att.fileName }}</span>
+                        <span class="att-size">{{ formatSize(att.fileSize) }}</span>
+                      </div>
+                      <mat-icon class="att-download">download</mat-icon>
+                    </div>
+                  </div>
+                </div>
 
                 <!-- Message Actions (Hover) -->
                 <div class="message-actions">
@@ -248,6 +291,26 @@ import { TextFieldModule } from '@angular/cdk/text-field';
                     [class.ready]="(newMessage.trim() || selectedFiles.length > 0) && isConnected">
               <mat-icon>arrow_upward</mat-icon>
             </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lightbox Popup -->
+      <div class="lightbox-overlay" *ngIf="zoomedImageUrl" (click)="closeZoom()">
+        <div class="lightbox-content" (click)="$event.stopPropagation()">
+          <div class="lightbox-header">
+            <span class="lightbox-title">{{ zoomedImage?.fileName }}</span>
+            <div class="lightbox-actions">
+              <button class="lightbox-btn" (click)="downloadAttachment(zoomedImage!)" matTooltip="Download">
+                <mat-icon>download</mat-icon>
+              </button>
+              <button class="lightbox-btn close" (click)="closeZoom()" matTooltip="Close">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div class="lightbox-image-container">
+            <img [src]="zoomedImageUrl" [alt]="zoomedImage?.fileName" class="lightbox-image">
           </div>
         </div>
       </div>
@@ -688,6 +751,50 @@ import { TextFieldModule } from '@angular/cdk/text-field';
     .att-size { font-size: 10px; color: #4A4D54; }
     .att-download { font-size: 14px; width: 14px; height: 14px; color: transparent; margin-left: auto; transition: color 0.2s; }
     .msg-attachment:hover .att-download { color: #8A8F98; }
+    
+    .image-preview {
+      margin-top: 4px;
+      max-width: 280px;
+      max-height: 360px;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+      transition: all 0.2s ease;
+    }
+    .image-preview:hover { border-color: rgba(94,106,210,0.4); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+    .image-preview img {
+      width: 100%;
+      height: auto;
+      max-height: 360px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+    .image-preview:hover img { transform: scale(1.05); }
+    .image-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .image-preview:hover .image-overlay { opacity: 1; }
+    .image-overlay mat-icon { color: white; font-size: 28px; width: 28px; height: 28px; }
+
+    .image-loading {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.02);
+      color: #4A4D54;
+    }
+    .spin { animation: rotate 2s linear infinite; }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
     /* File Previews (above input) */
     .file-previews {
@@ -793,6 +900,51 @@ import { TextFieldModule } from '@angular/cdk/text-field';
       from { opacity: 0; }
       to { opacity: 1; }
     }
+
+    /* Lightbox Styles */
+    .lightbox-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      animation: fadeIn 0.15s ease-out;
+    }
+    .lightbox-content {
+      width: 100%; max-width: 400px;
+      display: flex; flex-direction: column;
+      background: #141416;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.6);
+      animation: scaleIn 0.25s cubic-bezier(0.17, 0.67, 0.41, 1.08);
+    }
+    @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    
+    .lightbox-header {
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.02);
+    }
+    .lightbox-title { font-size: 13px; font-weight: 600; color: #EDEDED; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lightbox-actions { display: flex; gap: 8px; }
+    .lightbox-btn {
+      width: 32px; height: 32px; border: none; background: transparent;
+      color: #8A8F98; cursor: pointer; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .lightbox-btn:hover { background: rgba(255,255,255,0.08); color: #EDEDED; }
+    .lightbox-btn.close:hover { color: #F87171; }
+
+    .lightbox-image-container {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      background: #0A0A0C; padding: 10px; min-height: 200px;
+    }
+    .lightbox-image { max-width: 100%; max-height: 50vh; object-fit: contain; }
   `]
 })
 export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked {
@@ -822,6 +974,13 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
   private membershipService = inject(MembershipService);
   private attachmentService = inject(AttachmentService);
   private subs: Subscription[] = [];
+
+  // Image Preview URLs (Secure loading via Blob)
+  loadedImageUrls: Map<number, string> = new Map();
+
+  // Lightbox State
+  zoomedImage: Attachment | null = null;
+  zoomedImageUrl: string | null = null;
 
   // Attachments
   selectedFiles: File[] = [];
@@ -875,7 +1034,8 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.currentUserId = this.authService.getCurrentUserId();
     this.subs.push(
       this.chatService.messages$.pipe(
-        tap(() => {
+        tap((msgs) => {
+          this.processImageAttachments(msgs);
           if (this.isNearBottom) {
             setTimeout(() => this.scrollToBottom(), 50);
           }
@@ -923,14 +1083,12 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
       next: (room) => {
         this.chatService.connect(room.id);
         this.subscribeToTyping(room.id);
-        this.subscribeToAttachments(room.id);
       },
       error: (err) => console.error('Failed to get chat room:', err)
     });
   }
 
   private subscribeToTyping(roomId: number): void {
-    // Listen for typing events via the same STOMP client
     const client = (this.chatService as any).stompClient;
     if (client && client.active) {
       client.subscribe(`/topic/typing/${roomId}`, (message: any) => {
@@ -938,25 +1096,6 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
         if (data.userId !== this.currentUserId) {
           this.addTypingUser(data.userName || 'Someone');
         }
-      });
-    }
-  }
-
-  private subscribeToAttachments(roomId: number): void {
-    const client = (this.chatService as any).stompClient;
-    if (client && client.active) {
-      client.subscribe(`/topic/chat/${roomId}/attachments`, (message: any) => {
-        const att = JSON.parse(message.body) as Attachment & { messageId?: number; message?: { id: number } };
-        const msgId = att.messageId || att.message?.id;
-        this.messages = this.messages.map(m => {
-          if (m.id === msgId) {
-            const attachments = m.attachments || [];
-            if (!attachments.find(a => a.id === att.id)) {
-              return { ...m, attachments: [...attachments, att] };
-            }
-          }
-          return m;
-        });
       });
     }
   }
@@ -1073,16 +1212,29 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.chatService.sendMessage(content, parentId);
 
     if (filesToUpload.length > 0) {
-      const sub = this.chatService.messages$.subscribe(msgs => {
-        const myMsg = msgs.find(m => m.senderId === this.currentUserId && (!m.attachments || m.attachments.length === 0));
+      let sub: Subscription;
+      sub = this.chatService.messages$.pipe(skip(1)).subscribe(msgs => {
+        // Find the latest message from me
+        const myMsg = [...msgs].reverse().find(m => m.senderId === this.currentUserId);
+
         if (myMsg && myMsg.id) {
+          console.log('[DEBUG Chat] Found message for attachment upload:', myMsg.id);
           sub.unsubscribe();
           filesToUpload.forEach(file => {
-            this.attachmentService.uploadChatMessageAttachment(myMsg.id!, file).subscribe();
+            console.log('[DEBUG Chat] Uploading file:', file.name, 'to message:', myMsg.id);
+            this.attachmentService.uploadChatMessageAttachment(myMsg.id!, file).subscribe({
+              next: () => console.log('[DEBUG Chat] Upload initiated for', file.name),
+              error: (err: any) => console.error('[DEBUG Chat] Upload failed for', file.name, err)
+            });
           });
         }
       });
-      setTimeout(() => sub.unsubscribe(), 5000);
+      setTimeout(() => {
+        if (sub) {
+          console.log('[DEBUG Chat] Attachment upload subscription timeout');
+          sub.unsubscribe();
+        }
+      }, 10000);
     }
   }
 
@@ -1202,6 +1354,10 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.subs.forEach(s => s.unsubscribe());
     this.chatService.disconnect();
     this.typingCleanupTimers.forEach(t => clearTimeout(t));
+
+    // Revoke image URLs to prevent memory leaks
+    this.loadedImageUrls.forEach(url => URL.revokeObjectURL(url));
+    this.loadedImageUrls.clear();
   }
 
   // File Handling
@@ -1225,12 +1381,46 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   getFileIcon(type?: string): string {
     if (!type) return 'insert_drive_file';
-    if (type.startsWith('image/')) return 'image';
-    if (type.startsWith('video/')) return 'movie';
-    if (type.startsWith('audio/')) return 'audiotrack';
+    if (this.isImage(type)) return 'image';
     if (type.includes('pdf')) return 'picture_as_pdf';
     if (type.includes('zip') || type.includes('compressed')) return 'folder_zip';
     return 'insert_drive_file';
+  }
+
+  isImage(type?: string): boolean {
+    return !!type && type.startsWith('image/');
+  }
+
+  openZoom(att: Attachment): void {
+    const url = this.loadedImageUrls.get(att.id);
+    if (url) {
+      this.zoomedImage = att;
+      this.zoomedImageUrl = url;
+    }
+  }
+
+  closeZoom(): void {
+    this.zoomedImage = null;
+    this.zoomedImageUrl = null;
+  }
+
+  private processImageAttachments(messages: ChatMessage[]): void {
+    messages.forEach(msg => {
+      if (msg.attachments) {
+        msg.attachments.forEach(att => {
+          if (this.isImage(att.fileType) && !this.loadedImageUrls.has(att.id)) {
+            // Pre-load image securely via blob
+            this.attachmentService.download(att.id).subscribe({
+              next: (blob: Blob) => {
+                const url = URL.createObjectURL(blob);
+                this.loadedImageUrls.set(att.id, url);
+              },
+              error: (err) => console.error('Failed to load image preview:', att.fileName, err)
+            });
+          }
+        });
+      }
+    });
   }
 
   downloadAttachment(att: Attachment): void {
