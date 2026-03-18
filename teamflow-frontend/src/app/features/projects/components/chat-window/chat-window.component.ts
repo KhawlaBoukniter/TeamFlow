@@ -1020,6 +1020,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   // Scroll tracking
   private shouldScrollToBottom = false;
+  private pendingScrollAttempts = 0;
 
   // Emojis
   emojis = [
@@ -1072,10 +1073,8 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
         tap((msgs) => {
           this.processImageAttachments(msgs);
           if (this.shouldScrollToBottom || this.isNearBottom) {
-            setTimeout(() => {
-              this.scrollToBottom();
-              this.shouldScrollToBottom = false;
-            }, 100);
+            this.pendingScrollAttempts = 3;
+            this.shouldScrollToBottom = false;
           }
         })
       ).subscribe(msgs => this.messages = msgs),
@@ -1099,13 +1098,17 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   ngAfterViewChecked(): void {
-    // Scroll logic removed from here to prevent fighting manual scroll
+    if (this.pendingScrollAttempts > 0) {
+      this.scrollToBottom();
+      this.pendingScrollAttempts--;
+    }
   }
 
   @Input() set isOpen(value: boolean) {
     this._isOpen = value;
     if (value && this.projectId) {
       this.shouldScrollToBottom = true;
+      this.pendingScrollAttempts = 5; // Retry 5 view cycles to ensure DOM is ready
       this.connectToRoom();
     } else {
       this.showEmojiPicker = false;
