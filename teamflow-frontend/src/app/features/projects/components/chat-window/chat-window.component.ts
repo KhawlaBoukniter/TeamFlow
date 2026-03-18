@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, inject, ViewChild, ElementRef, AfterViewChecked, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, inject, ViewChild, ElementRef, AfterViewChecked, HostListener, OnChanges, SimpleChanges } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -261,11 +261,9 @@ import { environment } from '../../../../../environments/environment';
           <div 
             class="mention-item" 
             *ngFor="let member of filteredMembers; let i = index" 
-            [class.active]="i === mentionSelectedIndex"
-            (mouseenter)="mentionSelectedIndex = i"
-            (click)="insertMention(member)">
-            <div class="mini-avatar" [style.background]="getAvatarGradient(member.userName)">
-              {{ getInitial(member.userName) }}
+            (mousedown)="insertMention(member); $event.preventDefault()">
+            <div class="mini-avatar" [style.background]="member.userName === 'everyone' ? '#EAB308' : getAvatarGradient(member.userName)">
+              {{ member.userName === 'everyone' ? '🚀' : getInitial(member.userName) }}
             </div>
             <span class="mention-name">{{ member.userName }}</span>
             <span class="mention-role">{{ member.roleInProject }}</span>
@@ -916,8 +914,8 @@ import { environment } from '../../../../../environments/environment';
     }
 
     @keyframes slideUp {
-      from { transform: translateX(-50%) translateY(20px); opacity: 0; }
-      to { transform: translateX(-50%) translateY(0); opacity: 1; }
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
 
     @keyframes fadeIn {
@@ -979,6 +977,11 @@ import { environment } from '../../../../../environments/environment';
       border-radius: 4px;
       padding: 0 4px;
     }
+    ::ng-deep .msg-text .mention-chip.everyone {
+      background: rgba(234, 179, 8, 0.15);
+      color: #EAB308;
+      border: 1px solid rgba(234, 179, 8, 0.2);
+    }
     ::ng-deep .msg-text .mention-chip.self {
       background: rgba(248, 113, 113, 0.15);
       color: #F87171;
@@ -1030,7 +1033,7 @@ import { environment } from '../../../../../environments/environment';
     .lightbox-image { max-width: 100%; max-height: 50vh; object-fit: contain; }
   `]
 })
-export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked, OnChanges {
   @Input() projectId!: number;
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
   @ViewChild('msgInput') private msgInput!: ElementRef;
@@ -1154,11 +1157,21 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.loadMembers();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['projectId'] && !changes['projectId'].firstChange) {
+      console.log('[Chat] Project changed, reloading members:', this.projectId);
+      this.loadMembers();
+    }
+  }
+
   private loadMembers(): void {
     if (this.projectId) {
       this.membershipService.getMembers(this.projectId).subscribe({
-        next: (members) => this.projectMembers = members,
-        error: (err) => console.error('Failed to load members:', err)
+        next: (members) => {
+          // Filter out current user
+          this.projectMembers = members.filter(m => m.userId !== this.currentUserId);
+        },
+        error: (err) => console.error('[Chat] Failed to load members:', err)
       });
     }
   }
@@ -1259,12 +1272,13 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   onInputChange(event: any): void {
-    const value = this.newMessage;
+    const value = event.target.value;
+    this.newMessage = value; // Sync model immediately
     const cursor = event.target.selectionStart;
     const textBeforeCursor = value.substring(0, cursor);
     const atIndex = textBeforeCursor.lastIndexOf('@');
 
-    if (atIndex !== -1 && (atIndex === 0 || textBeforeCursor[atIndex - 1] === ' ')) {
+    if (atIndex !== -1 && (atIndex === 0 || textBeforeCursor[atIndex - 1] === ' ' || textBeforeCursor[atIndex - 1] === '\n')) {
       this.mentionStartIndex = atIndex;
       this.mentionSearchTerm = textBeforeCursor.substring(atIndex + 1).toLowerCase();
       this.showMentionList = true;
@@ -1277,14 +1291,25 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   private filterMembers(): void {
+    const term = this.mentionSearchTerm.toLowerCase();
+
+    // Virtual everyone
+    const everyone: any = { userName: 'everyone', roleInProject: 'All Project Members', userId: -1 };
+    const matchesEveryone = 'everyone'.includes(term);
+
     this.filteredMembers = this.projectMembers.filter(m =>
-      m.userName?.toLowerCase().includes(this.mentionSearchTerm)
+      m.userName?.toLowerCase().includes(term)
     );
+
+    if (matchesEveryone) {
+      this.filteredMembers = [everyone, ...this.filteredMembers];
+    }
   }
 
   insertMention(member: Membership): void {
-    const prefix = this.newMessage.substring(0, this.mentionStartIndex);
-    const suffix = this.newMessage.substring(this.msgInput.nativeElement.selectionStart);
+    const currentVal = this.msgInput.nativeElement.value;
+    const prefix = currentVal.substring(0, this.mentionStartIndex);
+    const suffix = currentVal.substring(this.msgInput.nativeElement.selectionStart);
     this.newMessage = prefix + '@' + member.userName + ' ' + suffix;
     this.showMentionList = false;
     this.mentionSelectedIndex = -1;
@@ -1566,9 +1591,12 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   renderMentions(text: string): SafeHtml {
-    const selfName = this.projectMembers.find(m => m.userId === this.currentUserId)?.userName;
+    const selfName = this.authService.getCurrentUser()?.userName;
     const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const html = escaped.replace(/@(\S+)/g, (match, name) => {
+      if (name.toLowerCase() === 'everyone') {
+        return `<span class="mention-chip everyone">${match}</span>`;
+      }
       const isSelf = selfName && name.toLowerCase() === selfName.toLowerCase();
       const cls = isSelf ? 'mention-chip self' : 'mention-chip';
       return `<span class="${cls}">${match}</span>`;
