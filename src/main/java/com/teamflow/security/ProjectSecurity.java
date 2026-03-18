@@ -21,6 +21,7 @@ public class ProjectSecurity {
     private final MembershipRepository membershipRepository;
     private final TaskRepository taskRepository;
     private final ColumnRepository columnRepository;
+    private final com.teamflow.repository.MessageRepository messageRepository;
 
     public boolean isMember(Long projectId) {
         User currentUser = SecurityUtils.getCurrentUser();
@@ -141,6 +142,13 @@ public class ProjectSecurity {
         return SecurityUtils.getCurrentUser().isAdmin() ||
                 projectRepository.findByChatRoomId(roomId)
                         .map(p -> isMember(p.getId()))
+                        .orElse(false);
+    }
+
+    public boolean isMemberForMessage(Long messageId) {
+        return SecurityUtils.getCurrentUser().isAdmin() ||
+                messageRepository.findById(messageId)
+                        .map(m -> isMemberForRoom(m.getChatRoom().getId()))
                         .orElse(false);
     }
 }
