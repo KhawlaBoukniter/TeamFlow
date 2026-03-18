@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, Input, inject, ViewChild, ElementRef, AfterViewChecked, HostListener } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -115,7 +116,7 @@ import { environment } from '../../../../../environments/environment';
                       </span>
                       <span class="timestamp">{{ formatTime(msg.createdAt) }}</span>
                     </div>
-                    <p class="msg-text" *ngIf="msg.content">{{ msg.content }}</p>
+                    <p class="msg-text" *ngIf="msg.content" [innerHTML]="renderMentions(msg.content)"></p>
 
                     <!-- Attachments in Message -->
                     <div class="msg-attachments" *ngIf="msg.attachments && msg.attachments.length > 0">
@@ -239,7 +240,12 @@ import { environment } from '../../../../../environments/environment';
 
       <!-- Mention List -->
       <div class="mention-list" *ngIf="showMentionList">
-        <div class="mention-item" *ngFor="let member of filteredMembers" (click)="insertMention(member)">
+        <div 
+          class="mention-item" 
+          *ngFor="let member of filteredMembers; let i = index" 
+          [class.active]="i === mentionSelectedIndex"
+          (mouseenter)="mentionSelectedIndex = i"
+          (click)="insertMention(member)">
           <div class="mini-avatar" [style.background]="getAvatarGradient(member.userName)">
             {{ getInitial(member.userName) }}
           </div>
@@ -920,6 +926,64 @@ import { environment } from '../../../../../environments/environment';
       to { opacity: 1; }
     }
 
+    /* Mention Dropdown */
+    .mention-list {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 12px;
+      right: 12px;
+      background: #1A1B1F;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
+      z-index: 500;
+      animation: slideUp 0.15s ease-out;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .mention-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .mention-item:hover, .mention-item.active {
+      background: rgba(94, 106, 210, 0.15);
+    }
+    .mention-item.active { border-left: 2px solid #5E6AD2; }
+    .mention-name { font-size: 13px; font-weight: 600; color: #EDEDED; }
+    .mention-role {
+      margin-left: auto;
+      font-size: 11px;
+      color: #5A5E6E;
+      text-transform: capitalize;
+    }
+    .mention-empty { padding: 12px 14px; color: #5A5E6E; font-size: 13px; }
+    .mini-avatar {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+
+    /* @Mention highlight in messages */
+    ::ng-deep .msg-text .mention-chip {
+      display: inline-block;
+      background: rgba(94, 106, 210, 0.2);
+      color: #818CF8;
+      font-weight: 600;
+      border-radius: 4px;
+      padding: 0 4px;
+    }
+    ::ng-deep .msg-text .mention-chip.self {
+      background: rgba(248, 113, 113, 0.15);
+      color: #F87171;
+    }
+
     /* Lightbox Styles */
     .lightbox-overlay {
       position: absolute; inset: 0;
@@ -992,6 +1056,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
   private authService = inject(AuthService);
   private membershipService = inject(MembershipService);
   private attachmentService = inject(AttachmentService);
+  private sanitizer = inject(DomSanitizer);
   private subs: Subscription[] = [];
 
   // Image Preview URLs (Secure loading via Blob)
@@ -1011,6 +1076,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
   showMentionList = false;
   mentionSearchTerm = '';
   mentionStartIndex = -1;
+  mentionSelectedIndex = -1;
 
   // Resize
   chatWidth = 440;
@@ -1168,9 +1234,25 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   onInputKeyDown(event: KeyboardEvent): void {
     if (this.showMentionList) {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        this.mentionSelectedIndex = Math.min(this.mentionSelectedIndex + 1, this.filteredMembers.length - 1);
+        return;
+      }
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        this.mentionSelectedIndex = Math.max(this.mentionSelectedIndex - 1, 0);
+        return;
+      }
+      if (event.key === 'Enter' && this.mentionSelectedIndex >= 0) {
+        event.preventDefault();
+        this.insertMention(this.filteredMembers[this.mentionSelectedIndex]);
+        return;
+      }
       if (event.key === 'Escape') {
         this.showMentionList = false;
         event.preventDefault();
+        return;
       }
     }
     this.onTyping();
@@ -1186,9 +1268,11 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
       this.mentionStartIndex = atIndex;
       this.mentionSearchTerm = textBeforeCursor.substring(atIndex + 1).toLowerCase();
       this.showMentionList = true;
+      this.mentionSelectedIndex = 0;
       this.filterMembers();
     } else {
       this.showMentionList = false;
+      this.mentionSelectedIndex = -1;
     }
   }
 
@@ -1203,6 +1287,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
     const suffix = this.newMessage.substring(this.msgInput.nativeElement.selectionStart);
     this.newMessage = prefix + '@' + member.userName + ' ' + suffix;
     this.showMentionList = false;
+    this.mentionSelectedIndex = -1;
     setTimeout(() => {
       const newCursor = prefix.length + member.userName!.length + 2;
       this.msgInput.nativeElement.focus();
@@ -1478,6 +1563,17 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
       a.click();
       window.URL.revokeObjectURL(url);
     });
+  }
+
+  renderMentions(text: string): SafeHtml {
+    const selfName = this.projectMembers.find(m => m.userId === this.currentUserId)?.userName;
+    const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const html = escaped.replace(/@(\S+)/g, (match, name) => {
+      const isSelf = selfName && name.toLowerCase() === selfName.toLowerCase();
+      const cls = isSelf ? 'mention-chip self' : 'mention-chip';
+      return `<span class="${cls}">${match}</span>`;
+    });
+    return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
   // Resizing logic
