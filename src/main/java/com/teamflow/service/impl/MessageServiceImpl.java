@@ -101,7 +101,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     @Transactional(readOnly = true)
     public List<MessageDTO> getMessagesForRoom(Long roomId) {
-        return messageRepository.findByChatRoomIdAndDeletedAtIsNull(roomId).stream()
+        return messageRepository.findByChatRoomIdAndDeletedAtIsNullOrderByCreatedAtAsc(roomId).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }

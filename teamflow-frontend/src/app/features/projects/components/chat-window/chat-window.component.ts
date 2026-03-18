@@ -971,7 +971,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
   @ViewChild('msgInput') private msgInput!: ElementRef;
 
-  isOpen = false;
+  private _isOpen = false;
   isConnected = false;
   messages: ChatMessage[] = [];
   newMessage = '';
@@ -1017,6 +1017,9 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
   isResizing = false;
   private readonly MIN_WIDTH = 320;
   private readonly MAX_WIDTH = 800;
+
+  // Scroll tracking
+  private shouldScrollToBottom = false;
 
   // Emojis
   emojis = [
@@ -1068,8 +1071,11 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
       this.chatService.messages$.pipe(
         tap((msgs) => {
           this.processImageAttachments(msgs);
-          if (this.isNearBottom) {
-            setTimeout(() => this.scrollToBottom(), 50);
+          if (this.shouldScrollToBottom || this.isNearBottom) {
+            setTimeout(() => {
+              this.scrollToBottom();
+              this.shouldScrollToBottom = false;
+            }, 100);
           }
         })
       ).subscribe(msgs => this.messages = msgs),
@@ -1096,9 +1102,10 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
     // Scroll logic removed from here to prevent fighting manual scroll
   }
 
-  toggle(): void {
-    this.isOpen = !this.isOpen;
-    if (this.isOpen && this.projectId) {
+  @Input() set isOpen(value: boolean) {
+    this._isOpen = value;
+    if (value && this.projectId) {
+      this.shouldScrollToBottom = true;
       this.connectToRoom();
     } else {
       this.showEmojiPicker = false;
@@ -1106,8 +1113,12 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked 
     }
   }
 
-  open(): void {
-    if (!this.isOpen) { this.isOpen = true; this.connectToRoom(); }
+  get isOpen(): boolean {
+    return this._isOpen;
+  }
+
+  toggle(): void {
+    this.isOpen = !this.isOpen;
   }
 
   private connectToRoom(): void {

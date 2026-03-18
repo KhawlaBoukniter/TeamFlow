@@ -12,5 +12,5 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     Long countByChatRoomIdAndSenderIdNotAndCreatedAtAfterAndDeletedAtIsNull(Long chatRoomId, Long senderId,
             LocalDateTime after);
 
-    java.util.List<Message> findByChatRoomIdAndDeletedAtIsNull(Long chatRoomId);
+    java.util.List<Message> findByChatRoomIdAndDeletedAtIsNullOrderByCreatedAtAsc(Long chatRoomId);
 }
