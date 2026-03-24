@@ -7,5 +7,6 @@ public enum NotificationType {
     PROJECT_INVITE,
     ATTACHMENT_ADDED,
     TASK_BLOCKED,
-    TASK_UNBLOCKED
+    TASK_UNBLOCKED,
+    CHAT_MENTION
 }

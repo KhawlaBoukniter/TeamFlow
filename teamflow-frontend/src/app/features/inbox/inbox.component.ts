@@ -125,6 +125,7 @@ import { Notification } from '../../shared/models';
                         'bg-red-500/10 text-red-400 border-red-500/20': selectedNotification.type === 'TASK_BLOCKED',
                         'bg-orange-500/10 text-orange-400 border-orange-500/20': selectedNotification.type === 'ATTACHMENT_ADDED',
                         'bg-cyan-500/10 text-cyan-400 border-cyan-500/20': selectedNotification.type === 'TASK_UNBLOCKED',
+                        'bg-indigo-500/10 text-indigo-400 border-indigo-500/20': selectedNotification.type === 'CHAT_MENTION',
                         'bg-[#1C1C1E] text-[#8A8F98] border-[#2E3035]': selectedNotification.isRead
                       }">
                    <mat-icon class="!w-6 !h-6 !text-[24px]">{{ getIconForType(selectedNotification.type) }}</mat-icon>
@@ -277,6 +278,7 @@ export class InboxComponent implements OnInit {
       case 'ATTACHMENT_ADDED': return 'attach_file';
       case 'TASK_BLOCKED': return 'lock';
       case 'TASK_UNBLOCKED': return 'lock_open';
+      case 'CHAT_MENTION': return 'alternate_email';
       default: return 'notifications';
     }
   }

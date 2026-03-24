@@ -14,12 +14,15 @@ import com.teamflow.entity.Membership;
 import com.teamflow.entity.enums.RoleInProject;
 import com.teamflow.service.interfaces.MessageService;
 import com.teamflow.service.interfaces.AuditLogService;
+import com.teamflow.service.interfaces.NotificationService;
+import com.teamflow.entity.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +34,7 @@ public class MessageServiceImpl implements MessageService {
     private final UserRepository userRepository;
     private final MembershipRepository membershipRepository;
     private final AuditLogService auditLogService;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -95,7 +99,56 @@ public class MessageServiceImpl implements MessageService {
         auditLogService.logAction("SEND_MESSAGE", "Message", savedMessage.getId(), projectId,
                 "Message sent to " + chatRoom.getName());
 
+        // Handle Mentions for Notifications
+        handleMentions(savedMessage, projectId, sender);
+
         return toDTO(savedMessage);
+    }
+
+    private void handleMentions(Message message, Long projectId, User sender) {
+        String content = message.getContent();
+        if (content == null || !content.contains("@"))
+            return;
+
+        // Detect @everyone
+        if (content.toLowerCase().contains("@everyone")) {
+            List<Membership> projectMembers = membershipRepository.findByProjectIdAndDeletedAtIsNull(projectId);
+            for (Membership m : projectMembers) {
+                if (!m.getUser().getId().equals(sender.getId())) {
+                    notificationService.createNotification(
+                            m.getUser().getId(),
+                            sender.getFullName() + " mentioned everyone in chat",
+                            NotificationType.CHAT_MENTION,
+                            "CHAT",
+                            message.getChatRoom().getId(),
+                            projectId);
+                }
+            }
+            return; // If @everyone is present, we might skip individual mentions to avoid double
+                    // notifications
+        }
+
+        // Detect individual mentions: @UserName
+        // We look for memberships in this project and check if their names are
+        // mentioned
+        List<Membership> members = membershipRepository.findByProjectIdAndDeletedAtIsNull(projectId);
+        for (Membership m : members) {
+            String name = m.getUser().getFullName();
+            if (name == null || m.getUser().getId().equals(sender.getId()))
+                continue;
+
+            // Check for @Name with word boundary
+            String regex = "@" + Pattern.quote(name) + "\\b";
+            if (Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(content).find()) {
+                notificationService.createNotification(
+                        m.getUser().getId(),
+                        sender.getFullName() + " mentioned you in chat",
+                        NotificationType.CHAT_MENTION,
+                        "CHAT",
+                        message.getChatRoom().getId(),
+                        projectId);
+            }
+        }
     }
 
     @Override

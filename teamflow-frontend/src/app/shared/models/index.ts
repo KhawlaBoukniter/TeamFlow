@@ -117,7 +117,7 @@ export interface Attachment {
 
 export interface Notification {
     id: number;
-    type: 'TASK_ASSIGNED' | 'TASK_MOVED' | 'COMMENT_ADDED' | 'PROJECT_INVITE' | 'TASK_BLOCKED' | 'TASK_UNBLOCKED' | 'ATTACHMENT_ADDED';
+    type: 'TASK_ASSIGNED' | 'TASK_MOVED' | 'COMMENT_ADDED' | 'PROJECT_INVITE' | 'TASK_BLOCKED' | 'TASK_UNBLOCKED' | 'ATTACHMENT_ADDED' | 'CHAT_MENTION';
     message: string;
     isRead: boolean;
     readAt?: string;
