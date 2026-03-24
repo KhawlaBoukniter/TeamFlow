@@ -55,7 +55,10 @@ import { environment } from '../../../../../environments/environment';
           </div>
         </div>
         <div class="header-actions">
-          <button class="header-btn" matTooltip="Members">
+          <button class="header-btn" 
+                  [class.active]="showMembersPanel" 
+                  (click)="toggleMembersPanel()" 
+                  matTooltip="Members">
             <mat-icon>group</mat-icon>
           </button>
           <button class="header-btn close" (click)="toggle()" matTooltip="Close">
@@ -212,6 +215,42 @@ import { environment } from '../../../../../environments/environment';
         <button class="scroll-bottom-btn" *ngIf="unreadSinceScroll === 0 && !isNearBottom" (click)="jumpToBottom()">
           <mat-icon>keyboard_arrow_down</mat-icon>
         </button>
+      </div>
+
+      <!-- Members Panel Overlay -->
+      <div class="members-panel" *ngIf="showMembersPanel">
+        <div class="members-pane-header">
+          <button class="back-btn" (click)="showMembersPanel = false">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <h3>Project Members</h3>
+          <span class="member-count">{{ projectMembers.length }}</span>
+        </div>
+
+        <div class="members-content">
+          <div class="members-section-label">Members</div>
+          <div class="members-list">
+            <div class="member-item" *ngFor="let member of projectMembers">
+              <div class="avatar-container">
+                <div class="avatar" [style.background]="getAvatarGradient(member.userName)">
+                  {{ getInitial(member.userName) }}
+                </div>
+                <div class="status-indicator online"></div>
+              </div>
+              <div class="member-info">
+                <div class="member-name-row">
+                  <span class="member-name">{{ member.userName }}</span>
+                  <span class="self-tag" *ngIf="member.userId === currentUserId">You</span>
+                </div>
+                <div class="member-role-row">
+                  <span class="member-role" [class.manager]="member.roleInProject === 'MANAGER'">
+                    {{ member.roleInProject }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Typing indicator -->
@@ -1032,6 +1071,79 @@ import { environment } from '../../../../../environments/environment';
       background: #0A0A0C; padding: 10px; min-height: 200px;
     }
     .lightbox-image { max-width: 100%; max-height: 50vh; object-fit: contain; }
+
+    /* Members Panel */
+    .members-panel {
+      position: absolute;
+      top: 60px; left: 0; right: 0; bottom: 0;
+      background: #0A0A0C;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .members-pane-header {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .back-btn {
+      width: 28px; height: 28px; border: none; background: transparent;
+      color: #8A8F98; cursor: pointer; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.08); color: #EDEDED; }
+    .back-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+    .members-pane-header h3 { margin: 0; font-size: 13px; font-weight: 700; color: #EDEDED; }
+    .member-count {
+      font-size: 10px; font-weight: 700; color: #4A4D54;
+      background: rgba(255,255,255,0.04); padding: 2px 6px; border-radius: 4px;
+    }
+
+    .members-content { flex: 1; overflow-y: auto; padding: 20px 16px; }
+    .members-section-label {
+      font-size: 10px; font-weight: 700; color: #4A4D54;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    .member-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px 10px; margin: 0 -10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .member-item:hover { background: rgba(255,255,255,0.04); }
+
+    .avatar-container { position: relative; }
+    .status-indicator {
+      position: absolute; bottom: 0; right: 0;
+      width: 10px; height: 10px; border-radius: 50%;
+      border: 2px solid #0A0A0C;
+    }
+    .status-indicator.online { background: #10b981; }
+
+    .member-info { flex: 1; min-width: 0; }
+    .member-name-row { display: flex; align-items: center; gap: 6px; }
+    .member-name { font-size: 14px; font-weight: 600; color: #EDEDED; }
+    .self-tag {
+      font-size: 9px; font-weight: 700; color: #5E6AD2;
+      background: rgba(94,106,210,0.1); padding: 1px 4px; border-radius: 4px;
+    }
+    .member-role { font-size: 11px; color: #8A8F98; }
+    .member-role.manager { color: #818CF8; }
+    
+    .header-btn.active { background: rgba(94, 106, 210, 0.15); color: #818CF8; }
   `],
   encapsulation: ViewEncapsulation.None
 })
@@ -1051,6 +1163,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked,
   replyToMessage: ChatMessage | null = null;
   highlightedMessageId: number | null = null;
   unreadSinceScroll: number = 0;
+  showMembersPanel = false;
   public isNearBottom = true;
 
   // Typing
@@ -1208,6 +1321,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked,
       this.connectToRoom();
     } else {
       this.showEmojiPicker = false;
+      this.showMembersPanel = false;
       this.cancelReply();
     }
   }
@@ -1218,6 +1332,13 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked,
 
   toggle(): void {
     this.isOpen = !this.isOpen;
+  }
+
+  toggleMembersPanel(): void {
+    this.showMembersPanel = !this.showMembersPanel;
+    if (this.showMembersPanel) {
+      this.showEmojiPicker = false;
+    }
   }
 
   private connectToRoom(): void {
