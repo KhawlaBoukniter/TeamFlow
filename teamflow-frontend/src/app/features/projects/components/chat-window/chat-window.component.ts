@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, inject, ViewChild, ElementRef, AfterViewChecked, HostListener, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, inject, ViewChild, ElementRef, AfterViewChecked, HostListener, OnChanges, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -116,7 +116,7 @@ import { environment } from '../../../../../environments/environment';
                       </span>
                       <span class="timestamp">{{ formatTime(msg.createdAt) }}</span>
                     </div>
-                    <p class="msg-text" *ngIf="msg.content" [innerHTML]="renderMentions(msg.content)"></p>
+                    <p class="msg-text" *ngIf="msg.content" [innerHTML]="msg.safeContent"></p>
 
                     <!-- Attachments in Message -->
                     <div class="msg-attachments" *ngIf="msg.attachments && msg.attachments.length > 0">
@@ -161,7 +161,7 @@ import { environment } from '../../../../../environments/environment';
             <ng-container *ngIf="isCompact(i)">
               <div class="msg-row-compact">
                 <span class="hover-ts">{{ formatTime(msg.createdAt) }}</span>
-                <p class="msg-text compact-text">{{ msg.content }}</p>
+                <p class="msg-text compact-text" *ngIf="msg.content" [innerHTML]="msg.safeContent"></p>
                 
                 <!-- Attachments in Compact Message -->
                 <div class="msg-attachments" *ngIf="msg.attachments && msg.attachments.length > 0">
@@ -744,6 +744,7 @@ import { environment } from '../../../../../environments/environment';
       width: 24px; height: 24px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 10px; font-weight: 700; color: white;
+      flex-shrink: 0;
     }
     .mention-name { font-size: 13px; color: #EDEDED; flex: 1; }
     .mention-role { font-size: 10px; color: #4A4D54; text-transform: uppercase; letter-spacing: 0.04em; }
@@ -969,22 +970,22 @@ import { environment } from '../../../../../environments/environment';
     }
 
     /* @Mention highlight in messages */
-    ::ng-deep .msg-text .mention-chip {
+    .mention-chip {
       display: inline-block;
-      background: rgba(94, 106, 210, 0.2);
-      color: #818CF8;
-      font-weight: 600;
+      background: rgba(94, 106, 210, 0.2) !important;
+      color: #818CF8 !important;
+      font-weight: 600 !important;
       border-radius: 4px;
       padding: 0 4px;
     }
-    ::ng-deep .msg-text .mention-chip.everyone {
-      background: rgba(234, 179, 8, 0.15);
-      color: #EAB308;
-      border: 1px solid rgba(234, 179, 8, 0.2);
+    .mention-chip.everyone {
+      background: rgba(234, 179, 8, 0.15) !important;
+      color: #EAB308 !important;
+      border: 1px solid rgba(234, 179, 8, 0.2) !important;
     }
-    ::ng-deep .msg-text .mention-chip.self {
-      background: rgba(248, 113, 113, 0.15);
-      color: #F87171;
+    .mention-chip.self {
+      background: rgba(248, 113, 113, 0.15) !important;
+      color: #F87171 !important;
     }
 
     /* Lightbox Styles */
@@ -1031,7 +1032,8 @@ import { environment } from '../../../../../environments/environment';
       background: #0A0A0C; padding: 10px; min-height: 200px;
     }
     .lightbox-image { max-width: 100%; max-height: 50vh; object-fit: contain; }
-  `]
+  `],
+  encapsulation: ViewEncapsulation.None
 })
 export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked, OnChanges {
   @Input() projectId!: number;
@@ -1043,6 +1045,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked,
   messages: ChatMessage[] = [];
   newMessage = '';
   currentUserId: number | null = null;
+  currentUserName: string | null = null;
   inputFocused = false;
   showEmojiPicker = false;
   replyToMessage: ChatMessage | null = null;
@@ -1141,6 +1144,11 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked,
       this.chatService.messages$.pipe(
         tap((msgs) => {
           this.processImageAttachments(msgs);
+          // Pre-render mentions to avoid infinite loops in template
+          msgs.forEach(m => {
+            (m as any).safeContent = this.renderMentions(m.content);
+          });
+
           if (this.shouldScrollToBottom || this.isNearBottom) {
             this.pendingScrollAttempts = 3;
             this.shouldScrollToBottom = false;
@@ -1168,8 +1176,17 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked,
     if (this.projectId) {
       this.membershipService.getMembers(this.projectId).subscribe({
         next: (members) => {
-          // Filter out current user
-          this.projectMembers = members.filter(m => m.userId !== this.currentUserId);
+          // Identify self
+          const me = members.find(m => m.userId === this.currentUserId);
+          if (me) this.currentUserName = me.userName;
+
+          // Keep ALL members for highlighting logic
+          this.projectMembers = members;
+
+          // Re-render messages once members are loaded
+          this.messages.forEach(m => {
+            m.safeContent = this.renderMentions(m.content);
+          });
         },
         error: (err) => console.error('[Chat] Failed to load members:', err)
       });
@@ -1298,7 +1315,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked,
     const matchesEveryone = 'everyone'.includes(term);
 
     this.filteredMembers = this.projectMembers.filter(m =>
-      m.userName?.toLowerCase().includes(term)
+      m.userName?.toLowerCase().includes(term) && m.userId !== this.currentUserId
     );
 
     if (matchesEveryone) {
@@ -1591,16 +1608,36 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked,
   }
 
   renderMentions(text: string): SafeHtml {
-    const selfName = this.authService.getCurrentUser()?.userName;
-    const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const html = escaped.replace(/@(\S+)/g, (match, name) => {
-      if (name.toLowerCase() === 'everyone') {
+    if (!text) return '';
+
+    let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // 1. Highlight @everyone
+    if (/@everyone/gi.test(html)) {
+      html = html.replace(/@everyone/gi, (match) => {
         return `<span class="mention-chip everyone">${match}</span>`;
-      }
-      const isSelf = selfName && name.toLowerCase() === selfName.toLowerCase();
-      const cls = isSelf ? 'mention-chip self' : 'mention-chip';
-      return `<span class="${cls}">${match}</span>`;
-    });
+      });
+    }
+
+    // 2. Highlight project members
+    if (this.projectMembers.length > 0) {
+      const sortedMembers = [...this.projectMembers].sort((a, b) => (b.userName?.length || 0) - (a.userName?.length || 0));
+
+      sortedMembers.forEach(member => {
+        if (!member.userName) return;
+        const name = member.userName;
+        const isSelf = member.userId == this.currentUserId;
+        const cls = isSelf ? 'mention-chip self' : 'mention-chip';
+
+        const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`@${escapedName}\\b`, 'gi');
+
+        if (regex.test(html)) {
+          html = html.replace(regex, (match) => `<span class="${cls}">${match}</span>`);
+        }
+      });
+    }
+
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 

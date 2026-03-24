@@ -145,6 +145,7 @@ export interface ChatMessage {
     parentMessageContent?: string;
     parentMessageSenderName?: string;
     attachments?: Attachment[];
+    safeContent?: any;
 }
 
 export * from './auth.model';
