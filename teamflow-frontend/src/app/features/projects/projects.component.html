@@ -1,14 +1,10 @@
 <div class="h-full flex flex-col bg-[#09090b] page-enter overflow-hidden">
 
-    <!-- Dashboard Content -->
     <div class="flex-1 overflow-y-auto custom-scrollbar p-8">
 
-        <!-- 1. Stats Row & Header -->
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
             <div>
                 <h1 class="text-3xl font-bold text-white tracking-tight mb-6">Projects</h1>
-
-                <!-- Stats Cards -->
                 <div class="flex items-center gap-12">
                     <div class="flex flex-col">
                         <span class="text-3xl font-bold text-white mb-1">{{ activeProjectsCount }}</span>
@@ -31,7 +27,6 @@
                 </div>
             </div>
 
-            <!-- Controls -->
             <div class="flex items-center gap-2">
                 <!-- Search Bar -->
                 <div class="relative flex items-center">
@@ -41,7 +36,6 @@
                         class="pl-9 pr-3 h-8 text-[13px] bg-[#1C1C1E] border border-[#2E3035] text-white placeholder:text-[#6B6F76] rounded-md outline-none focus:border-[#5E6AD2] transition-all w-48">
                 </div>
 
-                <!-- Filters (Linear Style) -->
                 <button [matMenuTriggerFor]="filterMenu" [class.text-brand]="typeFilter !== 'ALL' || showArchived"
                     class="h-8 px-2.5 flex items-center gap-1.5 rounded-md border border-[#2E3035] text-[#8A8F98] hover:bg-[#1C1C1E] hover:text-white transition-all text-[12px] relative">
                     <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">filter_list</mat-icon>
@@ -79,7 +73,6 @@
 
                 <div class="w-px h-4 bg-[#2E3035] mx-1"></div>
 
-                <!-- View Toggles -->
                 <div class="flex items-center bg-[#1C1C1E] rounded-md p-0.5 border border-[#2E3035]">
                     <button (click)="setViewMode('list')" [class.bg-[#2C2D32]]="viewMode === 'list'"
                         [class.text-white]="viewMode === 'list'"
@@ -103,7 +96,6 @@
             </div>
         </div>
 
-        <!-- 2. Loading State -->
         <div *ngIf="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="bg-[#1C1C1E] border border-[#2E3035] rounded-xl p-6" *ngFor="let i of [1,2,3]">
                 <div class="skeleton h-5 w-32 mb-4"></div>
@@ -115,7 +107,6 @@
             </div>
         </div>
 
-        <!-- 3. Empty State: No projects at all -->
         <div *ngIf="!loading && projects.length === 0"
             class="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-[#2E3035] rounded-xl bg-[#1C1C1E]/50">
             <div class="w-16 h-16 bg-[#2C2D32] rounded-full flex items-center justify-center mb-4">
@@ -130,7 +121,6 @@
             </button>
         </div>
 
-        <!-- 3b. Empty State: Search no results -->
         <div *ngIf="!loading && projects.length > 0 && filteredProjects.length === 0"
             class="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-[#2E3035] rounded-xl bg-[#1C1C1E]/50">
             <mat-icon class="!w-10 !h-10 !text-[40px] text-[#3A3C42] mb-3">search_off</mat-icon>
@@ -138,7 +128,6 @@
             <p class="text-[#8A8F98] text-sm">Try a different search term.</p>
         </div>
 
-        <!-- 4. GRID VIEW -->
         <div *ngIf="!loading && filteredProjects.length > 0 && viewMode === 'grid'"
             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-slide-up">
 
@@ -146,12 +135,10 @@
                 class="bg-[#1C1C1E] border border-[#2E3035] rounded-xl p-5 hover:border-[#3A3C42] hover:bg-[#25262B] transition-all duration-200 cursor-pointer group relative flex flex-col h-[220px]"
                 (click)="openProject(project.id)">
 
-                <!-- 1. Top Row: Date & Menu -->
                 <div class="flex justify-between items-center mb-4">
                     <div class="flex items-center gap-2">
                         <span class="text-[#8A8F98] text-xs font-medium">{{ project.createdAt | date:'MMMM d, y'
                             }}</span>
-                        <!-- Archived Badge -->
                         <span *ngIf="project.status === 'ARCHIVED'"
                             class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[9px] font-bold uppercase border border-amber-500/20">
                             Archived
@@ -194,7 +181,6 @@
                     </mat-menu>
                 </div>
 
-                <!-- 2. Center Info -->
                 <div class="text-center mb-4 px-2">
                     <h3
                         class="text-white font-semibold text-base tracking-tight mb-1 group-hover:text-brand transition-colors line-clamp-1">
@@ -204,7 +190,6 @@
                         'Team Project' }}</p>
                 </div>
 
-                <!-- 3. Progress Section -->
                 <div class="mb-auto">
                     <div class="flex justify-between items-center mb-1">
                         <span class="text-[10px] font-medium text-[#8A8F98] uppercase tracking-wider">Progress</span>
@@ -217,12 +202,10 @@
                     </div>
                 </div>
 
-                <!-- 4. Footer: Avatars & Badge -->
                 <div class="flex items-center justify-between mt-4">
                     <!-- Avatars + Add Button -->
                     <div class="flex items-center">
                         <div class="flex -space-x-2">
-                            <!-- Avatars (Only if team > 0) -->
                             <ng-container *ngIf="project.team && project.team.length > 0">
                                 <div *ngFor="let member of project.team; let i = index"
                                     class="h-6 w-6 rounded-full bg-brand flex items-center justify-center text-[9px] font-bold text-white ring-2 ring-[#1C1C1E] z-10 hover:z-30 transition-all cursor-default"
@@ -231,7 +214,6 @@
                                 </div>
                             </ng-container>
                         </div>
-                        <!-- Add Member Button -->
                         <button *ngIf="project.type === 'TEAM' && canManageProject(project)"
                             (click)="openMembersDialog(project, $event)"
                             class="h-6 w-6 rounded-full bg-[#2C2D32] text-white flex items-center justify-center ml-2 hover:bg-[#3A3C42] transition-colors border border-[#3A3C42] z-20"
@@ -240,7 +222,6 @@
                         </button>
                     </div>
 
-                    <!-- Days Left Badge (Pill) -->
                     <span
                         class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FFF0E6] text-[#FF9500] border border-transparent"
                         [class.bg-[#FFF0E6]]="getDaysLeft(project) !== 'Overdue'"
@@ -254,21 +235,18 @@
             </div>
         </div>
 
-        <!-- 5. LIST VIEW -->
         <div *ngIf="!loading && filteredProjects.length > 0 && viewMode === 'list'" class="animate-slide-up">
             <div class="flex flex-col gap-3">
                 <div *ngFor="let project of filteredProjects"
                     class="bg-[#1C1C1E] border border-[#2E3035] rounded-xl p-4 hover:border-[#3A3C42] hover:bg-[#25262B] transition-all duration-200 cursor-pointer group flex items-center justify-between gap-6"
                     (click)="openProject(project.id)">
 
-                    <!-- 1. Left: Info -->
                     <div class="flex flex-col min-w-[200px]">
                         <div class="flex items-center gap-2 mb-1">
                             <h3
                                 class="text-white font-semibold text-base group-hover:text-brand transition-colors line-clamp-1">
                                 {{ project.name }}
                             </h3>
-                            <!-- Archived Badge -->
                             <span *ngIf="project.status === 'ARCHIVED'"
                                 class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[8px] font-bold uppercase border border-amber-500/20">
                                 Archived
@@ -282,7 +260,6 @@
                         </span>
                     </div>
 
-                    <!-- 2. Middle: Progress (Expanded) -->
                     <div class="flex-1 flex flex-col justify-center px-4">
                         <div class="flex justify-between items-center mb-1.5">
                             <span class="text-[11px] font-bold text-[#8A8F98]">Progress</span>
@@ -298,9 +275,7 @@
                         </div>
                     </div>
 
-                    <!-- 3. Right: Meta & Actions -->
                     <div class="flex items-center gap-6">
-                        <!-- Avatars -->
                         <div class="flex -space-x-2">
                             <ng-container *ngIf="project.team && project.team.length > 0">
                                 <div *ngFor="let member of project.team; let i = index"
@@ -309,7 +284,6 @@
                                     {{ member.userName.charAt(0).toUpperCase() }}
                                 </div>
                             </ng-container>
-                            <!-- Add Member Button -->
                             <button *ngIf="project.type === 'TEAM' && canManageProject(project)"
                                 (click)="openMembersDialog(project, $event)"
                                 class="h-7 w-7 rounded-full bg-[#2C2D32] text-white flex items-center justify-center ml-2 hover:bg-[#3A3C42] transition-colors border border-[#3A3C42] z-20"
@@ -318,7 +292,6 @@
                             </button>
                         </div>
 
-                        <!-- Days Left Badge -->
                         <span
                             class="text-[11px] font-bold px-3 py-1 rounded-full bg-[#FFF0E6] text-[#FF9500] border border-transparent whitespace-nowrap"
                             [class.bg-[#FFF0E6]]="getDaysLeft(project) !== 'Overdue'"
@@ -329,14 +302,12 @@
                             {{ getDaysLeft(project) || 'No Deadline' }}
                         </span>
 
-                        <!-- Menu -->
                         <button mat-icon-button class="!text-[#8A8F98] hover:!text-white"
                             (click)="$event.stopPropagation()" [matMenuTriggerFor]="menu">
                             <mat-icon>more_vert</mat-icon>
                         </button>
                     </div>
 
-                    <!-- Reuse Menu Template -->
                     <mat-menu #menu="matMenu" xPosition="before" class="linear-menu">
                         <button mat-menu-item (click)="openProjectDetails(project)">
                             <mat-icon class="!w-4 !h-4 !text-[16px]">visibility</mat-icon>

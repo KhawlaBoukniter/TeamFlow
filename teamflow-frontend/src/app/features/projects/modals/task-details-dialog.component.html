@@ -1,10 +1,8 @@
-<!-- Dialog Header -->
 <div class="px-6 py-4 border-b border-[#2E3035] flex items-center justify-between">
     <div class="flex items-center gap-3">
         <div>
             <h2 class="text-base font-semibold text-white m-0 mb-0.5">{{ task.title }}</h2>
             <div class="flex items-center gap-2 mt-1">
-                <!-- Linear Style Priority -->
                 <div class="flex items-center gap-1.5 px-2 py-0.5 rounded border border-[#2E3035] bg-[#1C1C1E]">
                     <mat-icon *ngIf="task.priority === 'URGENT'"
                         class="!w-3 !h-3 !text-[12px] !text-[#FF4D4D]">report_problem</mat-icon>
@@ -33,10 +31,8 @@
 <mat-dialog-content class="!p-0">
     <mat-tab-group class="task-details-tabs" animationDuration="200ms">
 
-        <!-- Tab 1: Overview -->
         <mat-tab label="Overview">
             <div class="p-6 space-y-5">
-                <!-- Description -->
                 <div>
                     <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-2">Description</h3>
                     <p
@@ -46,7 +42,6 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <!-- Priority -->
                     <div class="bg-[#25262B] border border-[#2E3035] rounded-lg p-3">
                         <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-2">Priority</h3>
                         <div
@@ -64,7 +59,6 @@
                         </div>
                     </div>
 
-                    <!-- Due Date -->
                     <div class="bg-[#25262B] border border-[#2E3035] rounded-lg p-3">
                         <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-2">Due Date</h3>
                         <div class="flex items-center gap-2 text-sm text-[#EDEDED]">
@@ -73,7 +67,6 @@
                         </div>
                     </div>
 
-                    <!-- Status -->
                     <div class="bg-[#25262B] border border-[#2E3035] rounded-lg p-3">
                         <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-2">Status</h3>
                         <div class="flex items-center gap-1.5 px-2 py-1 rounded border"
@@ -85,12 +78,9 @@
                         </div>
                     </div>
                 </div>
-
-
             </div>
         </mat-tab>
 
-        <!-- Tab 2: Subtasks -->
         <mat-tab label="Subtasks">
             <div class="p-6">
                 <div class="mb-4 flex items-center justify-between">
@@ -99,7 +89,6 @@
                     </h3>
                 </div>
 
-                <!-- Add Subtask Form -->
                 <form [formGroup]="newSubTaskForm" (ngSubmit)="addSubTask()" class="flex gap-2 mb-4">
                     <mat-form-field appearance="outline" class="flex-1 linear-form-field dense-form-field">
                         <mat-label>New subtask</mat-label>
@@ -111,7 +100,6 @@
                     </button>
                 </form>
 
-                <!-- Subtask List -->
                 <div class="space-y-1">
                     <div *ngFor="let st of subTasks"
                         class="flex items-center gap-3 p-2 hover:bg-[#1C1C1E] rounded-md group transition-all border border-transparent hover:border-[#2E3035]">
@@ -133,10 +121,8 @@
             </div>
         </mat-tab>
 
-        <!-- Tab 3: Comments -->
         <mat-tab label="Comments">
             <div class="p-6">
-                <!-- Comment List -->
                 <div class="space-y-3 mb-5 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
                     <div *ngFor="let comment of comments" class="flex gap-3">
                         <div
@@ -166,11 +152,9 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- View mode -->
                                 <p *ngIf="editingCommentId !== comment.id"
                                     class="text-sm text-[#EDEDED] whitespace-pre-wrap leading-relaxed">{{
                                     comment.content }}</p>
-                                <!-- Edit mode -->
                                 <ng-container *ngIf="editingCommentId === comment.id">
                                     <textarea [(ngModel)]="editingCommentContent" rows="2"
                                         class="w-full bg-[#1C1C1E] border border-[#5E6AD2] rounded-md px-3 py-2 text-sm text-[#EDEDED] focus:outline-none resize-none mb-2">
@@ -197,7 +181,6 @@
                     </div>
                 </div>
 
-                <!-- Add Comment Form -->
                 <form [formGroup]="newCommentForm" (ngSubmit)="addComment()" class="relative">
                     <mat-form-field appearance="outline" class="w-full linear-form-field">
                         <mat-label>Write a comment...</mat-label>
@@ -213,11 +196,8 @@
             </div>
         </mat-tab>
 
-        <!-- Tab 4: Dependencies -->
         <mat-tab label="Dependencies">
             <div class="p-6 space-y-5">
-
-                <!-- Add Dependency Form -->
                 <div class="bg-[#25262B] p-4 rounded-xl border border-[#2E3035]">
                     <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-3">Add Dependency</h3>
                     <div class="flex gap-2">
@@ -245,7 +225,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Blocked By (Prerequisites) -->
                     <div>
                         <h3
                             class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -275,7 +254,6 @@
                         </div>
                     </div>
 
-                    <!-- Blocking (Dependents) -->
                     <div>
                         <h3
                             class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -304,7 +282,6 @@
             </div>
         </mat-tab>
 
-        <!-- Tab 5: Assignments (Team Only) -->
         <mat-tab label="Assignments" *ngIf="isTeamProject()">
             <div class="p-6">
                 <div class="mb-4 flex items-center justify-between">
@@ -320,8 +297,6 @@
                             <mat-icon class="!w-4 !h-4 !text-[16px]">person_add</mat-icon>
                             Assign Member
                         </button>
-
-                        <!-- Dropdown -->
                         <div *ngIf="showAssignmentDropdown"
                             class="absolute right-0 top-10 w-64 bg-[#25262B] shadow-2xl rounded-xl border border-[#2E3035] z-50 overflow-hidden">
                             <div
@@ -347,13 +322,11 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Backdrop for dropdown -->
                         <div *ngIf="showAssignmentDropdown" class="fixed inset-0 z-40 bg-transparent"
                             (click)="showAssignmentDropdown = false"></div>
                     </div>
                 </div>
 
-                <!-- Assignment List -->
                 <div class="space-y-2">
                     <div *ngFor="let assignment of assignments"
                         class="flex items-center justify-between p-3 bg-[#25262B] border border-[#2E3035] rounded-xl hover:border-[#3A3C42] transition-all group">
@@ -391,7 +364,6 @@
             </div>
         </mat-tab>
 
-        <!-- Tab 6: Attachments -->
         <mat-tab label="Attachments">
             <div class="p-6">
                 <div class="mb-4 flex items-center justify-between">
@@ -408,13 +380,11 @@
                     </div>
                 </div>
 
-                <!-- Upload Progress -->
                 <div *ngIf="uploadProgress !== null"
                     class="w-full bg-[#2C2D32] rounded-full h-1.5 mt-1 mb-4 overflow-hidden">
                     <div class="bg-brand h-full transition-all duration-300" [style.width.%]="uploadProgress"></div>
                 </div>
 
-                <!-- Attachments List -->
                 <div class="space-y-2">
                     <div *ngFor="let file of attachments"
                         class="flex items-center justify-between p-3 bg-[#25262B] border border-[#2E3035] rounded-xl hover:border-[#3A3C42] transition-all group">
