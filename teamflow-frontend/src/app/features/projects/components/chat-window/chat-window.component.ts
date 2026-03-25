@@ -32,13 +32,8 @@ import { environment } from '../../../../../environments/environment';
          [style.width.px]="chatWidth"
          [style.right.px]="isOpen ? 0 : -(chatWidth + 20)">
 
-      <!-- Resize Handle -->
       <div class="resize-handle" (mousedown)="startResizing($event)"></div>
-
-      <!-- Ambient glow -->
       <div class="ambient-glow"></div>
-
-      <!-- Header -->
       <div class="chat-header">
         <div class="header-left">
           <div class="channel-badge">
@@ -67,9 +62,7 @@ import { environment } from '../../../../../environments/environment';
         </div>
       </div>
 
-      <!-- Messages -->
       <div class="messages-area" #messagesContainer (scroll)="onScroll()">
-        <!-- Welcome -->
         <div *ngIf="messages.length === 0" class="welcome-card">
           <div class="welcome-glow"></div>
           <div class="welcome-content">
@@ -84,19 +77,16 @@ import { environment } from '../../../../../environments/environment';
         </div>
 
         <ng-container *ngFor="let msg of messages; let i = index; trackBy: trackMessage">
-          <!-- Date chip -->
           <div class="date-chip" *ngIf="shouldShowDate(i)">
             <span>{{ formatDate(msg.createdAt) }}</span>
           </div>
 
-          <!-- Message -->
           <div class="message"
                [id]="'msg-' + msg.id"
                [class.compact]="isCompact(i)"
                [class.first-of-group]="!isCompact(i)"
                [class.highlighted]="highlightedMessageId === msg.id">
 
-            <!-- Full (avatar + name) -->
             <ng-container *ngIf="!isCompact(i)">
               <div class="msg-row">
                 <div class="avatar" [style.background]="getAvatarGradient(msg.senderName)">
@@ -253,7 +243,6 @@ import { environment } from '../../../../../environments/environment';
         </div>
       </div>
 
-      <!-- Typing indicator -->
       <div class="typing-bar" *ngIf="typingUsers.length > 0">
         <div class="typing-dots"><span></span><span></span><span></span></div>
         <span>{{ typingLabel }}</span>
@@ -1166,7 +1155,6 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked,
   showMembersPanel = false;
   public isNearBottom = true;
 
-  // Typing
   typingUsers: string[] = [];
   private typingTimeout: any;
   private typingCleanupTimers: Map<string, any> = new Map();
@@ -1189,7 +1177,6 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked,
   selectedFiles: File[] = [];
   @ViewChild('fileInput') fileInput!: ElementRef;
 
-  // Mentions
   projectMembers: Membership[] = [];
   filteredMembers: Membership[] = [];
   showMentionList = false;
@@ -1197,7 +1184,6 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked,
   mentionStartIndex = -1;
   mentionSelectedIndex = -1;
 
-  // Resize
   chatWidth = 440;
   isResizing = false;
   private readonly MIN_WIDTH = 320;
