@@ -1,7 +1,5 @@
-<!-- ROOT: flex-1 + overflow-y-auto → scroll propre grâce au fix CSS global de styles.css -->
 <div class="flex-1 overflow-y-auto bg-[#121214] text-white page-enter">
 
-    <!-- ══ BANNER HEADER ══════════════════════════════════════════════════ -->
     <div class="relative px-8 pt-7 pb-5 border-b border-[#1C1C1E] overflow-hidden">
         <div
             class="absolute inset-0 bg-gradient-to-r from-[#5E6AD2]/10 via-[#5E6AD2]/3 to-transparent pointer-events-none">
@@ -47,7 +45,6 @@
 
     <div class="px-8 py-6 space-y-8">
 
-        <!-- ── LOADING SKELETONS ─────────────────────────────────────────── -->
         <ng-container *ngIf="loading">
             <div class="grid grid-cols-4 gap-4">
                 <div *ngFor="let i of [0,1,2,3]" class="h-28 bg-[#1C1C1E] rounded-2xl animate-pulse"></div>
@@ -60,7 +57,6 @@
 
         <ng-container *ngIf="!loading">
 
-            <!-- ══ KPI CARDS ═══════════════════════════════════════════════════ -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
                 <!-- Active Projects -->
@@ -127,7 +123,6 @@
                 </div>
             </div>
 
-            <!-- ══ 2-COLUMN MAIN AREA ══════════════════════════════════════════ -->
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
                 <!-- LEFT — Project list (2/3) -->
@@ -153,7 +148,6 @@
                     <div *ngIf="topProjects.length > 0"
                         class="bg-[#111113] border border-[#1C1C1E] rounded-2xl overflow-hidden">
 
-                        <!-- Header -->
                         <div
                             class="grid grid-cols-12 gap-3 px-5 py-2.5 border-b border-[#1C1C1E] text-[10px] font-semibold uppercase tracking-widest text-[#3A3C42]">
                             <div class="col-span-5">Project</div>
