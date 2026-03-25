@@ -1,4 +1,3 @@
-
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl, FormsModule } from '@angular/forms';
@@ -35,12 +34,9 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } fr
     MatIconModule
   ],
   template: `
-    <!-- Linear Style Container -->
     <div class="flex flex-col max-h-[85vh] w-full bg-[#1C1C1E] text-[#EDEDED] font-sans rounded-xl overflow-hidden">
       
-      <!-- Window Controls (Top) -->
       <div class="flex items-center justify-between px-6 py-4 shrink-0">
-         <!-- Breadcrumbs (Mocked for visual match) -->
          <div class="flex items-center gap-2 text-[13px] text-[#8A8F98]">
             <div class="px-1.5 py-0.5 rounded bg-[#2E3035] text-[#EDEDED] text-[11px] font-medium border border-white/5">MY</div>
             <span>›</span>
@@ -51,17 +47,14 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } fr
          </button>
       </div>
 
-      <!-- Step 1: Create Project Form -->
       <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="step === 1" class="flex flex-col flex-1 overflow-hidden">
         <div class="flex-1 overflow-y-auto px-8 py-6 space-y-8 min-w-[750px]">
             
-            <!-- Header Area -->
             <div class="space-y-4">
                 <div class="w-12 h-12 rounded-xl border border-white/10 bg-[#2C2D32] flex items-center justify-center text-[#8A8F98]">
                     <mat-icon class="!w-6 !h-6 !text-[24px]">inventory_2</mat-icon>
                 </div>
 
-                <!-- Title Input (Large) -->
                 <div class="space-y-2">
                     <input matInput formControlName="name" 
                            class="w-full bg-transparent border-none p-0 text-4xl font-semibold placeholder-[#46484E] focus:ring-0 focus:outline-none text-[#EDEDED]" 
@@ -69,20 +62,17 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } fr
                     <div *ngIf="form.get('name')?.hasError('required') && form.get('name')?.touched" class="text-red-500 text-xs">Title is required</div>
                 </div>
 
-                <!-- Description Summary Input -->
                 <input matInput formControlName="description" 
                        class="w-full bg-transparent border-none p-0 text-lg text-[#8A8F98] placeholder-[#46484E] focus:ring-0 focus:outline-none"
                        placeholder="Add a short summary...">
             </div>
 
-            <!-- Attributes Row (Badges) -->
             <div class="flex flex-wrap items-center gap-2">
                     <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-emerald-500/10 border border-emerald-500/20 transition-colors">
                         <mat-icon class="!w-4 !h-4 !text-[16px] text-emerald-500">radio_button_checked</mat-icon>
                         <span class="text-[13px] font-medium text-emerald-500">Active</span>
                     </div>
 
-                 <!-- Type Badge (RESTORED) -->
                  <div class="relative group">
                     <mat-select formControlName="type" panelClass="linear-panel" class="opacity-0 absolute inset-0 cursor-pointer z-10 w-full h-full">
                         <mat-option value="PERSONAL">Personal</mat-option>
@@ -96,19 +86,16 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } fr
                     </div>
                  </div>
 
-                 <!-- Lead (Owner) -->
                  <div class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
                     <div class="w-4 h-4 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-[9px] font-bold">ME</div>
                     <span class="text-[13px] font-medium text-[#EDEDED]">Lead</span>
                  </div>
 
-                 <!-- Members (Only if Team) -->
                  <div *ngIf="form.get('type')?.value === 'TEAM'" class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent hover:border-[#3A3C42] transition-colors cursor-pointer">
                     <mat-icon class="!w-4 !h-4 !text-[16px] text-[#8A8F98]">group_add</mat-icon>
                     <span class="text-[13px] font-medium text-[#EDEDED]">Members</span>
                  </div>
 
-                 <!-- Date Badges -->
                  <div class="flex flex-col gap-1">
                     <div class="relative flex items-center gap-2 px-3 py-1.5 rounded bg-[#2C2D32]/50 hover:bg-[#2C2D32] border border-transparent transition-colors cursor-pointer"
                          [ngClass]="(form.get('startDate')?.invalid && form.get('startDate')?.touched) ? 'border-red-500/50' : 'hover:border-[#3A3C42]'"
@@ -136,7 +123,6 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } fr
                  </div>
             </div>
 
-            <!-- Error Messages Container -->
             <div class="px-1 space-y-1" *ngIf="form.touched">
                 <p *ngIf="form.get('startDate')?.hasError('futureDate')" class="text-red-400 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
                     <mat-icon class="!text-[12px] !w-3 !h-3">warning</mat-icon> Start date must be in the future
@@ -151,7 +137,6 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } fr
 
             <div class="h-px bg-[#2E3035] w-full"></div>
 
-            <!-- Extended Description -->
              <div class="">
                 <textarea class="w-full bg-transparent text-[#EDEDED] placeholder-[#46484E] text-[15px] resize-none focus:outline-none h-48 leading-relaxed" 
                           formControlName="description"
@@ -160,7 +145,6 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } fr
 
         </div>
 
-        <!-- Footer -->
         <div class="p-4 border-t border-[#2E3035] bg-[#1C1C1E] flex justify-end gap-3 rounded-b-lg">
             <button mat-button type="button" (click)="onCancel()" class="!text-white !bg-[#33353A] hover:!bg-[#404249] border border-[#45484F] rounded-md px-4 h-9 font-medium transition-all shadow-sm">Cancel</button>
             <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || loading" class="!bg-[#5E6AD2] hover:!bg-[#4e5ac0] !text-white !rounded-md px-4 h-9 font-medium">
@@ -169,7 +153,6 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } fr
         </div>
       </form>
 
-      <!-- Step 2: Invite Members (Retained logic, updated style) -->
       <div *ngIf="step === 2" class="flex flex-col h-full bg-[#1C1C1E]">
             <div class="p-6 pb-2 text-[#EDEDED]">
                 <p class="text-[13px] text-[#8A8F98] mb-4">
@@ -183,7 +166,6 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } fr
                                placeholder="Search members...">
                         <mat-icon class="absolute left-2.5 top-2.5 text-[#8A8F98] !w-4 !h-4 !text-[16px]">search</mat-icon>
                         
-                        <!-- Dropdown -->
                         <div *ngIf="searchResults.length > 0" class="absolute top-10 left-0 right-0 bg-[#2C2D32] border border-[#2E3035] shadow-xl rounded-md z-50">
                              <div *ngFor="let user of searchResults" (click)="selectUser(user)" class="p-2 hover:bg-[#3A3C42] cursor-pointer flex items-center justify-between">
                                 <span class="text-sm text-[#EDEDED]">{{ user.fullName }}</span>
@@ -192,7 +174,6 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } fr
                         </div>
                     </div>
                     
-                    <!-- Selected -->
                     <div *ngIf="selectedUser" class="flex items-center gap-3 mt-3 animate-slideUp">
                          <span class="text-sm text-[#EDEDED] font-medium flex-1">{{ selectedUser.fullName }}</span>
                          <button mat-button color="primary" (click)="addMember()">Invite</button>
@@ -226,12 +207,8 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } fr
 export class ProjectCreateDialogComponent implements OnInit {
   form: FormGroup;
   loading = false;
-
-  // Wizard State
   step = 1;
   createdProject: Project | null = null;
-
-  // Member Management State
   members: Membership[] = [];
   searchControl = new FormControl('');
   searchResults: User[] = [];
@@ -267,7 +244,6 @@ export class ProjectCreateDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Setup user search
     this.searchControl.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged(),
@@ -280,7 +256,6 @@ export class ProjectCreateDialogComponent implements OnInit {
       }),
       map(response => response.content)
     ).subscribe(users => {
-      // Filter out existing members
       const memberIds = this.members.map(m => m.userId);
       this.searchResults = users.filter((u: User) => !memberIds.includes(u.id));
     });
@@ -304,14 +279,12 @@ export class ProjectCreateDialogComponent implements OnInit {
     this.projectService.createProject(projectData).subscribe({
       next: (project) => {
         if (projectData.type === 'TEAM') {
-          // Move to Step 2
           this.step = 2;
           this.createdProject = project;
           this.loading = false;
           this.loadMembers(project.id);
           this.snackBar.open('Project created! Invite your team.', 'Close', { duration: 3000 });
         } else {
-          // Close immediately for Personal projects
           this.dialogRef.close(project);
           this.snackBar.open('Project created successfully', 'Close', { duration: 3000 });
         }
@@ -327,8 +300,6 @@ export class ProjectCreateDialogComponent implements OnInit {
   onCancel(): void {
     this.dialogRef.close();
   }
-
-  // --- Step 2 Logic ---
 
   loadMembers(projectId: number): void {
     this.membershipService.getMembers(projectId).subscribe({
