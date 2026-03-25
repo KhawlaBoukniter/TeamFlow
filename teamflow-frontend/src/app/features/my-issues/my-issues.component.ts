@@ -25,7 +25,6 @@ import { Task } from '../../shared/models';
   ],
   template: `
     <div class="h-full flex flex-col bg-[#09090b] page-enter overflow-hidden">
-      <!-- Header -->
       <div class="h-16 shrink-0 border-b border-[#1C1C1E] px-8 flex items-center justify-between bg-[#09090b]/80 backdrop-blur-md sticky top-0 z-10">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-[#5E6AD2]/10 flex items-center justify-center">
@@ -102,7 +101,6 @@ import { Task } from '../../shared/models';
         </div>
       </div>
 
-      <!-- Content Area -->
       <div class="flex-1 overflow-y-auto custom-scrollbar px-8 py-6">
         
         <!-- Loading State -->
