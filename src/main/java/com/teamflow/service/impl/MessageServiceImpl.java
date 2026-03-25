@@ -76,10 +76,8 @@ public class MessageServiceImpl implements MessageService {
                             membershipRepository.save(membership);
                         },
                         () -> {
-                            // If no membership, check if user has access (Admin or Owner) and create one to
-                            // track status
-                            User user = sender; // already fetched above
-                            Project project = chatRoom.getProject(); // already have chatRoom
+                            User user = sender;
+                            Project project = chatRoom.getProject();
 
                             if (user != null && project != null && (user.isAdmin() ||
                                     (project.getOwner() != null && project.getOwner().getId().equals(senderId)))) {
@@ -99,7 +97,6 @@ public class MessageServiceImpl implements MessageService {
         auditLogService.logAction("SEND_MESSAGE", "Message", savedMessage.getId(), projectId,
                 "Message sent to " + chatRoom.getName());
 
-        // Handle Mentions for Notifications
         handleMentions(savedMessage, projectId, sender);
 
         return toDTO(savedMessage);
@@ -110,7 +107,6 @@ public class MessageServiceImpl implements MessageService {
         if (content == null || !content.contains("@"))
             return;
 
-        // Detect @everyone
         if (content.toLowerCase().contains("@everyone")) {
             List<Membership> projectMembers = membershipRepository.findByProjectIdAndDeletedAtIsNull(projectId);
             for (Membership m : projectMembers) {
@@ -124,20 +120,15 @@ public class MessageServiceImpl implements MessageService {
                             projectId);
                 }
             }
-            return; // If @everyone is present, we might skip individual mentions to avoid double
-                    // notifications
+            return;
         }
 
-        // Detect individual mentions: @UserName
-        // We look for memberships in this project and check if their names are
-        // mentioned
         List<Membership> members = membershipRepository.findByProjectIdAndDeletedAtIsNull(projectId);
         for (Membership m : members) {
             String name = m.getUser().getFullName();
             if (name == null || m.getUser().getId().equals(sender.getId()))
                 continue;
 
-            // Check for @Name with word boundary
             String regex = "@" + Pattern.quote(name) + "\\b";
             if (Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(content).find()) {
                 notificationService.createNotification(
