@@ -100,7 +100,6 @@ export class BoardPageComponent implements OnInit {
 
     if (this.project.ownerId === currentUserId) return true;
 
-    // Check membership role if available in project object (assuming team list is loaded)
     if (this.project.team) {
       return this.project.team.some((m: any) =>
         m.userId === currentUserId && m.roleInProject === 'MANAGER'
@@ -115,7 +114,6 @@ export class BoardPageComponent implements OnInit {
     const currentUserId = this.authService.getCurrentUserId();
     if (!currentUserId || !task.assignments) return false;
 
-    // Check if current user is an assignee
     return task.assignments.some(a => a.userId === currentUserId || Number(a.userId) === Number(currentUserId));
   }
 

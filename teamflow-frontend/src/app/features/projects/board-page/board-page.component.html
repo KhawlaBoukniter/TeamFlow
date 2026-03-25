@@ -1,10 +1,6 @@
 <div class="h-full flex flex-col bg-[#09090b] overflow-hidden page-enter">
 
-    <!-- ══════════════════════════════════════════
-         ROW 1 — Navigation (back + project title)
-         ══════════════════════════════════════════ -->
     <div class="h-10 border-b border-[#1C1C1E] px-4 flex items-center gap-3 bg-[#09090b] shrink-0">
-        <!-- Back -->
         <button routerLink="/projects"
             class="p-1 hover:bg-[#1C1C1E] rounded-md transition-colors text-[#8A8F98] hover:text-white"
             title="Back to Projects">
@@ -13,28 +9,21 @@
 
         <div class="w-px h-4 bg-[#2E3035] shrink-0"></div>
 
-        <!-- Project name -->
         <h1 class="text-[13px] font-semibold text-white truncate">
             {{ project?.name || 'Board' }}
         </h1>
 
-        <!-- Type badge -->
         <span *ngIf="project?.type"
             class="text-[10px] font-medium px-2 py-0.5 rounded-full border border-[#2E3035] text-[#8A8F98] bg-[#1C1C1E] shrink-0">
             {{ project?.type }}
         </span>
 
-        <!-- Description snippet -->
         <span *ngIf="project?.description" class="hidden sm:block text-[12px] text-[#8A8F98] truncate max-w-[280px]">
             {{ project?.description | slice:0:60 }}{{ (project?.description?.length || 0) > 60 ? '…' : '' }}
         </span>
     </div>
 
-    <!-- ══════════════════════════════════════════
-         ROW 2 — Actions bar
-         ══════════════════════════════════════════ -->
     <div class="h-10 border-b border-[#1C1C1E] px-4 flex items-center gap-2 bg-[#09090b] shrink-0">
-        <!-- Search -->
         <div class="relative flex items-center group">
             <mat-icon
                 class="absolute left-2.5 !w-3.5 !h-3.5 !text-[14px] text-[#8A8F98] group-focus-within:text-white transition-colors">search</mat-icon>
@@ -43,7 +32,7 @@
         </div>
 
         <div class="flex-1"></div>
-        <!-- Filters -->
+        <div class="flex-1"></div>
         <button [matMenuTriggerFor]="filterMenu"
             class="relative inline-flex items-center gap-1.5 px-2.5 py-1 text-[12px] text-[#8A8F98] hover:bg-[#1C1C1E] hover:text-white rounded-md transition-colors"
             [class.text-white]="hasActiveFilters" [class.bg-[#1C1C1E]]="hasActiveFilters">
@@ -127,21 +116,18 @@
 
         <div class="w-px h-4 bg-[#2E3035] shrink-0"></div>
 
-        <!-- Add Column -->
         <button *ngIf="canManageProject()" (click)="openAddColumnDialog()"
             class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[12px] text-[#8A8F98] hover:bg-[#1C1C1E] hover:text-white rounded-md transition-colors">
             <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">view_column</mat-icon>
             Add Column
         </button>
 
-        <!-- Members (TEAM only) -->
         <button *ngIf="project?.type === 'TEAM' && canManageProject()" (click)="openMembersDialog()"
             class="inline-flex items-center gap-1.5 px-3 py-1 text-[12px] bg-brand text-white hover:bg-brand-hover rounded-md transition-colors btn-press">
             <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">group</mat-icon>
             Members
         </button>
 
-        <!-- Chat Toggle -->
         <button *ngIf="project?.type === 'TEAM'" (click)="toggleChat()"
             class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[12px] text-[#8A8F98] hover:bg-[#1C1C1E] hover:text-white rounded-md transition-colors relative"
             [class.text-white]="chatWindow?.isOpen" [class.bg-[#1C1C1E]]="chatWindow?.isOpen">
@@ -153,7 +139,6 @@
             </span>
         </button>
 
-        <!-- Export Tasks -->
         <button (click)="exportTasks()"
             class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[12px] text-[#8A8F98] hover:bg-[#1C1C1E] hover:text-white rounded-md transition-colors"
             matTooltip="Export project tasks to CSV">
@@ -163,7 +148,6 @@
 
         <div class="w-px h-4 bg-[#2E3035] shrink-0" *ngIf="canManageProject()"></div>
 
-        <!-- Audit Toggle -->
         <button *ngIf="canManageProject()" (click)="auditSidebar.toggle()"
             class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[12px] text-[#8A8F98] hover:bg-[#1C1C1E] hover:text-white rounded-md transition-colors"
             [class.text-white]="auditSidebar?.isOpen" [class.bg-[#1C1C1E]]="auditSidebar?.isOpen">
@@ -207,7 +191,6 @@
             </button>
         </div>
 
-        <!-- Columns (with DnD) -->
         <div class="flex h-full gap-4 pb-2" *ngIf="!isLoading && columns.length > 0" cdkDropListGroup>
 
             <div *ngFor="let column of columns"
@@ -220,7 +203,6 @@
                             {{ getTasks(column.id).length }}
                         </span>
                     </div>
-                    <!-- Column 3-dot menu -->
                     <button *ngIf="canManageProject()" [matMenuTriggerFor]="colMenu"
                         class="text-[#8A8F98] hover:text-white hover:bg-[#2C2D32] p-1 rounded transition-colors opacity-100">
                         <mat-icon class="!w-4 !h-4 !text-[16px]">more_vert</mat-icon>
@@ -334,7 +316,6 @@
                         </div>
                     </div>
 
-                    <!-- Add Task Button -->
                     <button *ngIf="canManageProject()" (click)="openCreateTask(column.id)"
                         class="w-full py-2 text-xs text-[#8A8F98] hover:text-white hover:bg-[#2C2D32] rounded-lg border border-dashed border-[#3A3C42] hover:border-[#555] transition-all flex items-center justify-center gap-1 mt-1">
                         <mat-icon class="!w-4 !h-4 !text-[16px]">add</mat-icon>
