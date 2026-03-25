@@ -15,10 +15,8 @@ import { Notification } from '../../shared/models';
   template: `
     <div class="h-full w-full flex flex-row bg-[#09090b] text-[#EDEDED] overflow-hidden page-enter font-sans">
       
-      <!-- MASTER: LEFT SIDEBAR LIST -->
       <div class="w-[380px] border-r border-[#1C1C1E] flex flex-col shrink-0 bg-[#0c0c0e] z-10 shadow-2xl">
         
-        <!-- HEADER -->
         <div class="h-14 border-b border-[#1C1C1E] px-4 flex items-center justify-between shrink-0 bg-[#0c0c0e]">
            <div class="flex items-center gap-2">
              <div class="w-6 h-6 rounded-lg bg-[#1C1C1E] flex items-center justify-center border border-[#2E3035]">
@@ -37,7 +35,6 @@ import { Notification } from '../../shared/models';
            </div>
         </div>
 
-        <!-- LIST AREA -->
         <div class="flex-1 overflow-y-auto custom-scrollbar bg-[#0c0c0e]">
           <div *ngIf="notifications.length === 0" class="h-full flex flex-col items-center justify-center p-8 text-center animate-fade-in">
              <div class="p-6 rounded-3xl bg-[#1C1C1E]/50 mb-4 border border-[#1C1C1E] shadow-2xl">
@@ -83,10 +80,8 @@ import { Notification } from '../../shared/models';
         </div>
       </div>
 
-      <!-- DETAIL: RIGHT CONTENT -->
       <div class="flex-1 flex flex-col bg-[#09090b] shadow-[inner_0_0_100px_rgba(0,0,0,0.5)]">
         
-        <!-- DETAIL HEADER -->
         <div class="h-14 border-b border-[#1C1C1E] px-8 flex items-center justify-between shrink-0 bg-[#09090b]/80 backdrop-blur-md">
           <div *ngIf="selectedNotification" class="flex items-center gap-3">
             <span class="text-[11px] font-black text-[#8A8F98] uppercase tracking-[0.3em]">
@@ -97,10 +92,8 @@ import { Notification } from '../../shared/models';
           </div>
         </div>
 
-        <!-- DETAIL BODY -->
         <div class="flex-1 overflow-y-auto custom-scrollbar p-12 flex flex-col items-center">
           
-          <!-- EMPTY SELECTION STATE -->
           <div *ngIf="!selectedNotification" class="h-full flex flex-col items-center justify-center animate-fade-in max-w-[400px] text-center">
             <div class="relative mb-8">
                <div class="absolute inset-0 bg-[#5E6AD2] blur-[80px] opacity-10"></div>
@@ -113,7 +106,6 @@ import { Notification } from '../../shared/models';
             <p class="text-[13px] text-[#8A8F98] leading-relaxed">Select a notification to view its context and take quick actions.</p>
           </div>
 
-          <!-- NOTIFICATION DETAIL -->
           <div *ngIf="selectedNotification" class="w-full max-w-[640px] animate-slide-up">
             <div class="flex items-start justify-between mb-8">
                <div class="flex items-center gap-4">
