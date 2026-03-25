@@ -17,7 +17,6 @@ public class CsvExportServiceImpl implements CsvExportService {
     @Override
     public byte[] exportProjectsToCsv(List<ProjectDTO> projects) {
         StringBuilder csv = new StringBuilder();
-        // Header
         csv.append("ID,Name,Description,Status,Type,Created At\n");
 
         for (ProjectDTO p : projects) {
@@ -36,7 +35,6 @@ public class CsvExportServiceImpl implements CsvExportService {
     @Override
     public byte[] exportTasksToCsv(List<TaskDTO> tasks) {
         StringBuilder csv = new StringBuilder();
-        // Header
         csv.append("ID,Title,Description,Priority,Status (Column),Blocked,Due Date,Created At\n");
 
         for (TaskDTO t : tasks) {
