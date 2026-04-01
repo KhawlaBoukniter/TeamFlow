@@ -9,6 +9,7 @@ import com.teamflow.repository.UserRepository;
 import com.teamflow.service.interfaces.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     @Transactional
@@ -40,7 +42,9 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setCreatedAt(LocalDateTime.now());
         notification.setUpdatedAt(LocalDateTime.now());
 
-        notificationRepository.save(notification);
+        Notification saved = notificationRepository.save(notification);
+
+        messagingTemplate.convertAndSend("/topic/notifications/" + userId, toDTO(saved));
     }
 
     @Override
@@ -73,8 +77,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public void markAllAsRead(Long userId) {
-        // Simple implementation for now, could be optimized with a custom query
-        // This is fine for small lists
         List<Notification> unread = notificationRepository.findRecentByUserId(userId, PageRequest.of(0, 100))
                 .stream()
                 .filter(n -> !n.isRead())

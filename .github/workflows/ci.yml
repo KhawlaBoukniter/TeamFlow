@@ -1,0 +1,39 @@
+name: TeamFlow CI/CD
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  backend-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - name: Run Backend Tests
+        run: mvn test
+
+  frontend-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./teamflow-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './teamflow-frontend/package-lock.json'
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+      - name: Run Frontend Tests
+        run: npm test -- --watch=false --browsers=ChromeHeadlessCI

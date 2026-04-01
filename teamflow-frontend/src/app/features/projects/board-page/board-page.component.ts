@@ -127,11 +127,18 @@ export class BoardPageComponent implements OnInit {
       }
     });
 
-    // Handle taskId from query params to auto-open task details
+    // Handle taskId/chat from query params
     this.route.queryParamMap.subscribe(params => {
       const taskId = params.get('taskId');
+      const chat = params.get('chat');
+      const messageId = params.get('messageId');
+
       if (taskId) {
         this.autoOpenTask(Number(taskId));
+      }
+
+      if (chat === 'open' || messageId) {
+        this.openChatAndFocus(messageId);
       }
     });
 
@@ -164,11 +171,11 @@ export class BoardPageComponent implements OnInit {
 
   loadUnreadCount(projectId: number): void {
     this.chatService.getUnreadCount(projectId).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         console.log('[DEBUG Chat] Unread count loaded:', res.unreadCount);
         this.unreadCount = res.unreadCount;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('[DEBUG Chat] Failed to load unread count:', err);
         this.unreadCount = 0;
       }
@@ -177,8 +184,8 @@ export class BoardPageComponent implements OnInit {
 
   private connectChat(projectId: number): void {
     this.chatService.getChatRoom(projectId).subscribe({
-      next: (room) => this.chatService.connect(room.id),
-      error: (err) => console.error('Failed to connect chat in background', err)
+      next: (room: any) => this.chatService.connect(room.id),
+      error: (err: any) => console.error('Failed to connect chat in background', err)
     });
   }
 
@@ -619,5 +626,21 @@ export class BoardPageComponent implements OnInit {
     if (!task.blockingTasks || task.blockingTasks.length === 0) return 'Blocked';
     const titles = task.blockingTasks.map(t => `• ${t.title}`).join('\n');
     return `Waiting on:\n${titles}`;
+  }
+
+  private openChatAndFocus(messageId: string | null): void {
+    if (!this.project) {
+      // Wait for project to load
+      setTimeout(() => this.openChatAndFocus(messageId), 500);
+      return;
+    }
+
+    if (this.chatWindow && !this.chatWindow.isOpen) {
+      this.toggleChat();
+    }
+
+    if (messageId && this.chatWindow) {
+      this.chatWindow.scrollToMessage(Number(messageId));
+    }
   }
 }

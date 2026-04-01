@@ -107,6 +107,7 @@
             </div>
         </div>
 
+        <!-- Empty State -->
         <div *ngIf="!loading && projects.length === 0"
             class="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-[#2E3035] rounded-xl bg-[#1C1C1E]/50">
             <div class="w-16 h-16 bg-[#2C2D32] rounded-full flex items-center justify-center mb-4">
@@ -121,17 +122,46 @@
             </button>
         </div>
 
-        <div *ngIf="!loading && projects.length > 0 && filteredProjects.length === 0"
-            class="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-[#2E3035] rounded-xl bg-[#1C1C1E]/50">
-            <mat-icon class="!w-10 !h-10 !text-[40px] text-[#3A3C42] mb-3">search_off</mat-icon>
-            <h3 class="text-base font-semibold text-white mb-1">No projects match "{{ searchTerm }}"</h3>
-            <p class="text-[#8A8F98] text-sm">Try a different search term.</p>
+        <!-- Sections for Admin or Member -->
+        <div *ngIf="!loading && projects.length > 0">
+
+            <!-- My Projects Section -->
+            <div class="mb-12" *ngIf="myProjects.length > 0">
+                <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    <mat-icon class="text-brand !w-5 !h-5 !text-[20px]">person</mat-icon>
+                    Mes Projets
+                    <span class="text-sm font-normal text-[#8A8F98] ml-2">({{ myProjects.length }})</span>
+                </h2>
+                <div [ngClass]="viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'flex flex-col gap-3'"
+                    class="animate-slide-up">
+                    <ng-container *ngFor="let project of myProjects">
+                        <ng-container *ngTemplateOutlet="projectCard; context: { $implicit: project }"></ng-container>
+                    </ng-container>
+                </div>
+            </div>
+
+            <!-- All Projects Section (Admin Only) -->
+            <div class="mt-16" *ngIf="authService.isAdmin() && allProjects.length > 0">
+                <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    <mat-icon class="text-[#5E6AD2] !w-5 !h-5 !text-[20px]">public</mat-icon>
+                    Tous les Projets
+                    <span class="text-sm font-normal text-[#8A8F98] ml-2">({{ allProjects.length }})</span>
+                </h2>
+                <div [ngClass]="viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'flex flex-col gap-3'"
+                    class="animate-slide-up">
+                    <ng-container *ngFor="let project of allProjects">
+                        <ng-container *ngTemplateOutlet="projectCard; context: { $implicit: project }"></ng-container>
+                    </ng-container>
+                </div>
+            </div>
+
         </div>
 
-        <div *ngIf="!loading && filteredProjects.length > 0 && viewMode === 'grid'"
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-slide-up">
+        <!-- Reusable Project Card Template -->
+        <ng-template #projectCard let-project>
 
-            <div *ngFor="let project of filteredProjects"
+            <!-- GRID MODE -->
+            <div *ngIf="viewMode === 'grid'"
                 class="bg-[#1C1C1E] border border-[#2E3035] rounded-xl p-5 hover:border-[#3A3C42] hover:bg-[#25262B] transition-all duration-200 cursor-pointer group relative flex flex-col h-[220px]"
                 (click)="openProject(project.id)">
 
@@ -145,40 +175,9 @@
                         </span>
                     </div>
                     <button mat-icon-button class="!text-[#8A8F98] hover:!text-white" (click)="$event.stopPropagation()"
-                        [matMenuTriggerFor]="menu">
+                        [matMenuTriggerFor]="cardMenu">
                         <mat-icon>more_vert</mat-icon>
                     </button>
-                    <mat-menu #menu="matMenu" xPosition="before" class="linear-menu">
-                        <button mat-menu-item (click)="openProjectDetails(project)">
-                            <mat-icon class="!w-4 !h-4 !text-[16px]">visibility</mat-icon>
-                            <span class="text-sm">Details</span>
-                        </button>
-                        <button mat-menu-item *ngIf="canManageProject(project)" (click)="openProjectEdit(project)">
-                            <mat-icon class="!w-4 !h-4 !text-[16px]">edit</mat-icon>
-                            <span class="text-sm">Edit</span>
-                        </button>
-                        <button mat-menu-item *ngIf="project.type === 'TEAM'"
-                            (click)="openMembersDialog(project, $event)">
-                            <mat-icon class="!w-4 !h-4 !text-[16px]">group</mat-icon>
-                            <span class="text-sm">Members</span>
-                        </button>
-                        <ng-container *ngIf="canManageProject(project)">
-                            <mat-divider></mat-divider>
-                            <button mat-menu-item *ngIf="project.status === 'ACTIVE'" (click)="archiveProject(project)">
-                                <mat-icon class="!w-4 !h-4 !text-[16px]">archive</mat-icon>
-                                <span class="text-sm">Archive</span>
-                            </button>
-                            <button mat-menu-item *ngIf="project.status !== 'ACTIVE'"
-                                (click)="unarchiveProject(project)">
-                                <mat-icon class="!w-4 !h-4 !text-[16px]">unarchive</mat-icon>
-                                <span class="text-sm">Restore</span>
-                            </button>
-                            <button mat-menu-item class="!text-red-400" (click)="deleteProject(project)">
-                                <mat-icon class="!w-4 !h-4 !text-[16px] !text-red-400">delete</mat-icon>
-                                <span class="text-sm">Delete</span>
-                            </button>
-                        </ng-container>
-                    </mat-menu>
                 </div>
 
                 <div class="text-center mb-4 px-2">
@@ -203,7 +202,6 @@
                 </div>
 
                 <div class="flex items-center justify-between mt-4">
-                    <!-- Avatars + Add Button -->
                     <div class="flex items-center">
                         <div class="flex -space-x-2">
                             <ng-container *ngIf="project.team && project.team.length > 0">
@@ -214,134 +212,106 @@
                                 </div>
                             </ng-container>
                         </div>
-                        <button *ngIf="project.type === 'TEAM' && canManageProject(project)"
-                            (click)="openMembersDialog(project, $event)"
-                            class="h-6 w-6 rounded-full bg-[#2C2D32] text-white flex items-center justify-center ml-2 hover:bg-[#3A3C42] transition-colors border border-[#3A3C42] z-20"
-                            matTooltip="Add Member">
-                            <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">add</mat-icon>
-                        </button>
                     </div>
-
-                    <span
-                        class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FFF0E6] text-[#FF9500] border border-transparent"
-                        [class.bg-[#FFF0E6]]="getDaysLeft(project) !== 'Overdue'"
-                        [class.text-[#FF9500]]="getDaysLeft(project) !== 'Overdue'"
-                        [class.bg-red-900/20]="getDaysLeft(project) === 'Overdue'"
-                        [class.text-red-400]="getDaysLeft(project) === 'Overdue'"
-                        [class.border-red-900/30]="getDaysLeft(project) === 'Overdue'">
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                        [ngClass]="getDaysLeft(project) === 'Overdue' ? 'bg-red-900/20 text-red-400 border border-red-900/30' : 'bg-[#FFF0E6] text-[#FF9500]'">
                         {{ getDaysLeft(project) || 'No Deadline' }}
                     </span>
                 </div>
             </div>
-        </div>
 
-        <div *ngIf="!loading && filteredProjects.length > 0 && viewMode === 'list'" class="animate-slide-up">
-            <div class="flex flex-col gap-3">
-                <div *ngFor="let project of filteredProjects"
-                    class="bg-[#1C1C1E] border border-[#2E3035] rounded-xl p-4 hover:border-[#3A3C42] hover:bg-[#25262B] transition-all duration-200 cursor-pointer group flex items-center justify-between gap-6"
-                    (click)="openProject(project.id)">
+            <!-- LIST MODE -->
+            <div *ngIf="viewMode === 'list'"
+                class="bg-[#1C1C1E] border border-[#2E3035] rounded-xl p-4 hover:border-[#3A3C42] hover:bg-[#25262B] transition-all duration-200 cursor-pointer group flex items-center justify-between gap-6"
+                (click)="openProject(project.id)">
 
-                    <div class="flex flex-col min-w-[200px]">
-                        <div class="flex items-center gap-2 mb-1">
-                            <h3
-                                class="text-white font-semibold text-base group-hover:text-brand transition-colors line-clamp-1">
-                                {{ project.name }}
-                            </h3>
-                            <span *ngIf="project.status === 'ARCHIVED'"
-                                class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[8px] font-bold uppercase border border-amber-500/20">
-                                Archived
-                            </span>
-                        </div>
-                        <p class="text-[#8A8F98] text-xs font-medium mb-1">
-                            {{ project.type === 'PERSONAL' ? 'Personal Project' : 'Team Project' }}
-                        </p>
-                        <span class="text-[#555] text-[10px]">
-                            {{ project.createdAt | date:'MMMM d, y' }}
+                <div class="flex flex-col min-w-[200px]">
+                    <div class="flex items-center gap-2 mb-1">
+                        <h3
+                            class="text-white font-semibold text-base group-hover:text-brand transition-colors line-clamp-1">
+                            {{ project.name }}
+                        </h3>
+                        <span *ngIf="project.status === 'ARCHIVED'"
+                            class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[8px] font-bold uppercase border border-amber-500/20">
+                            Archived
                         </span>
                     </div>
+                    <p class="text-[#8A8F98] text-xs font-medium mb-1">
+                        {{ project.type === 'PERSONAL' ? 'Personal Project' : 'Team Project' }}
+                    </p>
+                    <span class="text-[#555] text-[10px]">{{ project.createdAt | date:'MMMM d, y' }}</span>
+                </div>
 
-                    <div class="flex-1 flex flex-col justify-center px-4">
-                        <div class="flex justify-between items-center mb-1.5">
-                            <span class="text-[11px] font-bold text-[#8A8F98]">Progress</span>
+                <div class="flex-1 flex flex-col justify-center px-4">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-[11px] font-bold text-[#8A8F98]">Progress</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="h-1.5 flex-1 bg-[#2C2D32] rounded-full overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-500"
+                                [style.width.%]="getProjectProgress(project)"
+                                [style.backgroundColor]="getProgressBarColor(project)"></div>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <div class="h-1.5 flex-1 bg-[#2C2D32] rounded-full overflow-hidden">
-                                <div class="h-full rounded-full transition-all duration-500"
-                                    [style.width.%]="getProjectProgress(project)"
-                                    [style.backgroundColor]="getProgressBarColor(project)"></div>
+                        <span class="text-xs font-bold text-white min-w-[30px] text-right">{{
+                            getProjectProgress(project) }}%</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-6">
+                    <div class="flex -space-x-2">
+                        <ng-container *ngIf="project.team && project.team.length > 0">
+                            <div *ngFor="let member of project.team; let i = index"
+                                class="h-7 w-7 rounded-full bg-brand flex items-center justify-center text-[10px] font-bold text-white ring-2 ring-[#1C1C1E] z-10"
+                                [style.zIndex]="10 - i" [matTooltip]="member.userName">
+                                {{ member.userName.charAt(0).toUpperCase() }}
                             </div>
-                            <span class="text-xs font-bold text-white min-w-[30px] text-right">{{
-                                getProjectProgress(project) }}%</span>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-6">
-                        <div class="flex -space-x-2">
-                            <ng-container *ngIf="project.team && project.team.length > 0">
-                                <div *ngFor="let member of project.team; let i = index"
-                                    class="h-7 w-7 rounded-full bg-brand flex items-center justify-center text-[10px] font-bold text-white ring-2 ring-[#1C1C1E] z-10"
-                                    [style.zIndex]="10 - i" [matTooltip]="member.userName">
-                                    {{ member.userName.charAt(0).toUpperCase() }}
-                                </div>
-                            </ng-container>
-                            <button *ngIf="project.type === 'TEAM' && canManageProject(project)"
-                                (click)="openMembersDialog(project, $event)"
-                                class="h-7 w-7 rounded-full bg-[#2C2D32] text-white flex items-center justify-center ml-2 hover:bg-[#3A3C42] transition-colors border border-[#3A3C42] z-20"
-                                matTooltip="Add Member">
-                                <mat-icon class="!w-4 !h-4 !text-[16px]">add</mat-icon>
-                            </button>
-                        </div>
-
-                        <span
-                            class="text-[11px] font-bold px-3 py-1 rounded-full bg-[#FFF0E6] text-[#FF9500] border border-transparent whitespace-nowrap"
-                            [class.bg-[#FFF0E6]]="getDaysLeft(project) !== 'Overdue'"
-                            [class.text-[#FF9500]]="getDaysLeft(project) !== 'Overdue'"
-                            [class.bg-red-900/20]="getDaysLeft(project) === 'Overdue'"
-                            [class.text-red-400]="getDaysLeft(project) === 'Overdue'"
-                            [class.border-red-900/30]="getDaysLeft(project) === 'Overdue'">
-                            {{ getDaysLeft(project) || 'No Deadline' }}
-                        </span>
-
-                        <button mat-icon-button class="!text-[#8A8F98] hover:!text-white"
-                            (click)="$event.stopPropagation()" [matMenuTriggerFor]="menu">
-                            <mat-icon>more_vert</mat-icon>
-                        </button>
-                    </div>
-
-                    <mat-menu #menu="matMenu" xPosition="before" class="linear-menu">
-                        <button mat-menu-item (click)="openProjectDetails(project)">
-                            <mat-icon class="!w-4 !h-4 !text-[16px]">visibility</mat-icon>
-                            <span class="text-sm">Details</span>
-                        </button>
-                        <button mat-menu-item *ngIf="canManageProject(project)" (click)="openProjectEdit(project)">
-                            <mat-icon class="!w-4 !h-4 !text-[16px]">edit</mat-icon>
-                            <span class="text-sm">Edit</span>
-                        </button>
-                        <button mat-menu-item *ngIf="project.type === 'TEAM'"
-                            (click)="openMembersDialog(project, $event)">
-                            <mat-icon class="!w-4 !h-4 !text-[16px]">group</mat-icon>
-                            <span class="text-sm">Members</span>
-                        </button>
-                        <ng-container *ngIf="canManageProject(project)">
-                            <mat-divider></mat-divider>
-                            <button mat-menu-item *ngIf="project.status === 'ACTIVE'" (click)="archiveProject(project)">
-                                <mat-icon class="!w-4 !h-4 !text-[16px]">archive</mat-icon>
-                                <span class="text-sm">Archive</span>
-                            </button>
-                            <button mat-menu-item *ngIf="project.status !== 'ACTIVE'"
-                                (click)="unarchiveProject(project)">
-                                <mat-icon class="!w-4 !h-4 !text-[16px]">unarchive</mat-icon>
-                                <span class="text-sm">Restore</span>
-                            </button>
-                            <button mat-menu-item class="!text-red-400" (click)="deleteProject(project)">
-                                <mat-icon class="!w-4 !h-4 !text-[16px] !text-red-400">delete</mat-icon>
-                                <span class="text-sm">Delete</span>
-                            </button>
                         </ng-container>
-                    </mat-menu>
+                    </div>
 
+                    <span class="text-[11px] font-bold px-3 py-1 rounded-full whitespace-nowrap"
+                        [ngClass]="getDaysLeft(project) === 'Overdue' ? 'bg-red-900/20 text-red-400 border border-red-900/30' : 'bg-[#FFF0E6] text-[#FF9500]'">
+                        {{ getDaysLeft(project) || 'No Deadline' }}
+                    </span>
+
+                    <button mat-icon-button class="!text-[#8A8F98] hover:!text-white" (click)="$event.stopPropagation()"
+                        [matMenuTriggerFor]="cardMenu">
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
                 </div>
             </div>
-        </div>
+
+            <!-- SHARED MENU PER CARD -->
+            <mat-menu #cardMenu="matMenu" xPosition="before" class="linear-menu">
+                <button mat-menu-item (click)="openProjectDetails(project)">
+                    <mat-icon class="!w-4 !h-4 !text-[16px]">visibility</mat-icon>
+                    <span class="text-sm">Details</span>
+                </button>
+                <button mat-menu-item *ngIf="canManageProject(project)" (click)="openProjectEdit(project)">
+                    <mat-icon class="!w-4 !h-4 !text-[16px]">edit</mat-icon>
+                    <span class="text-sm">Edit</span>
+                </button>
+                <button mat-menu-item *ngIf="project.type === 'TEAM'" (click)="openMembersDialog(project, $event)">
+                    <mat-icon class="!w-4 !h-4 !text-[16px]">group</mat-icon>
+                    <span class="text-sm">Members</span>
+                </button>
+                <ng-container *ngIf="canManageProject(project)">
+                    <mat-divider></mat-divider>
+                    <button mat-menu-item *ngIf="project.status === 'ACTIVE'" (click)="archiveProject(project)">
+                        <mat-icon class="!w-4 !h-4 !text-[16px]">archive</mat-icon>
+                        <span class="text-sm">Archive</span>
+                    </button>
+                    <button mat-menu-item *ngIf="project.status !== 'ACTIVE'" (click)="unarchiveProject(project)">
+                        <mat-icon class="!w-4 !h-4 !text-[16px]">unarchive</mat-icon>
+                        <span class="text-sm">Restore</span>
+                    </button>
+                    <button mat-menu-item class="!text-red-400" (click)="deleteProject(project)">
+                        <mat-icon class="!w-4 !h-4 !text-[16px] !text-red-400">delete</mat-icon>
+                        <span class="text-sm">Delete</span>
+                    </button>
+                </ng-container>
+            </mat-menu>
+
+        </ng-template>
+
     </div>
 </div>

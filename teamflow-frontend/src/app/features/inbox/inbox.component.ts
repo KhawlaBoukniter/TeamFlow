@@ -54,7 +54,7 @@ import { Notification } from '../../shared/models';
               
               <div class="flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2 overflow-hidden">
-                  <span class="text-[10px] font-black tracking-widest uppercase opacity-40" [class.!opacity-100]="!notif.isRead">
+                   <span class="text-[10px] font-black tracking-widest uppercase opacity-40" [class.!opacity-100]="!notif.isRead">
                     {{ notif.type.replace('_', ' ') }}
                   </span>
                 </div>
@@ -147,10 +147,10 @@ import { Notification } from '../../shared/models';
                <h4 class="text-[11px] font-bold text-[#3A3C42] uppercase tracking-[0.2em]">Quick Actions</h4>
                <div class="grid grid-cols-2 gap-4">
                   <a *ngIf="selectedNotification.projectId"
-                     [routerLink]="['/projects', selectedNotification.projectId, 'board']" [queryParams]="{ taskId: selectedNotification.entityId }"
+                     [routerLink]="getActionLink(selectedNotification)" [queryParams]="getActionParams(selectedNotification)"
                      class="flex items-center justify-center gap-2.5 px-6 py-3.5 bg-[#1C1C1E] hover:bg-[#2C2C2E] rounded-xl transition-all text-[13px] font-bold border border-[#2E3035] group/btn">
                     <mat-icon class="!w-4 !h-4 !text-[18px] text-[#8A8F98] group-hover/btn:text-white transition-colors">visibility</mat-icon>
-                    View Task Context
+                    {{ getActionLabel(selectedNotification) }}
                   </a>
                   <div *ngIf="!selectedNotification.projectId" 
                        class="flex items-center justify-center gap-2.5 px-6 py-3.5 bg-[#1C1C1E]/50 rounded-xl text-[13px] font-bold border border-[#2E3035] text-[#8A8F98] cursor-wait">
@@ -213,6 +213,27 @@ export class InboxComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadNotifications();
+
+    this.notificationService.notification$.subscribe(notification => {
+      this.notifications = [notification, ...this.notifications];
+    });
+  }
+
+  getActionLabel(notif: Notification): string {
+    if (notif.type === 'CHAT_MENTION') return 'Voir message';
+    return 'View Task Context';
+  }
+
+  getActionLink(notif: Notification): any[] {
+    if (!notif.projectId) return [];
+    return ['/projects', notif.projectId, 'board'];
+  }
+
+  getActionParams(notif: Notification): any {
+    if (notif.type === 'CHAT_MENTION') {
+      return { messageId: notif.entityId };
+    }
+    return { taskId: notif.entityId };
   }
 
   loadNotifications(): void {

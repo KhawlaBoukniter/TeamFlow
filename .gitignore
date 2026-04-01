@@ -40,3 +40,5 @@ Cahier de charge TeamFlow.pdf
 *.log
 
 uploads/
+
+.dockerignore

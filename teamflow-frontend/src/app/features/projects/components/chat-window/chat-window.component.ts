@@ -1608,7 +1608,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked,
     return msg.id;
   }
 
-  scrollToMessage(msgId: number): void {
+  scrollToMessage(msgId: number, retryCount = 0): void {
     const element = document.getElementById('msg-' + msgId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1618,6 +1618,8 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewChecked,
           this.highlightedMessageId = null;
         }
       }, 2000);
+    } else if (retryCount < 10) {
+      setTimeout(() => this.scrollToMessage(msgId, retryCount + 1), 300);
     }
   }
 

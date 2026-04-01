@@ -105,6 +105,18 @@ export class ProjectsComponent implements OnInit {
         return filtered;
     }
 
+    get myProjects(): Project[] {
+        if (!this.currentUserId) return [];
+        return this.filteredProjects.filter(p =>
+            p.ownerId === this.currentUserId ||
+            (p.team && p.team.some((m: any) => m.userId === this.currentUserId))
+        );
+    }
+
+    get allProjects(): Project[] {
+        return this.filteredProjects;
+    }
+
     get upcomingProjectsCount(): number {
         const now = new Date();
         return this.projects.filter(p => p.startDate && new Date(p.startDate) > now).length;
