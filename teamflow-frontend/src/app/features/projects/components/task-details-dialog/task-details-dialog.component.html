@@ -1,0 +1,435 @@
+<div class="px-6 py-4 border-b border-[#2E3035] flex items-center justify-between">
+    <div class="flex items-center gap-3">
+        <div>
+            <h2 class="text-base font-semibold text-white m-0 mb-0.5">{{ task.title }}</h2>
+            <div class="flex items-center gap-2 mt-1">
+                <div class="flex items-center gap-1.5 px-2 py-0.5 rounded border border-[#2E3035] bg-[#1C1C1E]">
+                    <mat-icon *ngIf="task.priority === 'URGENT'"
+                        class="!w-3 !h-3 !text-[12px] !text-[#FF4D4D]">report_problem</mat-icon>
+                    <mat-icon *ngIf="task.priority === 'HIGH' || task.priority === 'MEDIUM' || task.priority === 'LOW'"
+                        class="!w-3 !h-3 !text-[12px]" [ngClass]="{
+                        'text-[#F59E0B]': task.priority === 'HIGH',
+                        'text-[#F59E0B]/80': task.priority === 'MEDIUM',
+                        'text-[#8A8F98]': task.priority === 'LOW'
+                      }">signal_cellular_alt</mat-icon>
+                    <span class="text-[10px] text-[#8A8F98] font-medium leading-none">{{ task.priority }}</span>
+                </div>
+                <span
+                    class="px-2 py-0.5 rounded border bg-red-900/10 text-red-500 border-red-900/20 flex items-center gap-1.5 text-[10px] font-medium"
+                    *ngIf="task.blocked">
+                    <mat-icon class="!w-3 !h-3 !text-[12px]">block</mat-icon>
+                    Blocked
+                </span>
+            </div>
+        </div>
+    </div>
+    <button mat-icon-button (click)="close()" class="text-[#8A8F98] hover:text-white">
+        <mat-icon>close</mat-icon>
+    </button>
+</div>
+
+<mat-dialog-content class="!p-0">
+    <mat-tab-group class="task-details-tabs" animationDuration="200ms">
+
+        <mat-tab label="Overview">
+            <div class="p-6 space-y-5">
+                <div>
+                    <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-2">Description</h3>
+                    <p
+                        class="text-sm text-[#EDEDED] leading-relaxed bg-[#25262B] rounded-lg p-3 border border-[#2E3035]">
+                        {{ task.description || 'No description provided.' }}
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-[#25262B] border border-[#2E3035] rounded-lg p-3">
+                        <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-2">Priority</h3>
+                        <div
+                            class="flex items-center gap-1.5 px-2 py-1 rounded border border-[#2E3035] bg-[#1C1C1E] w-fit">
+                            <mat-icon *ngIf="task.priority === 'URGENT'"
+                                class="!w-3.5 !h-3.5 !text-[14px] !text-[#FF4D4D]">report_problem</mat-icon>
+                            <mat-icon
+                                *ngIf="task.priority === 'HIGH' || task.priority === 'MEDIUM' || task.priority === 'LOW'"
+                                class="!w-3.5 !h-3.5 !text-[14px]" [ngClass]="{
+                                'text-[#F59E0B]': task.priority === 'HIGH',
+                                'text-[#F59E0B]/80': task.priority === 'MEDIUM',
+                                'text-[#8A8F98]': task.priority === 'LOW'
+                              }">signal_cellular_alt</mat-icon>
+                            <span class="text-[12px] text-[#EDEDED] font-medium leading-none">{{ task.priority }}</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#25262B] border border-[#2E3035] rounded-lg p-3">
+                        <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-2">Due Date</h3>
+                        <div class="flex items-center gap-2 text-sm text-[#EDEDED]">
+                            <mat-icon class="text-[#8A8F98] !w-4 !h-4 !text-[16px]">calendar_today</mat-icon>
+                            <span>{{ task.dueDate || 'No due date' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#25262B] border border-[#2E3035] rounded-lg p-3">
+                        <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-2">Status</h3>
+                        <div class="flex items-center gap-1.5 px-2 py-1 rounded border"
+                            [ngClass]="task.blocked ? 'bg-red-900/10 text-red-500 border-red-900/20' : 'bg-emerald-900/10 text-emerald-500 border-emerald-900/20'">
+                            <mat-icon class="!w-3 !h-3 !text-[12px]">{{ task.blocked ? 'block' : 'radio_button_checked'
+                                }}</mat-icon>
+                            <span class="text-[12px] font-medium leading-none">{{ task.blocked ? 'Blocked' : 'Active'
+                                }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </mat-tab>
+
+        <mat-tab label="Subtasks">
+            <div class="p-6">
+                <div class="mb-4 flex items-center justify-between">
+                    <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider">
+                        Subtasks ({{ subTasks.length }})
+                    </h3>
+                </div>
+
+                <form [formGroup]="newSubTaskForm" (ngSubmit)="addSubTask()" class="flex gap-2 mb-4">
+                    <mat-form-field appearance="outline" class="flex-1 linear-form-field dense-form-field">
+                        <mat-label>New subtask</mat-label>
+                        <input matInput formControlName="title" placeholder="What needs to be done?">
+                    </mat-form-field>
+                    <button mat-flat-button color="primary" type="submit" [disabled]="newSubTaskForm.invalid"
+                        class="h-[40px] mt-1 btn-press">
+                        Add
+                    </button>
+                </form>
+
+                <div class="space-y-1">
+                    <div *ngFor="let st of subTasks"
+                        class="flex items-center gap-3 p-2 hover:bg-[#1C1C1E] rounded-md group transition-all border border-transparent hover:border-[#2E3035]">
+                        <mat-checkbox [checked]="st.isDone" (change)="toggleSubTask(st)" color="primary"
+                            class="linear-checkbox"></mat-checkbox>
+                        <span [class.line-through]="st.isDone" class="text-[13px] text-[#EDEDED] flex-1"
+                            [ngClass]="{'text-[#8A8F98] opacity-60': st.isDone}">{{ st.title }}</span>
+                        <button mat-icon-button (click)="deleteSubTask(st.id)"
+                            class="opacity-0 group-hover:opacity-100 transition-opacity !w-7 !h-7 text-[#8A8F98] hover:text-red-400">
+                            <mat-icon class="!text-[16px]">delete</mat-icon>
+                        </button>
+                    </div>
+                    <div *ngIf="subTasks.length === 0"
+                        class="flex flex-col items-center justify-center py-10 text-[#8A8F98] bg-[#0F0F11] rounded-xl border border-dashed border-[#2E3035]">
+                        <mat-icon class="!w-6 !h-6 !text-[24px] mb-2 opacity-20">checklist</mat-icon>
+                        <p class="text-[12px] font-medium opacity-40">No subtasks yet</p>
+                    </div>
+                </div>
+            </div>
+        </mat-tab>
+
+        <mat-tab label="Comments">
+            <div class="p-6">
+                <div class="space-y-3 mb-5 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
+                    <div *ngFor="let comment of comments" class="flex gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-brand flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                            {{ comment.authorName?.charAt(0) || 'U' }}
+                        </div>
+                        <div class="flex-1">
+                            <div class="bg-[#25262B] border border-[#2E3035] rounded-lg p-3 group/comment relative">
+                                <div class="flex justify-between items-baseline mb-1">
+                                    <span class="text-[12px] font-semibold text-[#EDEDED]">{{ comment.authorName ||
+                                        'Unknown User' }}</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-[10px] text-[#8A8F98]">{{ comment.createdAt | date:'MMM d,
+                                            h:mm a' }}</span>
+                                        <div
+                                            class="flex items-center opacity-0 group-hover/comment:opacity-100 transition-opacity">
+                                            <button *ngIf="isMyComment(comment) && editingCommentId !== comment.id"
+                                                (click)="startEditComment(comment)"
+                                                class="p-1 hover:text-[#EDEDED] text-[#8A8F98] transition-colors">
+                                                <mat-icon class="!w-3 !h-3 !text-[12px]">edit</mat-icon>
+                                            </button>
+                                            <button *ngIf="isMyComment(comment) && editingCommentId !== comment.id"
+                                                (click)="deleteComment(comment.id)"
+                                                class="p-1 hover:text-red-400 text-[#8A8F98] transition-colors">
+                                                <mat-icon class="!w-3 !h-3 !text-[12px]">delete</mat-icon>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p *ngIf="editingCommentId !== comment.id"
+                                    class="text-sm text-[#EDEDED] whitespace-pre-wrap leading-relaxed">{{
+                                    comment.content }}</p>
+                                <ng-container *ngIf="editingCommentId === comment.id">
+                                    <textarea [(ngModel)]="editingCommentContent" rows="2"
+                                        class="w-full bg-[#1C1C1E] border border-[#5E6AD2] rounded-md px-3 py-2 text-sm text-[#EDEDED] focus:outline-none resize-none mb-2">
+                                    </textarea>
+                                    <div class="flex justify-end gap-2">
+                                        <button (click)="cancelEditComment()"
+                                            class="text-xs px-3 py-1 rounded-md border border-[#3A3C42] text-[#8A8F98] hover:text-white hover:border-[#5E6AD2] transition-colors">
+                                            Cancel
+                                        </button>
+                                        <button (click)="saveEditComment(comment)"
+                                            class="text-xs px-3 py-1 rounded-md bg-[#5E6AD2] text-white hover:bg-[#4e5ac0] transition-colors">
+                                            Save
+                                        </button>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="comments.length === 0"
+                        class="flex flex-col items-center justify-center py-8 text-[#8A8F98] bg-[#1C1C1E] rounded-xl border border-dashed border-[#2E3035]">
+                        <mat-icon class="!w-8 !h-8 !text-[32px] mb-2 text-[#3A3C42]">chat_bubble_outline</mat-icon>
+                        <p class="text-sm italic">No comments yet. Start the conversation!</p>
+                    </div>
+                </div>
+
+                <form [formGroup]="newCommentForm" (ngSubmit)="addComment()" class="relative">
+                    <mat-form-field appearance="outline" class="w-full linear-form-field">
+                        <mat-label>Write a comment...</mat-label>
+                        <textarea matInput formControlName="content" rows="2"
+                            placeholder="Share your thoughts..."></textarea>
+                    </mat-form-field>
+                    <div class="absolute bottom-4 right-2">
+                        <button mat-icon-button color="primary" type="submit" [disabled]="newCommentForm.invalid">
+                            <mat-icon>send</mat-icon>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </mat-tab>
+
+        <mat-tab label="Dependencies">
+            <div class="p-6 space-y-5">
+                <div class="bg-[#25262B] p-4 rounded-xl border border-[#2E3035]">
+                    <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-3">Add Dependency</h3>
+                    <div class="flex gap-2">
+                        <mat-form-field appearance="outline" class="flex-1 linear-form-field dense-form-field">
+                            <mat-label>Select task to block this one</mat-label>
+                            <mat-select [(ngModel)]="selectedDependencyId">
+                                <mat-option *ngFor="let t of getAvailableTasks()" [value]="t.id">
+                                    <span [ngClass]="getPriorityColor(t.priority)"
+                                        class="mr-2 px-1.5 py-0.5 rounded text-[10px]">
+                                        {{ t.priority }}
+                                    </span>
+                                    {{ t.title }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <button mat-flat-button color="primary" [disabled]="!selectedDependencyId"
+                            (click)="addDependency()" class="h-[40px] mt-1 btn-press">
+                            Add
+                        </button>
+                    </div>
+                    <p class="text-xs text-[#8A8F98] mt-2">
+                        Select a task that must be completed <strong class="text-[#EDEDED]">before</strong> this task
+                        can start.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h3
+                            class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <mat-icon class="text-red-400 !w-4 !h-4 !text-[16px]">lock</mat-icon>
+                            Blocked By ({{ task.blockingTasks?.length || 0 }})
+                        </h3>
+                        <div class="space-y-2">
+                            <div *ngFor="let dep of task.blockingTasks"
+                                class="flex items-center justify-between p-3 bg-[#25262B] border border-[#2E3035] rounded-lg hover:border-[#3A3C42] transition-colors">
+                                <div class="flex items-center gap-2 overflow-hidden">
+                                    <span [ngClass]="getPriorityColor(dep.priority)"
+                                        class="px-1.5 py-0.5 rounded text-[10px] font-bold flex-shrink-0">
+                                        {{ dep.priority }}
+                                    </span>
+                                    <span class="text-sm text-[#EDEDED] truncate" [matTooltip]="dep.title">{{ dep.title
+                                        }}</span>
+                                </div>
+                                <button mat-icon-button color="warn" class="!w-6 !h-6 flex-shrink-0 icon-btn-centered"
+                                    (click)="removeDependency(dep.id)">
+                                    <mat-icon class="!text-[16px]">close</mat-icon>
+                                </button>
+                            </div>
+                            <div *ngIf="!task.blockingTasks?.length"
+                                class="text-sm text-[#8A8F98] italic text-center py-4 bg-[#1C1C1E] rounded-lg border border-dashed border-[#2E3035]">
+                                No prerequisites.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3
+                            class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <mat-icon class="text-orange-400 !w-4 !h-4 !text-[16px]">block</mat-icon>
+                            Blocking ({{ task.blockedTasks?.length || 0 }})
+                        </h3>
+                        <div class="space-y-2">
+                            <div *ngFor="let dep of task.blockedTasks"
+                                class="flex items-center justify-between p-3 bg-[#25262B] border border-[#2E3035] rounded-lg">
+                                <div class="flex items-center gap-2 overflow-hidden">
+                                    <span [ngClass]="getPriorityColor(dep.priority)"
+                                        class="px-1.5 py-0.5 rounded text-[10px] font-bold flex-shrink-0">
+                                        {{ dep.priority }}
+                                    </span>
+                                    <span class="text-sm text-[#EDEDED] truncate" [matTooltip]="dep.title">{{ dep.title
+                                        }}</span>
+                                </div>
+                            </div>
+                            <div *ngIf="!task.blockedTasks?.length"
+                                class="text-sm text-[#8A8F98] italic text-center py-4 bg-[#1C1C1E] rounded-lg border border-dashed border-[#2E3035]">
+                                This task is not blocking others.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </mat-tab>
+
+        <mat-tab label="Assignments" *ngIf="isTeamProject()">
+            <div class="p-6">
+                <div class="mb-4 flex items-center justify-between">
+                    <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider">
+                        Assignments ({{ assignments.length }})
+                    </h3>
+
+                    <div class="relative">
+                        <button
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#8A8F98] hover:text-white hover:bg-[#2C2D32] rounded-lg border border-[#2E3035] transition-colors disabled:opacity-40"
+                            (click)="showAssignmentDropdown = !showAssignmentDropdown"
+                            [disabled]="getUnassignedMembers().length === 0">
+                            <mat-icon class="!w-4 !h-4 !text-[16px]">person_add</mat-icon>
+                            Assign Member
+                        </button>
+                        <div *ngIf="showAssignmentDropdown"
+                            class="absolute right-0 top-10 w-64 bg-[#25262B] shadow-2xl rounded-xl border border-[#2E3035] z-50 overflow-hidden">
+                            <div
+                                class="p-2 border-b border-[#2E3035] text-[10px] font-bold text-[#8A8F98] uppercase tracking-wider">
+                                Assign to
+                            </div>
+                            <div class="max-h-48 overflow-y-auto custom-scrollbar">
+                                <button *ngFor="let member of getUnassignedMembers()" (click)="assignMember(member)"
+                                    class="w-full text-left px-3 py-2 hover:bg-[#1C1C1E] flex items-center gap-2.5 transition-colors">
+                                    <div
+                                        class="w-6 h-6 rounded-full bg-[#2C2D32] border border-white/5 text-[#EDEDED] flex items-center justify-center font-bold text-[10px]">
+                                        {{ member.userName.charAt(0) }}
+                                    </div>
+                                    <div class="flex-1 overflow-hidden py-1.5">
+                                        <div class="text-[13px] text-[#EDEDED] truncate font-medium">{{ member.userName
+                                            }}</div>
+                                        <div class="text-[11px] text-[#8A8F98] truncate">{{ member.userEmail }}</div>
+                                    </div>
+                                </button>
+                                <div *ngIf="getUnassignedMembers().length === 0"
+                                    class="p-3 text-center text-xs text-[#8A8F98] italic">
+                                    All members assigned
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="showAssignmentDropdown" class="fixed inset-0 z-40 bg-transparent"
+                            (click)="showAssignmentDropdown = false"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div *ngFor="let assignment of assignments"
+                        class="flex items-center justify-between p-3 bg-[#25262B] border border-[#2E3035] rounded-xl hover:border-[#3A3C42] transition-all group">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center font-bold text-sm">
+                                {{ assignment.userName?.charAt(0) || 'U' }}
+                            </div>
+                            <div>
+                                <div class="font-medium text-sm text-white">{{ assignment.userName }}</div>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[10px] text-[#8A8F98]">{{ assignment.userEmail }}</span>
+                                    <span
+                                        class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#1C1C1E] text-[#8A8F98] border border-[#3A3C42]">
+                                        {{ assignment.roleInTask }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button mat-icon-button (click)="removeAssignment(assignment)"
+                            class="text-[#8A8F98] opacity-0 group-hover:opacity-100 hover:text-red-400 hover:bg-red-900/20 transition-all !w-8 !h-8 !flex !items-center !justify-center rounded-lg"
+                            matTooltip="Remove Assignment">
+                            <mat-icon
+                                class="!text-[16px] !w-[16px] !h-[16px] leading-none m-0">remove_circle_outline</mat-icon>
+                        </button>
+                    </div>
+
+                    <div *ngIf="assignments.length === 0"
+                        class="flex flex-col items-center justify-center py-8 text-[#8A8F98] bg-[#1C1C1E] rounded-xl border border-dashed border-[#2E3035]">
+                        <mat-icon class="text-[#3A3C42] mb-2 !w-8 !h-8 !text-[32px]">assignment_ind</mat-icon>
+                        <p class="text-xs text-[#8A8F98]">No one assigned yet.</p>
+                    </div>
+                </div>
+            </div>
+        </mat-tab>
+
+        <mat-tab label="Attachments">
+            <div class="p-6">
+                <div class="mb-4 flex items-center justify-between">
+                    <h3 class="text-[11px] font-bold text-[#8A8F98] uppercase tracking-wider">
+                        Attachments ({{ attachments.length }})
+                    </h3>
+                    <div>
+                        <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none">
+                        <button mat-button type="button" (click)="fileInput.click()"
+                            class="!text-[12px] text-brand hover:bg-brand/10">
+                            <mat-icon class="!text-[14px] !w-3.5 !h-3.5">upload</mat-icon>
+                            Upload File
+                        </button>
+                    </div>
+                </div>
+
+                <div *ngIf="uploadProgress !== null"
+                    class="w-full bg-[#2C2D32] rounded-full h-1.5 mt-1 mb-4 overflow-hidden">
+                    <div class="bg-brand h-full transition-all duration-300" [style.width.%]="uploadProgress"></div>
+                </div>
+
+                <div class="space-y-2">
+                    <div *ngFor="let file of attachments"
+                        class="flex items-center justify-between p-3 bg-[#25262B] border border-[#2E3035] rounded-xl hover:border-[#3A3C42] transition-all group">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-[#1C1C1E] text-[#8A8F98] flex items-center justify-center">
+                                <mat-icon class="!text-[18px]">insert_drive_file</mat-icon>
+                            </div>
+                            <div>
+                                <div class="font-medium text-sm text-white line-clamp-1 truncate max-w-[300px]"
+                                    [matTooltip]="file.fileName">
+                                    {{ file.fileName }}
+                                </div>
+                                <div class="flex items-center gap-2 mt-0.5 text-[10px] text-[#8A8F98]">
+                                    <span>{{ formatFileSize(file.fileSize) }}</span>
+                                    <span>•</span>
+                                    <span>Added by {{ file.uploadedByUserName }}</span>
+                                    <span>•</span>
+                                    <span>{{ file.createdAt | date:'short' }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-1">
+                            <button mat-icon-button (click)="downloadAttachment(file)"
+                                class="!w-8 !h-8 attachment-action-btn text-[#8A8F98] hover:text-brand hover:bg-brand/10 transition-all rounded-full"
+                                matTooltip="Download">
+                                <mat-icon class="!text-[18px]">download</mat-icon>
+                            </button>
+                            <button mat-icon-button (click)="deleteAttachment(file.id)"
+                                class="!w-8 !h-8 attachment-action-btn text-[#8A8F98] opacity-0 group-hover:opacity-100 hover:text-red-400 hover:bg-red-500/10 transition-all rounded-full"
+                                matTooltip="Delete">
+                                <mat-icon class="!text-[18px]">delete</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div *ngIf="attachments.length === 0 && uploadProgress === null"
+                        class="flex flex-col items-center justify-center py-12 text-[#8A8F98] bg-[#1C1C1E] rounded-xl border border-dashed border-[#2E3035]">
+                        <mat-icon class="text-[#3A3C42] mb-2 !w-8 !h-8 !text-[48px] h-12">description</mat-icon>
+                        <p class="text-xs text-[#8A8F98]">No attachments found for this task.</p>
+                    </div>
+                </div>
+            </div>
+        </mat-tab>
+
+    </mat-tab-group>
+</mat-dialog-content>

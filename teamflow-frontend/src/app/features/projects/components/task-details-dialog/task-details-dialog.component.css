@@ -1,0 +1,66 @@
+::ng-deep .task-details-tabs {
+    .mat-mdc-tab-body-content {
+        overflow: visible !important;
+    }
+
+    .mat-mdc-tab-header {
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .mat-mdc-tab {
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+    }
+}
+
+::ng-deep .mat-mdc-dialog-content {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.space-y-1>*+* {
+    margin-top: 0.25rem;
+}
+
+.space-y-2>*+* {
+    margin-top: 0.5rem;
+}
+
+.space-y-3>*+* {
+    margin-top: 0.75rem;
+}
+
+.space-y-4>*+* {
+    margin-top: 1rem;
+}
+
+/* Centering for icon buttons */
+.icon-btn-centered {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+}
+
+.icon-btn-centered mat-icon {
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: normal !important;
+}
+
+/* Centering for attachment buttons */
+.attachment-action-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+}
+
+.attachment-action-btn mat-icon {
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
