@@ -19,8 +19,7 @@ import { Project, ProjectColumn, Task } from '../../../shared/models';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
-import { TaskCreateEditComponent } from '../modals/task-create-edit.component';
-import { TaskDetailsDialogComponent } from '../modals/task-details-dialog.component';
+import { TaskDetailsDialogComponent } from '../components/task-details-dialog/task-details-dialog.component';
 import { CreateColumnDialogComponent } from '../components/create-column-dialog/create-column-dialog.component';
 import { CreateTaskDialogComponent } from '../components/create-task-dialog/create-task-dialog.component';
 import { EditTaskDialogComponent } from '../components/edit-task-dialog/edit-task-dialog.component';
@@ -384,17 +383,6 @@ export class BoardPageComponent implements OnInit {
     return this.activeFilters.priorities.includes(priority);
   }
 
-  getAvailableAssignees(): any[] {
-    const assignees = new Map<number, any>();
-    Object.values(this.tasksByColumn).flat().forEach(task => {
-      task.assignments?.forEach(a => {
-        if (!assignees.has(a.userId)) {
-          assignees.set(a.userId, { id: a.userId, name: a.userName, email: a.userEmail });
-        }
-      });
-    });
-    return Array.from(assignees.values());
-  }
 
   drop(event: CdkDragDrop<Task[]>, targetColumnId: number): void {
     // Same column reorder
@@ -438,29 +426,6 @@ export class BoardPageComponent implements OnInit {
     });
   }
 
-
-  moveTaskFallback(task: Task, targetColumnId: number): void {
-    if (task.columnId === targetColumnId || task.columnId === undefined) return;
-
-    const previousList = this.tasksByColumn[task.columnId];
-    const targetList = this.tasksByColumn[targetColumnId] || [];
-
-    if (previousList) {
-      const index = previousList.findIndex((t: Task) => t.id === task.id);
-      if (index !== -1) {
-        previousList.splice(index, 1);
-        targetList.push({ ...task, columnId: targetColumnId });
-        this.tasksByColumn[targetColumnId] = targetList;
-      }
-    }
-
-    this.taskService.moveTask(task.id, targetColumnId).subscribe({
-      error: (err) => {
-        console.error('Fallback move failed', err);
-        this.loadColumns(this.project!.id);
-      }
-    });
-  }
   openAddColumnDialog(): void {
     const dialogRef = this.dialog.open(CreateColumnDialogComponent, {
       width: '420px',
