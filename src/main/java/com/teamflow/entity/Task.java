@@ -50,22 +50,22 @@ public class Task {
 
     private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubTask> subTasks = new ArrayList<>();
 
-    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TaskAssignment> assignments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "dependent", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "dependent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TaskDependency> dependenciesAsDependent = new ArrayList<>();
 
-    @OneToMany(mappedBy = "prerequisite", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "prerequisite", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TaskDependency> dependenciesAsPrerequisite = new ArrayList<>();
 
     @PrePersist

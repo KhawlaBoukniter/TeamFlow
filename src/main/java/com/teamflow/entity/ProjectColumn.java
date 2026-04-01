@@ -11,6 +11,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.CascadeType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -44,7 +45,7 @@ public class ProjectColumn {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
-    @OneToMany(mappedBy = "column", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "column", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks = new ArrayList<>();
 
     @jakarta.persistence.Column(nullable = false, updatable = false)
