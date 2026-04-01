@@ -1,0 +1,181 @@
+<div class="h-full flex flex-col bg-[#09090b] page-enter overflow-hidden">
+  <div class="h-16 shrink-0 border-b border-[#1C1C1E] px-8 flex items-center justify-between bg-[#09090b]/80 backdrop-blur-md sticky top-0 z-10">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-[#5E6AD2]/10 flex items-center justify-center">
+        <mat-icon class="text-[#5E6AD2] !text-[20px]">adjust</mat-icon>
+      </div>
+      <h1 class="text-[15px] font-bold text-white tracking-tight">My Issues</h1>
+      <span class="px-2 py-0.5 rounded-full bg-[#1C1C1E] border border-[#2E3035] text-[10px] font-bold text-[#8A8F98] ml-2">
+        {{ filteredTasks.length }}
+      </span>
+    </div>
+    
+    <div class="flex items-center gap-3">
+      <!-- Search input -->
+      <div class="relative flex items-center group">
+        <mat-icon class="absolute left-2.5 !w-3.5 !h-3.5 !text-[14px] text-[#8A8F98] group-focus-within:text-white transition-colors">search</mat-icon>
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Search issues..."
+            class="bg-[#1C1C1E] border border-[#2E3035] rounded-md pl-8 pr-3 py-1.5 text-[12px] text-white placeholder-[#8A8F98] focus:outline-none focus:border-[#4A4B50] focus:bg-[#25262B] transition-all w-[200px]">
+      </div>
+
+      <button mat-icon-button [matMenuTriggerFor]="filterMenu" 
+              [class.text-brand]="hasActiveFilters"
+              class="!text-[#8A8F98] hover:!text-white transition-colors relative">
+        <mat-icon class="!text-[20px]">filter_list</mat-icon>
+        <span *ngIf="hasActiveFilters" class="absolute top-2 right-2 w-2 h-2 bg-brand rounded-full border border-[#09090b]"></span>
+      </button>
+
+      <mat-menu #filterMenu="matMenu" panelClass="linear-menu">
+        <!-- Priority Submenu -->
+        <button mat-menu-item [matMenuTriggerFor]="priorityMenu">
+            <mat-icon>signal_cellular_alt</mat-icon>
+            <span>Priority</span>
+            <span *ngIf="activeFilters.priorities.length" class="linear-filter-count">
+                {{ activeFilters.priorities.length }}
+            </span>
+        </button>
+
+        <!-- Projects Submenu -->
+        <button mat-menu-item [matMenuTriggerFor]="projectMenu">
+            <mat-icon>folder</mat-icon>
+            <span>Projects</span>
+            <span *ngIf="activeFilters.projects.length" class="linear-filter-count">
+                {{ activeFilters.projects.length }}
+            </span>
+        </button>
+
+        <mat-divider *ngIf="hasActiveFilters"></mat-divider>
+        <button mat-menu-item (click)="clearFilters()" *ngIf="hasActiveFilters">
+            <mat-icon class="!text-red-400">block</mat-icon>
+            <span class="text-red-400">Clear all filters</span>
+        </button>
+      </mat-menu>
+
+      <mat-menu #priorityMenu="matMenu" panelClass="linear-menu">
+        <button mat-menu-item (click)="togglePriority('HIGH'); $event.stopPropagation()">
+            <mat-icon [style.color]="isPrioritySelected('HIGH') ? '#818CF8' : '#F59E0B'">signal_cellular_alt</mat-icon>
+            <span [class.text-white]="isPrioritySelected('HIGH')">High</span>
+        </button>
+        <button mat-menu-item (click)="togglePriority('MEDIUM'); $event.stopPropagation()">
+            <mat-icon [style.color]="isPrioritySelected('MEDIUM') ? '#818CF8' : '#F59E0B'">signal_cellular_alt</mat-icon>
+            <span [class.text-white]="isPrioritySelected('MEDIUM')">Medium</span>
+        </button>
+        <button mat-menu-item (click)="togglePriority('LOW'); $event.stopPropagation()">
+            <mat-icon [style.color]="isPrioritySelected('LOW') ? '#818CF8' : '#8A8F98'">signal_cellular_alt</mat-icon>
+            <span [class.text-white]="isPrioritySelected('LOW')">Low</span>
+        </button>
+      </mat-menu>
+
+      <mat-menu #projectMenu="matMenu" panelClass="linear-menu">
+        <button mat-menu-item *ngFor="let p of availableProjects" (click)="toggleProject(p); $event.stopPropagation()">
+            <mat-icon>{{ isProjectSelected(p) ? 'check' : '' }}</mat-icon>
+            <span [class.text-white]="isProjectSelected(p)">{{ p }}</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+
+  <div class="flex-1 overflow-y-auto custom-scrollbar px-8 py-6">
+    
+    <!-- Loading State -->
+    <div *ngIf="loading" class="space-y-4">
+      <div *ngFor="let i of [1,2,3,4,5]" class="h-14 bg-[#111113] border border-[#1C1C1E] rounded-xl animate-pulse"></div>
+    </div>
+
+    <!-- Task List -->
+    <div *ngIf="!loading && filteredTasks.length > 0" class="space-y-8">
+      <div *ngFor="let group of groupedFilteredTasks | keyvalue" class="space-y-3">
+        <div class="flex items-center gap-2 px-1">
+          <mat-icon class="!text-[14px] !w-3.5 !h-3.5 text-[#5E6AD2]">folder_special</mat-icon>
+          <h2 class="text-[11px] font-bold text-[#5E6AD2] uppercase tracking-[0.1em]">{{ group.key }}</h2>
+        </div>
+
+        <div class="bg-[#111113] border border-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm">
+          <div *ngFor="let task of group.value; let last = last" 
+               (click)="openBoard(task)"
+               class="group flex items-center gap-5 px-5 py-3.5 hover:bg-[#1A1A1D] transition-all cursor-pointer border-b border-[#1C1C1E] last:border-0"
+               [ngClass]="{'opacity-70': task.isCompleted}">
+            
+            <!-- Priority Icon -->
+            <div class="shrink-0 flex items-center justify-center transition-all duration-300" 
+                 [ngClass]="task.isCompleted ? 'opacity-30 grayscale scale-90' : getPriorityClass(task.priority)">
+              <mat-icon class="!text-[18px] !w-[18px] !h-[18px]">
+                {{ task.isCompleted ? 'verified' : getPriorityIcon(task.priority) }}
+              </mat-icon>
+            </div>
+
+            <!-- Task Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="text-[13px] font-semibold transition-colors truncate"
+                      [ngClass]="task.isCompleted ? 'text-[#4A4B4E] line-through decoration-[#3A3C42]' : 'text-[#EDEDED] group-hover:text-white'">
+                  {{ task.title }}
+                </span>
+                <span *ngIf="task.blocked && !task.isCompleted" class="px-1.5 py-0.5 rounded bg-red-500/10 text-red-500 text-[9px] font-bold uppercase tracking-wider flex items-center gap-0.5">
+                  <mat-icon class="!text-[10px] !w-[10px] !h-[10px]">lock</mat-icon>
+                  Blocked
+                </span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-[11px] font-bold uppercase tracking-wider" 
+                      [ngClass]="task.isCompleted ? 'text-emerald-500/80 bg-emerald-500/5 px-2 py-0.5 rounded-md border border-emerald-500/10' : 'text-[#5E6AD2]'">
+                  {{ task.isCompleted ? 'Done' : (task.columnName || 'Active') }}
+                </span>
+                <span class="w-1 h-1 rounded-full bg-[#2E3035]"></span>
+                <span class="text-[11px] transition-colors" [ngClass]="task.isCompleted ? 'text-[#3A3C42] line-through decoration-[#3A3C42]' : 'text-[#8A8F98]'">
+                  {{ (task.description || '') | slice:0:60 }}{{ (task.description && task.description.length > 60) ? '...' : '' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Metadata -->
+            <div class="shrink-0 flex items-center gap-6">
+              <!-- Due Date -->
+              <div *ngIf="task.dueDate && !task.isCompleted" class="flex flex-col items-end">
+                <span class="text-[10px] text-[#3A3C42] uppercase tracking-wider font-bold mb-0.5">Due</span>
+                <span class="text-[11px] font-medium" [ngClass]="isOverdue(task.dueDate) ? 'text-red-400' : 'text-[#8A8F98]'">
+                  {{ task.dueDate | date:'MMM d' }}
+                </span>
+              </div>
+
+              <div *ngIf="task.isCompleted" class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                 <mat-icon class="!text-[12px] !w-3 !h-3 text-emerald-500">check</mat-icon>
+                 <span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Finished</span>
+              </div>
+
+              <!-- Navigation Arrow -->
+              <mat-icon class="!text-[18px] !w-[18px] !h-[18px] text-[#2E3035] group-hover:text-[#5E6AD2] transition-colors">
+                chevron_right
+              </mat-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State (No filtered results) -->
+    <div *ngIf="!loading && tasks.length > 0 && filteredTasks.length === 0" class="flex flex-col items-center justify-center text-center py-20">
+      <mat-icon class="!text-[48px] !w-12 !h-12 text-[#3A3C42] mb-4">search_off</mat-icon>
+      <h2 class="text-white font-bold mb-1">No matching issues</h2>
+      <p class="text-[#8A8F98] text-sm mb-6">Try adjusting your filters or search query.</p>
+      <button (click)="clearFilters()" class="px-4 py-2 bg-[#1C1C1E] text-white text-xs rounded-lg border border-[#2E3035] hover:bg-[#25262B]">
+        Clear Filters
+      </button>
+    </div>
+
+    <!-- Empty State (No tasks at all) -->
+    <div *ngIf="!loading && tasks.length === 0" class="flex flex-col items-center justify-center text-center py-20">
+      <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#1C1C1E] to-[#111113] border border-[#2E3035] flex items-center justify-center mb-6 shadow-xl relative overflow-hidden group">
+        <div class="absolute inset-0 bg-[#5E6AD2]/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <mat-icon class="!text-[40px] !w-10 !h-10 text-[#3A3C42] group-hover:text-[#5E6AD2] transition-colors">check_circle_outline</mat-icon>
+      </div>
+      <h2 class="text-xl font-bold text-white mb-2">You're all caught up!</h2>
+      <p class="text-[13px] text-[#8A8F98] max-w-sm leading-relaxed">
+        No issues assigned to you. When tasks are assigned, they'll show up here for centralized tracking.
+      </p>
+      <button routerLink="/projects" class="mt-8 px-6 py-2.5 bg-[#1C1C1E] hover:bg-[#25262B] text-white text-[13px] font-medium rounded-xl border border-[#2E3035] transition-all active:scale-[0.98]">
+        Browse Projects
+      </button>
+    </div>
+  </div>
+</div>

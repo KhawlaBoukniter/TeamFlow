@@ -1,0 +1,327 @@
+<div class="chat-panel" 
+     [class.open]="isOpen"
+     [class.resizing]="isResizing"
+     [style.width.px]="chatWidth"
+     [style.right.px]="isOpen ? 0 : -(chatWidth + 20)">
+
+  <div class="resize-handle" (mousedown)="startResizing($event)"></div>
+  <div class="ambient-glow"></div>
+  <div class="chat-header">
+    <div class="header-left">
+      <div class="channel-badge">
+        <span class="hash">#</span>
+      </div>
+      <div class="header-text">
+        <h3>general</h3>
+        <div class="header-meta">
+          <span class="pulse-dot" [class.live]="isConnected"></span>
+          <span class="meta-text">{{ isConnected ? 'Live' : 'Reconnecting...' }}</span>
+          <span class="meta-sep">·</span>
+          <span class="meta-text">{{ messages.length }} messages</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" 
+              [class.active]="showMembersPanel" 
+              (click)="toggleMembersPanel()" 
+              matTooltip="Members">
+        <mat-icon>group</mat-icon>
+      </button>
+      <button class="header-btn close" (click)="toggle()" matTooltip="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="messages-area" #messagesContainer (scroll)="onScroll()">
+    <div *ngIf="messages.length === 0" class="welcome-card">
+      <div class="welcome-glow"></div>
+      <div class="welcome-content">
+        <div class="welcome-emoji">💬</div>
+        <h3>Start the conversation</h3>
+        <p>This is the beginning of <strong>#general</strong>. Share ideas and collaborate with your team.</p>
+        <div class="welcome-hints">
+          <div class="hint"><mat-icon>keyboard_return</mat-icon> Enter to send</div>
+          <div class="hint"><mat-icon>keyboard</mat-icon> Shift+Enter for new line</div>
+        </div>
+      </div>
+    </div>
+
+    <ng-container *ngFor="let msg of messages; let i = index; trackBy: trackMessage">
+      <div class="date-chip" *ngIf="shouldShowDate(i)">
+        <span>{{ formatDate(msg.createdAt) }}</span>
+      </div>
+
+      <div class="message"
+           [id]="'msg-' + msg.id"
+           [class.compact]="isCompact(i)"
+           [class.first-of-group]="!isCompact(i)"
+           [class.highlighted]="highlightedMessageId === msg.id">
+
+        <ng-container *ngIf="!isCompact(i)">
+          <div class="msg-row">
+            <div class="avatar" [style.background]="getAvatarGradient(msg.senderName)">
+              {{ getInitial(msg.senderName) }}
+            </div>
+            <div class="msg-body">
+              <!-- Reply Context -->
+              <div class="reply-context" *ngIf="msg.parentMessageId" (click)="scrollToMessage(msg.parentMessageId)">
+                <mat-icon>reply</mat-icon>
+                <span class="reply-author" [style.color]="getNameColor(msg.parentMessageSenderName)">
+                  @{{ msg.parentMessageSenderName }}
+                </span>
+                <span class="reply-text">{{ msg.parentMessageContent }}</span>
+              </div>
+
+              <div class="msg-content">
+                <div class="msg-meta">
+                  <span class="author" [style.color]="getNameColor(msg.senderName)">
+                    {{ msg.senderId === currentUserId ? 'You' : (msg.senderName || 'User') }}
+                  </span>
+                  <span class="timestamp">{{ formatTime(msg.createdAt) }}</span>
+                </div>
+                <p class="msg-text" *ngIf="msg.content" [innerHTML]="msg.safeContent"></p>
+
+                <!-- Attachments in Message -->
+                <div class="msg-attachments" *ngIf="msg.attachments && msg.attachments.length > 0">
+                  <div class="attachment-item" *ngFor="let att of msg.attachments">
+                    <!-- Image Preview -->
+                    <div class="image-preview" *ngIf="isImage(att.fileType)" (click)="openZoom(att)" [matTooltip]="'View ' + att.fileName">
+                      <img *ngIf="loadedImageUrls.get(att.id) as src" [src]="src" [alt]="att.fileName">
+                      <div class="image-loading" *ngIf="!loadedImageUrls.has(att.id)">
+                        <mat-icon class="spin">refresh</mat-icon>
+                      </div>
+                      <div class="image-overlay">
+                        <mat-icon>zoom_in</mat-icon>
+                      </div>
+                    </div>
+
+                    <!-- File Card (Non-Image) -->
+                    <div class="msg-attachment" *ngIf="!isImage(att.fileType)" (click)="downloadAttachment(att)">
+                      <div class="att-icon">
+                        <mat-icon>{{ getFileIcon(att.fileType) }}</mat-icon>
+                      </div>
+                      <div class="att-info">
+                        <span class="att-name">{{ att.fileName }}</span>
+                        <span class="att-size">{{ formatSize(att.fileSize) }}</span>
+                      </div>
+                      <mat-icon class="att-download">download</mat-icon>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Message Actions (Hover) -->
+                <div class="message-actions">
+                  <button class="action-btn" (click)="setReply(msg)" matTooltip="Reply">
+                    <mat-icon>reply</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Compact (no avatar) -->
+        <ng-container *ngIf="isCompact(i)">
+          <div class="msg-row-compact">
+            <span class="hover-ts">{{ formatTime(msg.createdAt) }}</span>
+            <p class="msg-text compact-text" *ngIf="msg.content" [innerHTML]="msg.safeContent"></p>
+            
+            <!-- Attachments in Compact Message -->
+            <div class="msg-attachments" *ngIf="msg.attachments && msg.attachments.length > 0">
+              <div class="attachment-item" *ngFor="let att of msg.attachments">
+                <!-- Image Preview -->
+                <div class="image-preview" *ngIf="isImage(att.fileType)" (click)="openZoom(att)" [matTooltip]="'View ' + att.fileName">
+                  <img *ngIf="loadedImageUrls.get(att.id) as src" [src]="src" [alt]="att.fileName">
+                  <div class="image-loading" *ngIf="!loadedImageUrls.has(att.id)">
+                    <mat-icon class="spin">refresh</mat-icon>
+                  </div>
+                  <div class="image-overlay">
+                    <mat-icon>zoom_in</mat-icon>
+                  </div>
+                </div>
+
+                <!-- File Card (Non-Image) -->
+                <div class="msg-attachment" *ngIf="!isImage(att.fileType)" (click)="downloadAttachment(att)">
+                  <div class="att-icon">
+                    <mat-icon>{{ getFileIcon(att.fileType) }}</mat-icon>
+                  </div>
+                  <div class="att-info">
+                    <span class="att-name">{{ att.fileName }}</span>
+                    <span class="att-size">{{ formatSize(att.fileSize) }}</span>
+                  </div>
+                  <mat-icon class="att-download">download</mat-icon>
+                </div>
+              </div>
+            </div>
+
+            <!-- Message Actions (Hover) -->
+            <div class="message-actions">
+              <button class="action-btn" (click)="setReply(msg)" matTooltip="Reply">
+                <mat-icon>reply</mat-icon>
+              </button>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </ng-container>
+
+    <!-- New Messages Indicator -->
+    <div class="new-messages-badge" *ngIf="unreadSinceScroll > 0" (click)="jumpToBottom()">
+      <mat-icon>keyboard_arrow_down</mat-icon>
+      <span>{{ unreadSinceScroll }} {{ unreadSinceScroll === 1 ? 'nouveau' : 'nouveaux' }} message{{ unreadSinceScroll > 1 ? 's' : '' }}</span>
+    </div>
+
+    <!-- Scroll To Bottom Button (Simple Arrow when scrolled up but no new msgs) -->
+    <button class="scroll-bottom-btn" *ngIf="unreadSinceScroll === 0 && !isNearBottom" (click)="jumpToBottom()">
+      <mat-icon>keyboard_arrow_down</mat-icon>
+    </button>
+  </div>
+
+  <!-- Members Panel Overlay -->
+  <div class="members-panel" *ngIf="showMembersPanel">
+    <div class="members-pane-header">
+      <button class="back-btn" (click)="showMembersPanel = false">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3>Project Members</h3>
+      <span class="member-count">{{ projectMembers.length }}</span>
+    </div>
+
+    <div class="members-content">
+      <div class="members-section-label">Members</div>
+      <div class="members-list">
+        <div class="member-item" *ngFor="let member of projectMembers">
+          <div class="avatar-container">
+            <div class="avatar" [style.background]="getAvatarGradient(member.userName)">
+              {{ getInitial(member.userName) }}
+            </div>
+            <div class="status-indicator online"></div>
+          </div>
+          <div class="member-info">
+            <div class="member-name-row">
+              <span class="member-name">{{ member.userName }}</span>
+              <span class="self-tag" *ngIf="member.userId === currentUserId">You</span>
+            </div>
+            <div class="member-role-row">
+              <span class="member-role" [class.manager]="member.roleInProject === 'MANAGER'">
+                {{ member.roleInProject }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="typing-bar" *ngIf="typingUsers.length > 0">
+    <div class="typing-dots"><span></span><span></span><span></span></div>
+    <span>{{ typingLabel }}</span>
+  </div>
+
+  <!-- Emoji picker -->
+  <div class="emoji-picker" *ngIf="showEmojiPicker">
+    <div class="emoji-grid">
+      <button *ngFor="let e of emojis" class="emoji-btn" (click)="insertEmoji(e)">{{ e }}</button>
+    </div>
+  </div>
+
+  <!-- Reply Preview -->
+  <div class="reply-preview-bar" *ngIf="replyToMessage">
+    <div class="reply-info">
+      <span class="replying-to">Replying to <strong>{{ replyToMessage.senderName }}</strong></span>
+      <p class="preview-text">{{ replyToMessage.content }}</p>
+    </div>
+    <button class="cancel-reply" (click)="cancelReply()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- File Previews -->
+  <div class="file-previews" *ngIf="selectedFiles.length > 0">
+    <div class="preview-card" *ngFor="let f of selectedFiles; let idx = index">
+      <div class="preview-icon">
+        <mat-icon>{{ getFileIcon(f.type) }}</mat-icon>
+      </div>
+      <div class="preview-info">
+        <span class="preview-name">{{ f.name }}</span>
+        <span class="preview-size">{{ formatSize(f.size) }}</span>
+      </div>
+      <button class="remove-file" (click)="removeFile(idx)">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="input-area">
+    <!-- Mention List (inside input-area for correct absolute positioning) -->
+    <div class="mention-list" *ngIf="showMentionList">
+      <div 
+        class="mention-item" 
+        *ngFor="let member of filteredMembers; let i = index" 
+        (mousedown)="insertMention(member); $event.preventDefault()">
+        <div class="mini-avatar" [style.background]="member.userName === 'everyone' ? '#EAB308' : getAvatarGradient(member.userName)">
+          {{ member.userName === 'everyone' ? '🚀' : getInitial(member.userName) }}
+        </div>
+        <span class="mention-name">{{ member.userName }}</span>
+        <span class="mention-role">{{ member.roleInProject }}</span>
+      </div>
+      <div *ngIf="filteredMembers.length === 0" class="mention-empty">No members found</div>
+    </div>
+    <div class="input-box" [class.active]="inputFocused">
+      <textarea
+        rows="1"
+        [(ngModel)]="newMessage"
+        (keydown.enter)="handleKeyDown($event)"
+        (keydown)="onInputKeyDown($event)"
+        (input)="onInputChange($event)"
+        (focus)="inputFocused = true"
+        (blur)="onBlur()"
+        placeholder="Message #general..."
+        class="msg-input"
+        [disabled]="!isConnected"
+        cdkTextareaAutosize
+        #autosize="cdkTextareaAutosize"
+        #msgInput></textarea>
+      <div class="input-bottom">
+        <div class="input-tools">
+          <input type="file" #fileInput hidden multiple (change)="onFileSelected($event)">
+          <button class="tool-btn" (click)="fileInput.click()" matTooltip="Attach file">
+            <mat-icon>add_circle_outline</mat-icon>
+          </button>
+          <button class="tool-btn" [class.tool-active]="showEmojiPicker" (click)="showEmojiPicker = !showEmojiPicker" matTooltip="Emoji">
+            <mat-icon>mood</mat-icon>
+          </button>
+        </div>
+        <button class="send-btn"
+                (click)="send()"
+                [disabled]="(!newMessage.trim() && selectedFiles.length === 0) || !isConnected"
+                [class.ready]="(newMessage.trim() || selectedFiles.length > 0) && isConnected">
+          <mat-icon>arrow_upward</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox Popup -->
+  <div class="lightbox-overlay" *ngIf="zoomedImageUrl" (click)="closeZoom()">
+    <div class="lightbox-content" (click)="$event.stopPropagation()">
+      <div class="lightbox-header">
+        <span class="lightbox-title">{{ zoomedImage?.fileName }}</span>
+        <div class="lightbox-actions">
+          <button class="lightbox-btn" (click)="downloadAttachment(zoomedImage!)" matTooltip="Download">
+            <mat-icon>download</mat-icon>
+          </button>
+          <button class="lightbox-btn close" (click)="closeZoom()" matTooltip="Close">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+      <div class="lightbox-image-container">
+        <img [src]="zoomedImageUrl" [alt]="zoomedImage?.fileName" class="lightbox-image">
+      </div>
+    </div>
+  </div>
+</div>

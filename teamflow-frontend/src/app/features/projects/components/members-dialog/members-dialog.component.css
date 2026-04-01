@@ -1,0 +1,3 @@
+.member-item {
+      @apply flex items-center justify-between p-3 border-b border-gray-100 hover:bg-gray-50;
+    }

@@ -10,17 +10,7 @@ import { inject, HostListener } from '@angular/core';
   selector: 'app-main-layout',
   standalone: true,
   imports: [CommonModule, RouterOutlet, SidebarComponent, MatDialogModule],
-  template: `
-    <div class="flex h-screen w-full bg-[#121214] text-white font-sans overflow-hidden">
-      <!-- Sidebar (Fixed width) -->
-      <app-sidebar class="w-[240px] shrink-0 h-full z-20"></app-sidebar>
-
-      <!-- Main Content Area: scrolling is handled by each page -->
-      <main class="flex-1 h-full overflow-hidden flex flex-col relative min-w-0">
-        <router-outlet></router-outlet>
-      </main>
-    </div>
-  `
+  templateUrl: './main-layout.component.html'
 })
 export class MainLayoutComponent {
   private dialog = inject(MatDialog);
@@ -34,7 +24,6 @@ export class MainLayoutComponent {
   }
 
   openSearch() {
-    // Prevent multiple instances
     if (this.dialog.openDialogs.length > 0) return;
 
     this.dialog.open(CommandPaletteComponent, {

@@ -31,11 +31,7 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, of, map } fr
         FormsModule
     ],
     templateUrl: './members-dialog.component.html',
-    styles: [`
-    .member-item {
-      @apply flex items-center justify-between p-3 border-b border-gray-100 hover:bg-gray-50;
-    }
-  `]
+    styleUrl: './members-dialog.component.css'
 })
 export class MembersDialogComponent implements OnInit {
     members: Membership[] = [];

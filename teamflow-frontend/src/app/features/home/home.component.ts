@@ -8,14 +8,6 @@ import { MatIconModule } from '@angular/material/icon';
     standalone: true,
     imports: [CommonModule, RouterModule, MatIconModule],
     templateUrl: './home.component.html',
-    styles: [`
-    @keyframes slow-rotate {
-      from { transform: translate(-50%, -50%) rotate(0deg); }
-      to { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-    .animate-slow-rotate {
-      animation: slow-rotate 15s linear infinite;
-    }
-  `]
+    styleUrl: './home.component.css'
 })
 export class HomeComponent { }

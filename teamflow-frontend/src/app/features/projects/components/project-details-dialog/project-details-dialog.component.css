@@ -1,0 +1,20 @@
+:host ::ng-deep .project-details-tabs .mat-mdc-tab-header {
+      border-bottom: 1px solid #2E3035;
+      padding: 0 24px;
+    }
+    
+    :host ::ng-deep .project-details-tabs .mat-mdc-tab-label {
+      color: #8A8F98;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      min-width: 0;
+      padding: 0 16px;
+    }
+    
+    :host ::ng-deep .project-details-tabs .mat-mdc-tab-label-active {
+      color: white;
+    }
+    
+    :host ::ng-deep .project-details-tabs .mat-mdc-tab-indicator .mdc-tab-indicator__content--underline {
+      border-color: #5E6AD2; /* Brand color */
+    }

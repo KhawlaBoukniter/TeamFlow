@@ -1,0 +1,55 @@
+<div class="audit-panel shadow-2xl" [class.open]="isOpen">
+  <div class="audit-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="icon-wrapper">
+          <mat-icon class="header-icon text-brand">history</mat-icon>
+        </div>
+        <div class="header-text">
+          <h3 class="title">Project Audit Logs</h3>
+          <span class="subtitle">Activity History</span>
+        </div>
+      </div>
+      <button mat-icon-button (click)="toggle()" class="close-btn" matTooltip="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="audit-content custom-scrollbar">
+    <div *ngIf="loading && logs.length === 0" class="flex flex-col items-center justify-center h-40">
+       <div class="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin mb-3"></div>
+       <span class="text-xs text-[#8A8F98]">Loading activities...</span>
+    </div>
+
+    <div *ngIf="!loading && logs.length === 0" class="empty-state">
+      <mat-icon class="empty-icon">history_toggle_off</mat-icon>
+      <p>No activity yet</p>
+    </div>
+
+    <div class="log-list" *ngIf="logs.length > 0">
+      <div *ngFor="let log of logs" class="log-item group">
+        <div class="log-marker" [ngClass]="getMarkerClass(log.action)"></div>
+        <div class="log-details">
+          <div class="log-meta">
+            <span class="log-action">{{ log.action }}</span>
+            <span class="log-date">{{ log.createdAt | date:'MMM d, HH:mm' }}</span>
+          </div>
+          <p class="log-message">{{ log.details }}</p>
+          <div class="log-footer">
+            <span class="log-user">{{ log.userEmail }}</span>
+            <span class="dot">•</span>
+            <span class="log-entity">{{ log.entityType }} #{{ log.entityId }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="hasMore" class="load-more-container py-4 flex justify-center">
+        <button mat-button (click)="loadMore()" [disabled]="loading" class="load-more-btn">
+          <span *ngIf="!loading">Load More</span>
+          <div *ngIf="loading" class="w-4 h-4 border-2 border-brand border-t-transparent rounded-full animate-spin"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

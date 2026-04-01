@@ -11,72 +11,8 @@ import { debounceTime, distinctUntilChanged, Subject, switchMap, of } from 'rxjs
     selector: 'app-command-palette',
     standalone: true,
     imports: [CommonModule, FormsModule, MatIconModule],
-    template: `
-    <div class="command-palette-container bg-[#1C1C1E] border border-[#2E3035] rounded-xl shadow-2xl overflow-hidden w-[600px] max-w-[90vw]">
-      <!-- Search Input -->
-      <div class="flex items-center px-4 py-4 border-b border-[#2E3035]">
-        <mat-icon class="text-[#8A8F98] mr-3">search</mat-icon>
-        <input [(ngModel)]="query" 
-               (ngModelChange)="onQueryChange($event)"
-               placeholder="Search projects, tasks, or users..."
-               class="flex-1 bg-transparent border-none text-white text-lg focus:outline-none placeholder-[#8A8F98]"
-               #searchInput
-               autofocus>
-        <div class="px-2 py-1 rounded bg-[#25262B] text-[10px] text-[#8A8F98] font-mono">ESC</div>
-      </div>
-
-      <!-- Results Area -->
-      <div class="max-h-[400px] overflow-y-auto py-2">
-        <div *ngIf="loading" class="px-4 py-8 text-center text-[#8A8F98]">
-          <div class="animate-pulse">Searching...</div>
-        </div>
-
-        <div *ngIf="!loading && results.length === 0 && query.length >= 2" class="px-4 py-8 text-center text-[#8A8F98]">
-          No results found for "{{ query }}"
-        </div>
-
-        <div *ngIf="query.length < 2 && results.length === 0" class="px-4 py-8 text-center text-[#8A8F98]">
-           Type at least 2 characters to search...
-        </div>
-
-        <!-- Result Items -->
-        <div *ngFor="let result of results; let i = index" 
-             (click)="navigateTo(result)"
-             [class.bg-[#25262B]]="selectedIndex === i"
-             class="flex items-center px-4 py-3 cursor-pointer hover:bg-[#25262B] transition-colors group">
-          
-          <div [ngSwitch]="result.type" class="w-8 h-8 rounded-lg flex items-center justify-center mr-4 shrink-0 transition-transform group-hover:scale-110">
-            <mat-icon *ngSwitchCase="'PROJECT'" class="text-blue-400">dns</mat-icon>
-            <mat-icon *ngSwitchCase="'TASK'" class="text-emerald-400">task_alt</mat-icon>
-            <mat-icon *ngSwitchCase="'USER'" class="text-purple-400">person</mat-icon>
-          </div>
-
-          <div class="flex-1 min-w-0">
-            <div class="text-white text-sm font-medium truncate">{{ result.title }}</div>
-            <div class="text-[#8A8F98] text-[11px] truncate">{{ result.subtitle }}</div>
-          </div>
-
-          <mat-icon class="text-[#8A8F98] opacity-0 group-hover:opacity-100 transition-opacity !text-[16px]">arrow_forward</mat-icon>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div class="px-4 py-3 bg-[#121214] border-t border-[#2E3035] flex items-center gap-4 text-[10px] text-[#8A8F98]">
-        <div class="flex items-center gap-1">
-          <span class="px-1.5 py-0.5 rounded bg-[#25262B] font-mono">↑↓</span>
-          <span>to navigate</span>
-        </div>
-        <div class="flex items-center gap-1">
-          <span class="px-1.5 py-0.5 rounded bg-[#25262B] font-mono">↵</span>
-          <span>to open</span>
-        </div>
-      </div>
-    </div>
-  `,
-    styles: [`
-    :host { display: block; border-radius: 12px; }
-    input::placeholder { color: #8A8F98; }
-  `]
+    templateUrl: './command-palette.component.html',
+    styleUrl: './command-palette.component.css'
 })
 export class CommandPaletteComponent implements OnInit {
     query = '';
