@@ -45,6 +45,7 @@
     "@angular/compiler-cli": "^21.0.0",
     "@angular/material": "^21.1.1",
     "@types/jasmine": "^6.0.0",
+    "@types/sockjs-client": "^1.5.4",
     "autoprefixer": "^10.4.23",
     "jasmine-core": "^6.1.0",
     "jsdom": "^27.1.0",
