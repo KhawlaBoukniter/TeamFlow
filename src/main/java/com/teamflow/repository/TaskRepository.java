@@ -15,13 +15,10 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findByColumn_Project_IdAndDeletedAtIsNull(Long projectId);
 
-    Long countByColumn_Project_Id(Long projectId);
 
-    Long countByColumn_Project_IdAndColumn_Name(Long projectId, String columnName);
 
     @Query("SELECT t FROM Task t JOIN t.assignments a WHERE a.user.id = :userId AND t.deletedAt IS NULL ORDER BY t.dueDate ASC")
-    List<Task> findActiveTasksByUserId(
-            @org.springframework.data.repository.query.Param("userId") Long userId);
+    List<Task> findActiveTasksByUserId(@Param("userId") Long userId);
 
     @Query("SELECT DISTINCT t FROM Task t LEFT JOIN t.column c LEFT JOIN c.project p LEFT JOIN p.memberships m " +
             "WHERE t.deletedAt IS NULL AND " +

@@ -103,7 +103,6 @@ public class ProjectSecurity {
             if (isManager(projectId))
                 return true;
 
-            // Regular member must be an assignee
             return task.getAssignments().stream()
                     .anyMatch(a -> a.getUser().getId().equals(currentUser.getId()));
         }).orElse(false);
@@ -115,13 +114,6 @@ public class ProjectSecurity {
                 .orElse(false);
     }
 
-    public boolean isAssignee(Long taskId) {
-        User currentUser = SecurityUtils.getCurrentUser();
-        return taskRepository.findById(taskId)
-                .map(task -> task.getAssignments().stream()
-                        .anyMatch(a -> a.getUser().getId().equals(currentUser.getId())))
-                .orElse(false);
-    }
 
     public boolean canManageAttachments(Long taskId) {
         User currentUser = SecurityUtils.getCurrentUser();

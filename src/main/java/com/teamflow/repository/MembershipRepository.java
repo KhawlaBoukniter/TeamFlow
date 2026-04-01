@@ -10,7 +10,6 @@ import java.util.Optional;
 @Repository
 public interface MembershipRepository extends JpaRepository<Membership, Long> {
 
-    List<Membership> findByProjectId(Long projectId);
 
     List<Membership> findByProjectIdAndDeletedAtIsNull(Long projectId);
 
